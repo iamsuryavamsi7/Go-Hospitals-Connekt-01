@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    --tw-bg-opacity: 1; 
+    background-color: rgb(15 23 42/var(--tw-bg-opacity));
+    /* background-image: url('BackGround-03.jpg'); */
+    background-size: cover; /* Ensures the image covers the entire background */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    color: white;
+}
