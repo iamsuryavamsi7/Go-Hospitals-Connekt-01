@@ -1,0 +1,41 @@
+.loginPageImage{
+    background-image: url('/FrontDesk.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage2{
+    background-image: url('/Medical_Support.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage3{
+    background-image: url('/Telecaller_Login.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage4{
+    background-image: url('/Pharmacy_Login.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage5{
+    background-image: url('/OT_login.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage6{
+    background-image: url('/Diagnostics_Login.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.loginPageImage7{
+    background-image: url('/Transport_Login.webp');
+    background-size: cover;
+    background-repeat: no-repeat;
+}

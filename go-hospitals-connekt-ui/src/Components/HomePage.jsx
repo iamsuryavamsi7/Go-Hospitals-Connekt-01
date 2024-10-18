@@ -1,8 +1,11 @@
 import React from 'react'
 import '../Style/HomePage.css'
 import NavBar from './NavBar/NavBar'
+import { useNavigate } from 'react-router-dom'
 
 const HomePage = () => {
+
+    const navigate = useNavigate();
 
     return (
 
@@ -32,17 +35,20 @@ const HomePage = () => {
 
                 <div className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 mx-56 max-lg:mx-24 max-sm:mx-14 gap-x-5 gap-y-5 mt-10 text-center mb-10">
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/front-desk-login')}    
+                    >
 
                         <div className="">
 
                             <div className="text-[40px] max-lg:text-[30px]">
 
-                                Front Office
+                                Front Desk
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs">
+                            <div className="text-gray-400 max-sm:max-w-[200px] text-md max-lg:text-xs">
 
                                 Manage appointments and schedules 
 
@@ -52,7 +58,10 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/medical-support-login')}    
+                    >
 
                         <div className="">
 
@@ -62,7 +71,7 @@ const HomePage = () => {
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs">
+                            <div className="text-gray-400 max-sm:max-w-[200px] text-md max-lg:text-xs">
 
                                 From consultation to co-ordination 
 
@@ -72,7 +81,10 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/tele-support-login')}
+                    >
 
                         <div className="">
 
@@ -82,7 +94,7 @@ const HomePage = () => {
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px]">
+                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px] max-sm:max-w-[200px]">
 
                                  Bridging communication between doctor and patient
 
@@ -92,7 +104,10 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/pharmacy-care-login')}
+                    >
 
                         <div className="">
 
@@ -102,7 +117,7 @@ const HomePage = () => {
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px]">
+                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px] max-sm:max-w-[200px]">
 
                                 To ensure medications reach patients smoothly 
 
@@ -112,7 +127,10 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/ot-coordination-login')}
+                    >
 
                         <div className="">
 
@@ -122,7 +140,7 @@ const HomePage = () => {
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs">
+                            <div className="text-gray-400 text-md max-lg:text-xs max-sm:max-w-[200px]">
 
                                 Managing operation theatre 
 
@@ -132,17 +150,20 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/diagnostics-center-login')}    
+                    >
 
                         <div className="">
 
-                            <div className="text-[40px] max-lg:text-[30px]">
+                            <div className="text-[40px] max-lg:text-[30px] max-sm:max-w-[200px]">
 
                                 Diagnostics Center
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs">
+                            <div className="text-gray-400 text-md max-lg:text-xs max-sm:max-w-[200px]">
 
                                 Expertly manage diagnostic needs
 
@@ -152,7 +173,10 @@ const HomePage = () => {
 
                     </div>
 
-                    <div className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer">
+                    <div 
+                        className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
+                        onClick={() => navigate('/transport-team-login')}
+                    >
 
                         <div className="">
 
@@ -162,7 +186,7 @@ const HomePage = () => {
 
                             </div>
 
-                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px]">
+                            <div className="text-gray-400 text-md max-lg:text-xs max-w-[300px] max-sm:max-w-[200px]">
 
                                 Connecting departments with timely transport
 

@@ -1,10 +1,29 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import AppRouter from './AppRouter.jsx'
 import './index.css'
+import { BrowserRouter } from 'react-router-dom'
+import { getApp } from '../Utils/helpers';
+import GoWorkRouter from './GoWorkRouter';
+
+const App = () => {
+
+	const CurrentApp = getApp();
+
+	return (
+
+		<BrowserRouter>
+		
+			<CurrentApp />
+		
+		</BrowserRouter>
+
+	)
+
+}
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <AppRouter />
-  </StrictMode>,
+
+	<BrowserRouter>
+		<GoWorkRouter />
+	</BrowserRouter>
+
 )
