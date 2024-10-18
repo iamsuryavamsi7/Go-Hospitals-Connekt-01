@@ -4,7 +4,7 @@ import GoWorkRouter from "../src/GoWorkRouter";
 export const APPS = [
     {
 
-        subdomain: "staff",
+        subdomain: "work",
         app: GoWorkRouter,
         main: false
 

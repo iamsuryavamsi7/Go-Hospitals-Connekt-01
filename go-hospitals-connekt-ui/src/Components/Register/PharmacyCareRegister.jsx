@@ -4,13 +4,98 @@ import '../../Style/Login/FrontDesk.css'
 import { MdOutlineKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../../Style/HomePage.css'
+import axios from 'axios';
 
 const PharmacyCareRegister = () => {
 
+    // State's for temperory data storage
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
+
+    const role = 'PHARMACYCARE';
+
+    const [userData, setUserData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        conformPassword: '',
+        role: role
+    });
+
+// Functions
+
+    const handleError = (error) => {
+
+        if ( error.response ){
+
+            if ( error.response.status === 403 ){
+
+                console.log(error.response);
+
+            } else {
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
+
+    const handleInputChange = (e) => {
+
+        const value = e.target.value;
+
+        setUserData({...userData, [e.target.name]: value});
+
+    }
+
+    const handleSubmitFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( userData.password === userData.conformPassword ){
+
+            try{
+
+                const response = await axios.post('http://localhost:7777/api/v1/auth/register', userData);
+
+                if ( response.status === 200 ){
+
+                    alert("User Registered");
+
+                    setUserData({
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        password: '',
+                        conformPassword: '',
+                        role: role
+                    });
+
+                    navigate('/');
+
+                }
+
+            }catch(error){
+
+                handleError(error);
+
+                alert("Email already taken");
+
+            }
+
+        } else {
+
+            alert("Passwords Not Matched");
+
+        }
+
+    }
     
+// useEffect Hook
     useEffect(() => {
 
         setTimeout(() => {
@@ -52,7 +137,7 @@ const PharmacyCareRegister = () => {
 
                     </div>
 
-                    <div className="min-w-[500px] max-sm:min-w-full flex justify-center text-center mt-24 max-sm:mb-20">
+                    <div className="min-w-[500px] max-sm:min-w-full h-auto flex justify-center text-center mt-24 max-sm:mb-20">
 
                         <div className="">
 
@@ -77,43 +162,60 @@ const PharmacyCareRegister = () => {
 
                             <form
                                 className='text-left bg-[#151b23] border-[#3d444d] border-2 px-5 py-5 rounded-xl mb-5'
+                                onSubmit={(e) => handleSubmitFunction(e)}
                             >
 
                                 <label> First Name</label><br />
                                 <input 
                                     type='text'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='firstName'
+                                    value={userData.firstName}
+                                    onChange={(e) => handleInputChange(e)}
                                 /><br /><br />
 
                                 <label> Last Name</label><br />
                                 <input 
                                     type='text'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='lastName'
+                                    value={userData.lastName}
+                                    onChange={(e) => handleInputChange(e)}
                                 /><br /><br />
 
                                 <label> E-mail Address</label><br />
                                 <input 
                                     type='email'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='email'
+                                    value={userData.email}
+                                    onChange={(e) => handleInputChange(e)}
                                 /><br /><br />
 
                                 <label> Password</label><br />
                                 <input 
                                     type='password'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[0.5px] focus:outline-none focus:border-blue-600 focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='password'
+                                    value={userData.password}
+                                    onChange={(e) => handleInputChange(e)}
                                 /><br /><br />
 
                                 <label> Confirm Password</label><br />
                                 <input 
                                     type='password'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[0.5px] focus:outline-none focus:border-blue-600 focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='conformPassword'
+                                    value={userData.conformPassword}
+                                    onChange={(e) => handleInputChange(e)}
                                 /><br /><br />
 
                                 <button
                                     className='bg-[#238636] w-full rounded-lg leading-10 hover:cursor-pointer'
+                                    type='submit'
                                 >
 
-                                    Login
+                                    Register
 
                                 </button>
 

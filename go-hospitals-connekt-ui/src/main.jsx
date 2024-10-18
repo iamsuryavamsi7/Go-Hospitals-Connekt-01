@@ -26,4 +26,6 @@ createRoot(document.getElementById('root')).render(
 		<GoWorkRouter />
 	</BrowserRouter>
 
+	// <App />
+
 )
