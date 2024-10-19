@@ -4,12 +4,88 @@ import '../../Style/Login/FrontDesk.css'
 import { MdOutlineKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../../Style/HomePage.css'
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const MedicalSupport = () => {
 
+// Use Navigation Hook
+const navigate = useNavigate();
+
+// State Management
     const [loading, setLoading] = useState(true);
 
-    const navigate = useNavigate();
+    const [loginData, setLoginData] = useState({
+        email: '',
+        password: ''
+    });
+
+// Functions
+    const handleError = (error) => {
+
+        if ( error.response ){
+    
+            if ( error.response.status === 403 ){
+    
+                console.log(error.response);
+    
+            } else {
+    
+                console.error(error);
+    
+            }
+    
+        }
+    
+    }
+
+    const handleLoginFormData = (e) => {
+
+        const value = e.target.value;
+
+        setLoginData({...loginData, [e.target.name]: value});
+
+    }
+
+    const formSubmitFunction = async (e) => {
+
+        e.preventDefault();
+
+        console.log("Button Clicked");
+
+        try{
+
+            const response = await axios.post('http://localhost:7777/api/v1/auth/authenticate-medical-support', loginData);
+
+            if ( response.status === 200 ){
+
+                const access_token = response.data.access_token;
+
+                Cookies.remove('access_token')
+
+                Cookies.set('access_token', access_token, {
+                    path: '/',
+                    domain: '.gohospitals.in', 
+                    expires: 1,
+                    secure: false, // Set to true if using HTTPS
+                    sameSite: 'Lax' // Allows sharing across subdomains
+                });
+
+                navigate('/user-profile');
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+            alert("Invalid Credentials")
+
+            Cookies.remove('access_token');
+
+        }
+
+    }
     
     useEffect(() => {
 
@@ -77,12 +153,16 @@ const MedicalSupport = () => {
 
                             <form
                                 className='text-left bg-[#151b23] border-[#3d444d] border-2 px-5 py-5 rounded-xl mb-5'
+                                onSubmit={(e) => formSubmitFunction(e)}
                             >
 
                                 <label> E-mail Address</label><br />
                                 <input 
                                     type='email'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='email'
+                                    value={loginData.email}
+                                    onChange={(e) => handleLoginFormData(e)}
                                 /><br /><br />
 
                                 <div className="flex justify-between">
@@ -100,10 +180,14 @@ const MedicalSupport = () => {
                                 <input 
                                     type='password'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[0.5px] focus:outline-none focus:border-blue-600 focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='password'
+                                    value={loginData.password}
+                                    onChange={(e) => handleLoginFormData(e)}
                                 /><br /><br />
 
                                 <button
                                     className='bg-[#238636] w-full rounded-lg leading-10 hover:cursor-pointer'
+                                    type='submit'
                                 >
 
                                     Login
@@ -117,6 +201,7 @@ const MedicalSupport = () => {
                             >
 
                                 New to Go Work? 
+                                
                                 <span 
                                     className='text-blue-500 ml-2 hover:cursor-pointer'
                                     onClick={() => navigate('/medical-support-register')}
