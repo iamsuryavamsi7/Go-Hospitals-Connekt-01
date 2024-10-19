@@ -185,8 +185,7 @@ const DiagnosticsCenter = () => {
                                 /><br /><br />
 
                                 <button
-                                    className='bg-[#238636] w-full rounded-lg leading-10 hover:cursor-pointer'
-                                    type='submit'
+                                    className='bg-[#238636] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                 >
 
                                     Login

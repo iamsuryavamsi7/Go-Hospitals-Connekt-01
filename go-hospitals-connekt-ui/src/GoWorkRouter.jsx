@@ -16,6 +16,7 @@ import OtCoordinationRegister from './Components/Register/OtCoordinationRegister
 import DiagnosticsCenterRegister from './Components/Register/DiagnosticsCenterRegister'
 import TransportTeamRegister from './Components/Register/TransportTeamRegister'
 import UserPage from './Components/Secured/UserPage'
+import ConsulationQueue from './Components/Secured/ConsulationQueue'
 
 function GoWorkRouter() {
 
@@ -44,6 +45,7 @@ function GoWorkRouter() {
 					<Route path='/transport-team-register' element={<TransportTeamRegister />} />
 
 					<Route path='/user-profile' element={<UserPage />} />
+					<Route path='/consultation-queue' element={<ConsulationQueue />}/>
 
 				</Routes>
 			

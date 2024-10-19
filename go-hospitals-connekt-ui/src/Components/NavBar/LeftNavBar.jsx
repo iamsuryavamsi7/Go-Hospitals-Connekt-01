@@ -197,7 +197,10 @@ const LeftNavBar = () => {
 
                         </div>
 
-                        <div className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}>
+                        <div 
+                            className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/consultation-queue')}
+                        >
 
                             <div className="">
 
@@ -209,7 +212,7 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                Pending Consultations
+                                Consultations Queue
 
                             </div>
 

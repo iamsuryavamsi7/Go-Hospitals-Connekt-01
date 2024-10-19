@@ -13,7 +13,7 @@ const DateTimePicker = () => {
     const isoDate = date.toISOString().split('T')[0]; // Extracts only the date part
     console.log("Selected Date in ISO format:", isoDate);
 
-    // Now you can send `isoDate` to your backend
+    // Now you can send `isoDate` to y2024-10-20our backend
     // Example of sending to backend:
     // fetch('/your-backend-endpoint', {
     //   method: 'POST',

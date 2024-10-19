@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../Style/NavBarUser.css';
 import { HiOutlineLogout } from 'react-icons/hi';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
-const NavBarUser = ({userObject}) => {
+const NavBarUser = () => {
 
 // Jwt Token
     const access_token = Cookies.get('access_token');
+
+    const [userObject, setUserObject] = useState(null);
 
 // useNavigate Hook
     const navigate = useNavigate();
@@ -21,12 +23,42 @@ const NavBarUser = ({userObject}) => {
             if ( error.response.status === 403 ){
 
                 console.log(error.response);
-
+ 
             } else {
 
                 console.error(error);
 
             }
+
+        }
+
+    }
+
+    const fetchUserObject = async () => {
+
+        const formData = new FormData();
+
+        formData.append("jwtToken", access_token);
+
+        try{
+
+            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const userObject = response.data;
+
+                setUserObject(userObject);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
 
         }
 
@@ -58,6 +90,20 @@ const NavBarUser = ({userObject}) => {
 
     }
 
+    useEffect(() => {
+
+        if ( access_token ){
+
+            fetchUserObject();
+
+        } else {
+
+            console.log("Jwt Token is not avaiable");
+
+        }
+
+    }, [access_token]);
+
     return (
 
         <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0">
@@ -86,7 +132,7 @@ const NavBarUser = ({userObject}) => {
 
                 <div className="border-x-[1px] border-gray-800 px-3">
 
-                    {userObject.firstName}
+                {userObject ? userObject.firstName : 'Loading...'}
 
                 </div>
 
