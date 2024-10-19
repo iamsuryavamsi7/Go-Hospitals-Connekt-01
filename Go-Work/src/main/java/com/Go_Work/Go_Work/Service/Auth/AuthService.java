@@ -108,7 +108,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.FRONTDESK ){
+        if ( fetchedUser.isUnLocked() && (fetchedUser.getRole() == Role.FRONTDESK || fetchedUser.getRole() == Role.ADMIN )){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -141,7 +141,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.MEDICALSUPPORT ){
+        if ( fetchedUser.isUnLocked() && (fetchedUser.getRole() == Role.MEDICALSUPPORT || fetchedUser.getRole() == Role.ADMIN ) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -174,7 +174,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.TELESUPPORT ){
+        if ( fetchedUser.isUnLocked() && ( fetchedUser.getRole() == Role.TELESUPPORT || fetchedUser.getRole() == Role.ADMIN) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -207,7 +207,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.PHARMACYCARE ){
+        if ( fetchedUser.isUnLocked() && ( fetchedUser.getRole() == Role.PHARMACYCARE || fetchedUser.getRole() == Role.ADMIN ) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -240,7 +240,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.OTCOORDINATION ){
+        if ( fetchedUser.isUnLocked() && ( fetchedUser.getRole() == Role.OTCOORDINATION || fetchedUser.getRole() == Role.ADMIN ) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -273,7 +273,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.DIAGNOSTICSCENTER ){
+        if ( fetchedUser.isUnLocked() && ( fetchedUser.getRole() == Role.DIAGNOSTICSCENTER || fetchedUser.getRole() == Role.ADMIN ) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -306,7 +306,7 @@ public class AuthService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        if ( fetchedUser.isUnLocked() && fetchedUser.getRole() == Role.TRANSPORTTEAM ){
+        if ( fetchedUser.isUnLocked() && ( fetchedUser.getRole() == Role.TRANSPORTTEAM || fetchedUser.getRole() == Role.ADMIN ) ){
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

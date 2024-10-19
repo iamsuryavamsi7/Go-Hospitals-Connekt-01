@@ -9,4 +9,9 @@ body {
     background-size: cover; /* Ensures the image covers the entire background */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     color: white;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
 }
+
