@@ -5,6 +5,7 @@ import NavBarUser from '../NavBar/NavBarUser';
 import LeftNavBar from '../NavBar/LeftNavBar';
 import { IoRefreshCircleOutline } from 'react-icons/io5';
 import { FiRefreshCw } from 'react-icons/fi';
+import DateTimePicker from './Date/DateTimePicker';
 
 const UserPage = () => {
 
@@ -357,9 +358,70 @@ const UserPage = () => {
 
                 <LeftNavBar />
 
-                <div className=" pt-16 pl-[457px]">
+                <div className=" pt-16 pl-[457px] flex justify-around ">
 
-                    Hi
+                    <div className="">
+
+                        <form>
+
+                            <label>Name</label><br />
+                            <input 
+                                type='text'
+                            /> <br /><br />
+
+                            <label>age</label><br />
+                            <input 
+                                type='number'
+                            /> <br /><br />
+
+                            <label>contact</label><br />
+                            <input 
+                                type='number'
+                            />  <br /><br />
+
+                            <label>address</label><br />
+                            <input 
+                                type='text'
+                            />  <br /><br />
+
+                            <label>gender</label><br />
+                            <select>
+
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+
+                            </select><br /><br />  
+
+                            <label>medical history</label><br />
+                            <input 
+                                type='text'
+                            />  <br /><br />
+
+                            <label>reason for visit</label><br />
+                            <input 
+                                type='text'
+                            />  <br /><br />  
+
+                            <label>appointment</label><br />
+                            <input 
+                                type='text'
+                            />  <br /><br />         
+
+                            <label>preferred doctor</label><br />
+                            <input 
+                                type='text'
+                            />  <br /><br />            
+
+                        </form>
+
+                    </div>
+
+                    <div className="mr-56">
+
+                        <DateTimePicker />
+
+                    </div>
 
                 </div>
 
