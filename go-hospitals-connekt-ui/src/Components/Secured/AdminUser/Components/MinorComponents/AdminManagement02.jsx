@@ -174,7 +174,7 @@ const AdminManagement02 = () => {
 
                 if ( response.status === 200 ){
 
-                    const doctorData = response.data;
+                    const doctorData = response.data; 
 
                     console.log(doctorData);
 

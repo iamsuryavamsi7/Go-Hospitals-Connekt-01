@@ -57,50 +57,17 @@ const ConsulationQueueFrontDesk = () => {
             });
     
             if (response.status === 200) {
+                
                 const appointmentsData = response.data;
+                
+                setInCompleteAppointments(appointmentsData);
 
-                // Step 1: Filter the data (optional, if needed for specific filtering)
-                const filteredAppointments = appointmentsData.filter(appointment => {
-                    return true; // No filtering, return all appointments
-                });
-    
-                // Step 2: Convert appointmentOn (date and time string) to Date object and sort by date and time in ascending order
-                const sortedAppointments = filteredAppointments.sort((a, b) => {
-                    const dateA = new Date(a.appointmentOn); // Convert string to Date object
-                    const dateB = new Date(b.appointmentOn); // Convert string to Date object
-    
-                    // Compare the dates for sorting
-                    return dateA - dateB;
-                });
-    
-                // Step 3: Format the appointmentOn field to 'dd/mm/yyyy hh:mm AM/PM' for each appointment
-                const formattedAppointments = sortedAppointments.map(appointment => ({
-                    ...appointment,
-                    appointmentOn: formatAppointmentDate(appointment.appointmentOn) // Format date and time here
-                }));
-    
-                // Step 4: Update the state with sorted and formatted data
-                setInCompleteAppointments(formattedAppointments);
+                console.log(appointmentsData);
     
             }
         } catch (error) {
             handleError(error);
         }
-    };
-    
-    
-    const formatAppointmentDate = (dateString) => {
-        const dateObj = new Date(dateString); // Convert the string to a Date object
-    
-        // Format date as 'dd/mm/yyyy'
-        const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        const formattedDate = dateObj.toLocaleDateString('en-GB', dateOptions);
-    
-        // Format time as 'hh:mm AM/PM'
-        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-        const formattedTime = dateObj.toLocaleTimeString('en-US', timeOptions);
-    
-        return `${formattedDate} ${formattedTime}`; // Combine date and time
     };
     
     const fetchUserObject = async () => {
@@ -214,92 +181,10 @@ const ConsulationQueueFrontDesk = () => {
 
                                                 <th>{appointment.name}</th>
                                                 <th>{appointment.preferredDoctorName}</th>
-                                                <th>{appointment.appointmentOn}</th>
+                                                <th>{appointment.billNo}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
                                                     onClick={(id) => navigate(`/front-desk-consultation-queue/${appointment.id}`)}
-                                                >View Full Profile</th>
-
-                                            </tr>
-
-                                        ))}
-
-                                    </tbody>
-
-                                )}
-
-                            </table>
-
-                        </div>
-
-                    </div>
-
-                </>
-
-            )}
-
-            {role === roles.medicalSupport && (
-
-                <>
-
-                    <div className="">
-
-                        <div className="mx-10 mr-56">
-
-                            <table
-                                className='w-full'
-                            >
-
-                                <thead>
-
-                                    <tr
-                                        className='text-left leading-10'
-                                    >
-
-                                        <th>S.No</th>
-                                        <th>Patient Name</th>
-                                        <th>Doctors Name</th>
-                                        <th>Consultation Date</th>
-
-                                    </tr>
-
-                                </thead>
-
-                                {inCompleteAppointments && inCompleteAppointments === 0 ? (
-
-                                    <tbody>
-
-                                    <tr
-                                        className='text-left'
-                                    >
-
-                                        <th>No Data</th>
-                                        <th>No Data</th>
-                                        <th>No Data</th>
-                                        <th>No Data</th>
-
-                                    </tr>
-
-                                    </tbody>
-
-                                ) : (
-
-                                    <tbody>
-
-                                        {inCompleteAppointments.map((appointment, index) => (
-
-                                            <tr
-                                                key={appointment.id}
-                                                className='text-left text-gray-500 leading-10 text-base'
-                                            >
-
-                                                <th>{index + 1}</th>
-                                                <th>{appointment.name}</th>
-                                                <th>{appointment.preferredDoctorName}</th>
-                                                <th>{appointment.appointmentOn}</th>
-                                                <th
-                                                    className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/consultation-queue/${appointment.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>

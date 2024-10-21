@@ -29,6 +29,7 @@ public class Appointments {
     private String medicalHistory;
     private String reasonForVisit;
     private String preferredDoctorName;
+    private String billNo;
     private Date appointmentCreatedOn;
     private boolean appointmentFinished;
     private String bookedBy;

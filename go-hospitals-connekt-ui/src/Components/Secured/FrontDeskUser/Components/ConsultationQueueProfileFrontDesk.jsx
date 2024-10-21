@@ -293,13 +293,13 @@ const ConsultationQueueProfileFrontDesk = () => {
 
                             <div className="text-base text-gray-300">
 
-                                Appointment On
+                                Bill No
 
                             </div>
 
                             <div className="text-lg">
                                 
-                                {patientData.appointmentOn}
+                                {patientData.billNo}
 
                             </div>
 

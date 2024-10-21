@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { IoPersonAddSharp } from 'react-icons/io5';
+import { IoPeopleCircleOutline, IoPersonAddSharp } from 'react-icons/io5';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdManageAccounts } from 'react-icons/md';
+import { FaPeopleArrows } from 'react-icons/fa';
 
 const LeftNavBar = () => {
 
@@ -285,8 +286,8 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                <IoPersonAddSharp 
-                                    className={`${pendingConsultations2} text-2xl  leading-8 p-1 rounded-md`}
+                                <IoPeopleCircleOutline 
+                                    className={`${pendingConsultations2} text-2xl  leading-8 p-[1px] rounded-md`}
                                 />
 
                             </div>

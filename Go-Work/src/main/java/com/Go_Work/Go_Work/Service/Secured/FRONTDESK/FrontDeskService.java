@@ -1,12 +1,13 @@
 package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.Appointments;
+import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
+import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Repo.AppointmentsRepo;
-import com.Go_Work.Go_Work.Repo.DoctorRepo;
+import com.Go_Work.Go_Work.Repo.DepartmentRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -19,7 +20,7 @@ public class FrontDeskService {
 
     private final AppointmentsRepo appointmentsRepo;
 
-    private final DoctorRepo doctorRepo;
+    private final DepartmentRepo departmentRepo;
 
     public String bookAppointment(Appointments appointments) {
 
@@ -47,6 +48,42 @@ public class FrontDeskService {
 
         return appointmentsRepo.findById(id).orElseThrow(
                 () -> new AppointmentNotFoundException("Id Not Found")
+        );
+
+    }
+
+    public List<Department> getDepartments() {
+
+        return departmentRepo.findAll();
+
+    }
+
+    public List<Doctor> fetchDoctorsByDepartmentId(Long departmentId) throws DepartmentNotFoundException {
+
+        Department fetchedDepartment = departmentRepo.findById(departmentId).orElseThrow(
+                () -> new DepartmentNotFoundException("Department Not Found Exception")
+        );
+
+        return fetchedDepartment.getDoctor()
+                .stream()
+                .map(doctor -> {
+
+                    Doctor doctor1 = new Doctor();
+
+                    doctor1.setId(doctor.getId());
+                    doctor1.setDoctorName(doctor.getDoctorName());
+
+                    return doctor1;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public Department getDepartmentById(Long departmentId) throws DepartmentNotFoundException {
+
+        return departmentRepo.findById(departmentId).orElseThrow(
+                () -> new DepartmentNotFoundException("Department Not Found")
         );
 
     }

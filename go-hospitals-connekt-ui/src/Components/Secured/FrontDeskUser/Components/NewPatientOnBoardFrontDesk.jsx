@@ -15,6 +15,10 @@ const NewPatientOnBoardFrontDesk = () => {
 
     const [userObject, setUserObject] = useState('');
 
+    const [departmentsData, setDepartmentsData] = useState([]);
+
+    const [doctorData, setDoctorData] = useState([]);
+
     const roles = {
         frontDesk: 'FRONTDESK',
     }
@@ -77,14 +81,13 @@ const NewPatientOnBoardFrontDesk = () => {
         age: '',
         contact: '',
         address: '',
+        gender: '',
         medicalHistory: '',
         reason: '',
         preferredDoctor: '',
-        bookedBy: bookedByName
+        billNo: ''
     });
 
-    const [gender, setGender] = useState(null);
-    
     const handlePatientFunction = (e) => {
 
         const value = e.target.value;
@@ -93,15 +96,11 @@ const NewPatientOnBoardFrontDesk = () => {
 
     }
 
-    const [doctorName, setDoctorName] = useState();
-
     const bookAnAppointment = async (e) => {
 
         e.preventDefault();
 
-        const appointmentObject = selectedAppointment.date + " " + selectedAppointment.time;
-
-        console.log(bookedByName); 
+        console.log(patientOnBoardData);
 
         try{
 
@@ -110,10 +109,10 @@ const NewPatientOnBoardFrontDesk = () => {
                 age: patientOnBoardData.age,
                 contact: patientOnBoardData.contact,
                 address: patientOnBoardData.address,
-                gender: gender,
+                gender: patientOnBoardData.gender,
                 medicalHistory: patientOnBoardData.medicalHistory,
                 reasonForVisit: patientOnBoardData.reason,
-                appointmentOn: appointmentObject,
+                billNo: patientOnBoardData.billNo,
                 preferredDoctorName: patientOnBoardData.preferredDoctor,
                 bookedBy: bookedByName
             }, {
@@ -124,7 +123,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
             if ( response.status === 200 ){
 
-                alert("User saved");
+                alert("Appointment Booked");
 
                 window.location.reload();
 
@@ -138,11 +137,104 @@ const NewPatientOnBoardFrontDesk = () => {
 
     }
 
+    const fetchDepartments = async () => {
+
+        try{
+
+            const response = await axios.get('http://localhost:7777/api/v1/appointments/getDepartments', {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const departmentData = response.data;
+
+                setDepartmentsData(departmentData);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+        }
+
+    }
+
+    const handleDepartmentChange = (e) => {
+
+        const departmentId = e.target.value;
+
+        const fetchDepartment = async () => {
+
+            try{
+
+                const response = await axios.get('http://localhost:7777/api/v1/appointments/getDepartmentById/' + departmentId, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+
+                if ( response.status === 200 ){
+
+                    const departmentData = response.data.departmentName
+
+                    setPatientOnBoardData(
+                        {...patientOnBoardData, reason: departmentData}
+                    )
+
+                }
+
+            }catch(error){
+
+                handleError(error);
+
+            }
+
+        }
+
+        fetchDepartment();
+
+        const fetchDoctors = async () => {
+
+            try{
+
+                const response = await axios.get('http://localhost:7777/api/v1/appointments/fetchDoctorsByDepartmentId/' + departmentId, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+
+                if ( response.status === 200 ){
+
+                    const doctorsData = response.data;
+
+                    setDoctorData(doctorsData);
+
+                }
+
+            }catch(error){
+
+                handleError(error);
+
+            }
+
+        }
+
+        fetchDoctors();
+
+    }
+
+
     useEffect(() => {
 
         if ( access_token ){
 
             fetchUserObject();
+
+            fetchDepartments();
 
         } else {
 
@@ -156,32 +248,6 @@ const NewPatientOnBoardFrontDesk = () => {
 
         <>
 
-            <style>{`
-                /* Custom styles for the DatePicker */
-                .react-datepicker {
-                    width: 100%; /* Full width */
-                    border: 1px solid #d1d5db; /* Tailwind gray-300 */
-                    border-radius: 0.5rem; /* Tailwind rounded-lg */
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Tailwind shadow-md */
-                }
-                .react-datepicker__header {
-                    background-color: #3b82f6; /* Tailwind blue-500 */
-                    color: white;
-                }
-                .react-datepicker__day {
-                    color: #374151; /* Tailwind gray-800 */
-                }
-                .react-datepicker__day--today {
-                    background-color: #93c5fd; /* Tailwind blue-300 */
-                }
-                .react-datepicker__day:hover {
-                    background-color: #dbeafe; /* Tailwind blue-200 */
-                }
-                .react-datepicker__triangle {
-                    display: none; /* Optional: hide the triangle if you don't want it */
-                }
-            `}</style>
-
             {role === roles.frontDesk && (
 
             <>
@@ -190,6 +256,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
                     <form
                         className='mx-20'
+                        onSubmit={bookAnAppointment}
                     >
 
                         <div className="grid grid-cols-2 gap-x-10 gap-y-7">
@@ -257,7 +324,9 @@ const NewPatientOnBoardFrontDesk = () => {
                                         className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg h-[35px] px-3 w-[300px] max-sm:w-full mt-2'
                                         onChange={(e) => {
 
-                                            setGender(e.target.value);
+                                            const value = e.target.value;
+
+                                            setPatientOnBoardData({...patientOnBoardData, gender: value});
 
                                         }}
                                 >
@@ -290,31 +359,18 @@ const NewPatientOnBoardFrontDesk = () => {
                                 <label>Reason for visit <span className='text-red-400'>*</span></label><br />
                                 <select
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg h-[35px] px-3 w-[300px] max-sm:w-full mt-2'
-                                        onChange={(e) => {
-
-                                            const value = e.target.value;
-
-                                            if ( value === 'Go Vascular' ){
-
-                                                setDoctorName("Suvarna");
-
-                                            } else if ( value === 'Go Hospital'){
-
-                                                setDoctorName("Suresh");
-
-                                            } else if ( value === 'Hypro Diagnostics'){
-
-                                                setDoctorName("Sravan");
-
-                                            }
-
-                                        }}
+                                        onChange={(e) => handleDepartmentChange(e)}
                                 >
 
                                     <option>Select Reason</option>
-                                    <option>Go Vascular</option>
-                                    <option>Go Hospital</option>
-                                    <option>Hypro Diagnostics</option>
+                                    {departmentsData.map((department, index) => (
+
+                                        <option 
+                                            key={index}
+                                            value={department.id}
+                                        >{department.departmentName}</option>
+
+                                    ))}
 
                                 </select>                                
 
@@ -322,12 +378,46 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             <div className="">
 
-                                <label>Preferred Doctor</label><br />
-                                <div 
+                                <label>Preferred Doctor <span className='text-red-400'>*</span></label><br />
+                               
+                                <select
+                                    className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg h-[35px] px-3 w-[300px] max-sm:w-full mt-2'
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setPatientOnBoardData(
+                                                {...patientOnBoardData, preferredDoctor: value}
+                                            )
+
+                                        }}
+                                >
+
+                                    <option>Select Reason</option>
+                                    {doctorData.map((doctor, index) => (
+
+                                        <option 
+                                            key={index}
+                                            value={doctor.doctorName}
+                                        >{doctor.doctorName}</option>
+
+                                    ))}
+
+                                </select>   
+
+                            </div>
+
+                            <div className="">
+
+                                <label>Bill No <span className='text-red-400'>*</span></label><br />
+                                <input 
+                                    required
                                     type='text'
-                                    className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600 h-[35px] focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
-                                    name='preferredDoctor'
-                                >{doctorName}</div> 
+                                    className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    value={patientOnBoardData.billNo}
+                                    name='billNo'
+                                    onChange={(e) => handlePatientFunction(e)}
+                                />  
 
                             </div>
 
@@ -337,7 +427,6 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             <button
                             className='bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 mt-7'
-                            onClick={bookAnAppointment}
                         > Book an appointment </button>
 
                         </div>
