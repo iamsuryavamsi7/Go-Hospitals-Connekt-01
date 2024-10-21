@@ -11,7 +11,7 @@ const AdminPageLayout = () => {
         
             <NavBarUser />
             <LeftNavBar />
-            <div className="pt-16 pl-[457px] mt-10 mr-16">
+            <div className="pt-16 pl-[457px] mt-10 mr-56">
                 <Outlet /> {/* This is where the child components (like ConsultationQueue) will be rendered */}
             </div>
         

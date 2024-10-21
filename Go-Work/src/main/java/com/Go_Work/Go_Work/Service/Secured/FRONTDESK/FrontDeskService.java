@@ -51,30 +51,6 @@ public class FrontDeskService {
 
     }
 
-    public List<Doctor> fetchDoctors() {
-
-        return doctorRepo.findAll();
-
-    }
-
-    public List<Doctor> fetchDoctorByDepartment(String departmentName) {
-
-        return doctorRepo.findAll()
-                .stream()
-                .filter(doctor -> doctor.getDoctorDepartment().equals(departmentName) )
-                .map(newDoctor -> {
-
-                    Doctor doctor1 = new Doctor();
-
-                    BeanUtils.copyProperties(newDoctor, doctor1);
-
-                    return doctor1;
-
-                })
-                .collect(Collectors.toList());
-
-    }
-
 }
 
 

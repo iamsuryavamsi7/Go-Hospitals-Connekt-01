@@ -17,16 +17,7 @@ const access_token = Cookies.get('access_token');
 
     const [refreshButtonStyle, setRefreshButtonStyle] = useState(null);
 
-    const roles = {
-        admin: 'ADMIN',
-        frontDesk: 'FRONTDESK',
-        medicalSupport: 'MEDICALSUPPORT',
-        teleSupport: 'TELESUPPORT',
-        pharmacyCare: 'PHARMACYCARE',
-        otCoordination: 'OTCOORDINATION',
-        diagnosticsCenter: 'DIAGNOSTICSCENTER',
-        transportTeam: 'TRANSPORTTEAM'
-    }
+    const admin = 'ADMIN';
 
 // Functions
     const handleError = (error) => {
@@ -183,7 +174,7 @@ const access_token = Cookies.get('access_token');
 
         if ( access_token ){
 
-            fetchUserObject();
+            fetchUserObject(); 
 
             lockedUsersFunction();  
 
@@ -199,9 +190,11 @@ const access_token = Cookies.get('access_token');
 
         <>
 
-            <div className="">
+            {role === admin && (
 
-                <div className="mr-56 mt-10 flex relative">
+                <div className="">
+
+                <div className="mt-10 flex relative">
 
                     <FiRefreshCw 
                         className={`text-xl opacity-60 absolute right-36 top-[-20px] cursor-pointer ${refreshButtonStyle}`}
@@ -326,7 +319,9 @@ const access_token = Cookies.get('access_token');
 
                 </div>
 
-            </div>
+                </div>
+
+            )}
 
         </>
 

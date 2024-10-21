@@ -48,24 +48,4 @@ public class FrontDeskController {
 
     }
 
-    @GetMapping("/fetchDoctors")
-    public ResponseEntity<List<Doctor>> fetchDoctors(){
-
-        List<Doctor> fetchedDoctors = frontDeskService.fetchDoctors();
-
-        return ResponseEntity.ok(fetchedDoctors);
-
-    }
-
-    @PostMapping("/fetchDoctorByDepartment")
-    public ResponseEntity<List<Doctor>> fetchDoctorByDepartment(
-            @RequestParam("departmentName") String departmentName
-    ){
-
-        List<Doctor> fetchedDoctors = frontDeskService.fetchDoctorByDepartment(departmentName);
-
-        return ResponseEntity.ok(fetchedDoctors);
-
-    }
-
 }

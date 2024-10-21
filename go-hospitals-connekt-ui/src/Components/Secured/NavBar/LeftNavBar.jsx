@@ -3,6 +3,7 @@ import { IoPersonAddSharp } from 'react-icons/io5';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { MdManageAccounts } from 'react-icons/md';
 
 const LeftNavBar = () => {
 
@@ -47,6 +48,10 @@ const LeftNavBar = () => {
     const [followUpPatients, setFollowUpPatients] = useState(`text-gray-400`);
 
     const [followUpPatients2, setFollowUpPatients2] = useState(`text-gray-400`);
+
+    const [adminmanagement1, setAdminmanagement1] = useState(`text-gray-400`);
+
+    const [adminmanagement2, setAdminmanagement2] = useState(`text-gray-400`);
 
     const pathName = window.location.pathname;
 
@@ -128,6 +133,20 @@ const LeftNavBar = () => {
 
         }
 
+        if ( pathName === '/admin-management'){
+
+            setAdminmanagement1(`text-sky-500`)
+
+            setAdminmanagement2(`bg-sky-500 text-white`)
+
+        } else {
+
+            setAdminmanagement1(`text-gray-400`)
+
+            setAdminmanagement2(`text-gray-400`)
+
+        }
+
         // FRONTDESK LEFTNAVBAR
         if (pathName === '/front-desk-new-patient-on-board') {
 
@@ -200,6 +219,27 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 New Approvals
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${adminmanagement1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/admin-management')}
+                        >
+
+                            <div className="">
+
+                                <MdManageAccounts 
+                                    className={`${adminmanagement2} text-[28px]  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Management
 
                             </div>
 

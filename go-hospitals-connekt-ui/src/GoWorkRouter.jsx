@@ -24,6 +24,7 @@ import ConsultationQueueProfileFrontDesk from './Components/Secured/FrontDeskUse
 import FrontDeskLayout from './Components/Secured/FrontDeskUser/FrontDeskLayout'
 import AdminPageLayout from './Components/Secured/AdminUser/AdminPageLayout'
 import MedicalSupportLayout from './Components/Secured/MedicalSupportUser/MedicalSupportLayout'
+import AdminManagement from './Components/Secured/AdminUser/Components/AdminManagement'
 
 function GoWorkRouter() {
 
@@ -54,6 +55,7 @@ function GoWorkRouter() {
 					{/* ADMIN ROUTING */}
 					<Route element={<AdminPageLayout />}>
 						<Route path='/admin-new-approvals' element={<NewApprovals />}/>
+						<Route path='/admin-management' element={<AdminManagement />}/>
 					</Route>
 
 					{/* FRONTDESK ROUTING */}
