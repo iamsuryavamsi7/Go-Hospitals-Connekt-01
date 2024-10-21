@@ -15,8 +15,15 @@ import PharmacyCareRegister from './Components/Register/PharmacyCareRegister'
 import OtCoordinationRegister from './Components/Register/OtCoordinationRegister'
 import DiagnosticsCenterRegister from './Components/Register/DiagnosticsCenterRegister'
 import TransportTeamRegister from './Components/Register/TransportTeamRegister'
-import UserPage from './Components/Secured/UserPage'
-import ConsulationQueue from './Components/Secured/ConsulationQueue'
+import NewPatientOnBoardFrontDesk from './Components/Secured/FrontDeskUser/Components/NewPatientOnBoardFrontDesk'
+import ConsulationQueueFrontDesk from './Components/Secured/FrontDeskUser/Components/ConsulationQueueFrontDesk'
+import NewApprovals from './Components/Secured/AdminUser/Components/NewApprovals'
+import ConsultationQueueProfileMedicalSupport from './Components/Secured/MedicalSupportUser/Components/ConsultationQueueProfileMedicalSupport'
+import ConsultationQueueMedicalSupport from './Components/Secured/MedicalSupportUser/Components/ConsultationQueueMedicalSupport'
+import ConsultationQueueProfileFrontDesk from './Components/Secured/FrontDeskUser/Components/ConsultationQueueProfileFrontDesk'
+import FrontDeskLayout from './Components/Secured/FrontDeskUser/FrontDeskLayout'
+import AdminPageLayout from './Components/Secured/AdminUser/AdminPageLayout'
+import MedicalSupportLayout from './Components/Secured/MedicalSupportUser/MedicalSupportLayout'
 
 function GoWorkRouter() {
 
@@ -44,8 +51,23 @@ function GoWorkRouter() {
 					<Route path='/diagnostics-center-register' element={<DiagnosticsCenterRegister />} />
 					<Route path='/transport-team-register' element={<TransportTeamRegister />} />
 
-					<Route path='/user-profile' element={<UserPage />} />
-					<Route path='/consultation-queue' element={<ConsulationQueue />}/>
+					{/* ADMIN ROUTING */}
+					<Route element={<AdminPageLayout />}>
+						<Route path='/admin-new-approvals' element={<NewApprovals />}/>
+					</Route>
+
+					{/* FRONTDESK ROUTING */}
+					<Route element={<FrontDeskLayout />}>
+						<Route path="/front-desk-new-patient-on-board" element={<NewPatientOnBoardFrontDesk />} />
+						<Route path="/front-desk-consultation-queue" element={<ConsulationQueueFrontDesk />} />
+						<Route path="/front-desk-consultation-queue/:id" element={<ConsultationQueueProfileFrontDesk />} />
+					</Route>
+
+					{/* MEDICALSUPPORT ROUTING */}
+					<Route element={<MedicalSupportLayout />}>
+						<Route path='/medical-support-consulation-queue' element={<ConsultationQueueMedicalSupport />}/>
+						<Route path="/medical-support-consultation-queue/:id" element={<ConsultationQueueProfileMedicalSupport />} />
+					</Route>
 
 				</Routes>
 			

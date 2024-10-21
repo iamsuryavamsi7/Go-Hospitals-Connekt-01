@@ -26,35 +26,4 @@ public class UserController {
 
     }
 
-    @GetMapping("/fetchUnlockedUsers")
-    public ResponseEntity<List<UserObject>> fetchUnlockedUsers(){
-
-        List<UserObject> fetchedUserObjects = userService.fetchUnlockedUsers();
-
-        return ResponseEntity.ok(fetchedUserObjects);
-
-    }
-
-    @GetMapping("/deleteUserRequest/{userId}")
-    public ResponseEntity<String> deleteUserById(
-            @PathVariable("userId") Long userId
-    ){
-
-        String deletedMessage = userService.deleteUserById(userId);
-
-        return ResponseEntity.ok(deletedMessage);
-
-    }
-
-    @GetMapping("/acceptUserRequest/{userId}")
-    public ResponseEntity<String> acceptUserById(
-            @PathVariable("userId") Long userId
-    ){
-
-        String acceptedMessage = userService.acceptUserById(userId);
-
-        return ResponseEntity.ok(acceptedMessage);
-
-    }
-
 }

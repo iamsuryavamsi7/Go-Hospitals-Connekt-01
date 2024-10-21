@@ -4,9 +4,11 @@ import com.Go_Work.Go_Work.Entity.Role.Role;
 import com.Go_Work.Go_Work.Entity.Role.TokenType;
 import com.Go_Work.Go_Work.Entity.Token;
 import com.Go_Work.Go_Work.Entity.User;
+import com.Go_Work.Go_Work.Error.InvalidJwtTokenException;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationRequestObject;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationResponseObject;
 import com.Go_Work.Go_Work.Model.Auth.RegistrationRequestObject;
+import com.Go_Work.Go_Work.Model.Auth.UserRoleModel;
 import com.Go_Work.Go_Work.Repo.TokenRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.security.auth.login.AccountLockedException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -332,4 +335,25 @@ public class AuthService {
         }
 
     }
+
+    public UserRoleModel fetchUserRole(String jwtToken) throws InvalidJwtTokenException {
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        Optional<User> user = userRepo.findByEmail(userEmail);
+
+        if ( user.isPresent() ){
+
+            User realUser = user.get();
+
+            return UserRoleModel.builder()
+                    .role(realUser.getRole())
+                    .build();
+
+        }
+
+        throw new InvalidJwtTokenException("Invalid JWT Token");
+
+    }
+
 }

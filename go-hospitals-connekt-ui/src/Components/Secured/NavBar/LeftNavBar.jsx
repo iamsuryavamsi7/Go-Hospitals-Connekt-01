@@ -28,6 +28,10 @@ const LeftNavBar = () => {
         transportTeam: 'TRANSPORTTEAM'
     }
 
+    const [consulationQueueMedical1, setConsulationQueueMedical1] = useState(`text-gray-400`);
+
+    const [consulationQueueMedical2, setConsulationQueueMedical2] = useState(`text-gray-400`);
+
     const [newApprovals, setNewApprovals] = useState(`text-gray-400`);
 
     const [newApprovals2, setNewApprovals2] = useState(`text-gray-400`);
@@ -109,15 +113,12 @@ const LeftNavBar = () => {
 
         }
 
-        if (pathName === '/user-profile') {
+        // ADMIN LEFTNAVBAR
+        if ( pathName === '/admin-new-approvals'){
 
             setNewApprovals(`text-sky-500`)
 
             setNewApprovals2(`bg-sky-500 text-white`)
-
-            setNewPatientRegistration(`text-sky-500`)
-
-            setNewPatientRegistration2(`bg-sky-500 text-white`)
 
         } else {
 
@@ -125,13 +126,53 @@ const LeftNavBar = () => {
 
             setNewApprovals2(`text-gray-400`)
 
+        }
+
+        // FRONTDESK LEFTNAVBAR
+        if (pathName === '/front-desk-new-patient-on-board') {
+
+            setNewPatientRegistration(`text-sky-500`)
+
+            setNewPatientRegistration2(`bg-sky-500 text-white`)
+
+        } else {
+
             setNewPatientRegistration(`text-gray-400`)
 
             setNewPatientRegistration2(`text-gray-400`)
 
         }
 
-    }, []);
+        if ( pathName === `/front-desk-consultation-queue`){
+
+            setPendingConsultations(`text-sky-500`);
+
+            setPendingConsultations2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setPendingConsultations(`text-gray-400`);
+
+            setPendingConsultations2(`text-gray-400`);
+
+        }
+
+        // MEDICALSUPPORT LEFTNAVBAR
+        if ( pathName === `/medical-support-consulation-queue`){
+
+            setConsulationQueueMedical1(`text-sky-500`);
+
+            setConsulationQueueMedical2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setConsulationQueueMedical1(`text-gray-400`);
+
+            setConsulationQueueMedical2(`text-gray-400`);
+
+        }
+
+    }, [pathName]);
 
     return (
 
@@ -145,7 +186,7 @@ const LeftNavBar = () => {
 
                         <div 
                             className={`${newApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/user-profile')}
+                            onClick={() => navigate('/admin-new-approvals')}
                         >
 
                             <div className="">
@@ -178,7 +219,7 @@ const LeftNavBar = () => {
 
                         <div 
                             className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/user-profile')}
+                            onClick={() => navigate('/front-desk-new-patient-on-board')}
                         >
 
                             <div className="">
@@ -199,7 +240,7 @@ const LeftNavBar = () => {
 
                         <div 
                             className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/consultation-queue')}
+                            onClick={() => navigate('/front-desk-consultation-queue')}
                         >
 
                             <div className="">
@@ -231,6 +272,39 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Follow-up Patients
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </>
+
+            )}
+
+            {role === roles.medicalSupport && (
+
+                <>
+
+                    <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
+
+                        <div 
+                            className={`${consulationQueueMedical1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-consulation-queue')}
+                        >
+
+                            <div className="">
+
+                                <IoPersonAddSharp 
+                                    className={`${consulationQueueMedical2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Consulation Queue
 
                             </div>
 

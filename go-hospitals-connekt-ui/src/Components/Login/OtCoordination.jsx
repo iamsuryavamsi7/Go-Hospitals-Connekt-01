@@ -69,7 +69,41 @@ const OtCoordination = () => {
                     sameSite: 'Lax' // Allows sharing across subdomains
                 });
 
-                navigate('/user-profile');
+                const fetchRole = async () => {
+
+                    const formData = new FormData();
+
+                    formData.append("jwtToken", access_token);
+
+                    try{
+
+                        const response = await axios.post('http://localhost:7777/api/v1/auth/fetchUserRole', formData);
+
+                        if ( response.status === 200 ){
+
+                            const fetchedRole = response.data.role;
+
+                            if ( fetchedRole === 'ADMIN' ){
+
+                                navigate('/admin-new-approvals');
+
+                            } else {
+
+                                navigate('/');
+
+                            }
+
+                        }
+
+                    }catch(error){
+
+                        handleError(error);
+
+                    }
+
+                }
+
+                fetchRole();
 
             }
 

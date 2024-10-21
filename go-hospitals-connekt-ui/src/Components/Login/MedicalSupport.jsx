@@ -51,8 +51,6 @@ const navigate = useNavigate();
 
         e.preventDefault();
 
-        console.log("Button Clicked");
-
         try{
 
             const response = await axios.post('http://localhost:7777/api/v1/auth/authenticate-medical-support', loginData);
@@ -71,7 +69,41 @@ const navigate = useNavigate();
                     sameSite: 'Lax' // Allows sharing across subdomains
                 });
 
-                navigate('/user-profile');
+                const fetchRole = async () => {
+
+                    const formData = new FormData();
+
+                    formData.append("jwtToken", access_token);
+
+                    try{
+
+                        const response = await axios.post('http://localhost:7777/api/v1/auth/fetchUserRole', formData);
+
+                        if ( response.status === 200 ){
+
+                            const fetchedRole = response.data.role;
+
+                            if ( fetchedRole === 'ADMIN' ){
+
+                                navigate('/admin-new-approvals');
+
+                            } else {
+
+                                navigate('/medical-support-consulation-queue');
+
+                            }
+
+                        }
+
+                    }catch(error){
+
+                        handleError(error);
+
+                    }
+
+                }
+
+                fetchRole();
 
             }
 

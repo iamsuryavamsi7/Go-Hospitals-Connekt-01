@@ -1,17 +1,16 @@
 package com.Go_Work.Go_Work.Controller.Auth;
 
+import com.Go_Work.Go_Work.Error.InvalidJwtTokenException;
 import com.Go_Work.Go_Work.Error.PasswordsNotMatchException;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationRequestObject;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationResponseObject;
 import com.Go_Work.Go_Work.Model.Auth.RegistrationRequestObject;
+import com.Go_Work.Go_Work.Model.Auth.UserRoleModel;
 import com.Go_Work.Go_Work.Service.Auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.AccountLockedException;
 
@@ -115,6 +114,17 @@ public class AuthController {
         AuthenticationResponseObject userAuthenticatedMessage = authService.authenticateTransportTeam(request);
 
         return ResponseEntity.ok(userAuthenticatedMessage);
+
+    }
+
+    @PostMapping("/fetchUserRole")
+    public ResponseEntity<UserRoleModel> fetchUserRole(
+            @RequestParam("jwtToken") String jwtToken
+    ) throws InvalidJwtTokenException {
+
+        UserRoleModel fetchedUserRole = authService.fetchUserRole(jwtToken);
+
+        return ResponseEntity.ok(fetchedUserRole);
 
     }
 

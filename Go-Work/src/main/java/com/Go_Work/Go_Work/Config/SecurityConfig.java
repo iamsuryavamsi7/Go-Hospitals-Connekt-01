@@ -108,7 +108,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true); // Allows credentials (cookies, authorization headers, etc.)
 
         // Add dynamic origins or IPs, you can use patterns or add multiple specific origins
-        configuration.addAllowedOriginPattern("http://work.gohospitals.in:*");
+        configuration.addAllowedOriginPattern("http://gowork.gohospitals.in:*");
 
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.addAllowedMethod("*"); // Allow all methods (GET, POST, etc.)

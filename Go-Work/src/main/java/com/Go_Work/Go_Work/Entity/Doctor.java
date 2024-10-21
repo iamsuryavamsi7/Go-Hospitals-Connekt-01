@@ -6,26 +6,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(
-        name = "slots_table",
-        uniqueConstraints = @UniqueConstraint(columnNames = {
-                "time"
-        })
+        name = "doctors_table"
 )
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Slots {
+public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private LocalDate date;
-    private String time;
-    private boolean isBooked;
+    private String doctorName;
+    private String doctorDepartment;
 
 }

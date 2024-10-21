@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import '../../Style/NavBarUser.css';
-import { HiOutlineLogout } from 'react-icons/hi';
+import '../../../Style/NavBarUser.css'
+import { HiOutlineLogout, HiOutlineSpeakerphone } from 'react-icons/hi';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
@@ -130,6 +130,12 @@ const NavBarUser = () => {
 
             <div className="mr-56 flex items-center space-x-3">
 
+                <div className="text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer">
+
+                    <HiOutlineSpeakerphone />
+
+                </div>
+
                 <div className="border-x-[1px] border-gray-800 px-3">
 
                 {userObject ? userObject.firstName : 'Loading...'}
@@ -139,7 +145,7 @@ const NavBarUser = () => {
                 <div className="">
 
                     <HiOutlineLogout 
-                        className='text-2xl opacity-60 hover:opacity-80 active:opacity-40'
+                        className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
                         onClick={logoutFunction}
                     />
 
