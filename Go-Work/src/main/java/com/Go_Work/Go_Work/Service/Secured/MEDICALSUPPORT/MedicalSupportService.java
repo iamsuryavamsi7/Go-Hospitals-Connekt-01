@@ -1,71 +1,33 @@
-package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
+package com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT;
 
-import com.Go_Work.Go_Work.Entity.*;
-import com.Go_Work.Go_Work.Entity.Role.Role;
+import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.Notification;
+import com.Go_Work.Go_Work.Entity.User;
+import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
+import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
+import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
-import com.Go_Work.Go_Work.Repo.DepartmentRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FrontDeskService {
+public class MedicalSupportService {
 
     private final ApplicationsRepo applicationsRepo;
-
-    private final DepartmentRepo departmentRepo;
 
     private final UserRepo userRepo;
 
     private final NotificationRepo notificationRepo;
-
-    public String bookAppointment(Applications applications) {
-
-        // Set appointment details
-        applications.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
-        applications.setAppointmentFinished(false);
-
-        // Save the appointment
-        Applications savedApplication = applicationsRepo.save(applications);
-
-        Long applicationId = savedApplication.getId();
-
-        userRepo.findAll()
-                .stream()
-                .filter( user -> user.getRole().equals(Role.MEDICALSUPPORT) )
-                .forEach(medicalUser -> {
-
-                    Notification newNotification = new Notification();
-
-                    newNotification.setMessage("New Application Booked");
-                    newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
-                    newNotification.setApplicationId(applicationId);
-                    newNotification.setRead(false);
-                    newNotification.setUser(medicalUser);
-
-                    notificationRepo.save(newNotification);
-
-                    medicalUser.getNotifications().add(newNotification);
-
-                    userRepo.save(medicalUser);
-
-                });
-
-        return "Appointment Booked and Slot Created";
-
-    }
-
 
     public List<ApplicationsResponseModel> getAllBookingsByNotComplete() {
 
@@ -127,42 +89,60 @@ public class FrontDeskService {
 
     }
 
-    public List<Department> getDepartments() {
+    public String assignApplicationToMedicalSupportUser(Long applicationId, Long medicalSupportUserId) throws ApplicationNotFoundException, MedicalSupportUserNotFound {
 
-        return departmentRepo.findAll();
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        User fetchedMedicalSupportUser = userRepo.findById(medicalSupportUserId).orElseThrow(
+                () -> new MedicalSupportUserNotFound("Medical Support User Not Found")
+        );
+
+        fetchedMedicalSupportUser.getApplications().add(fetchedApplication);
+
+        userRepo.save(fetchedMedicalSupportUser);
+
+        fetchedApplication.setMedicalSupportUser(fetchedMedicalSupportUser);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return "Application assigned to medical support user";
 
     }
 
-    public List<Doctor> fetchDoctorsByDepartmentId(Long departmentId) throws DepartmentNotFoundException {
+    public List<Applications> fetchMedicalSupportJobsById(Long medicalSupportId) throws MedicalSupportUserNotFound {
 
-        Department fetchedDepartment = departmentRepo.findById(departmentId).orElseThrow(
-                () -> new DepartmentNotFoundException("Department Not Found Exception")
+        User fetchedMedicalSupportUser = userRepo.findById(medicalSupportId).orElseThrow(
+                () -> new MedicalSupportUserNotFound("Medical Support User Not Found")
         );
 
-        return fetchedDepartment.getDoctor()
-                .stream()
-                .map(doctor -> {
-
-                    Doctor doctor1 = new Doctor();
-
-                    doctor1.setId(doctor.getId());
-                    doctor1.setDoctorName(doctor.getDoctorName());
-
-                    return doctor1;
-
-                })
-                .collect(Collectors.toList());
+        return fetchedMedicalSupportUser.getApplications();
 
     }
 
-    public Department getDepartmentById(Long departmentId) throws DepartmentNotFoundException {
+    public List<Notification> fetchNotificationByUserId(Long userId) {
 
-        return departmentRepo.findById(departmentId).orElseThrow(
-                () -> new DepartmentNotFoundException("Department Not Found")
+        User fetchedUser =  userRepo.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
         );
+
+        return fetchedUser.getNotifications();
+
+    }
+
+    public String setNotificationReadByNotificationId(Long id) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(id).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found")
+        );
+
+        fetchedNotification.setRead(true);
+
+        notificationRepo.save(fetchedNotification);
+
+        return "Notification Reading Successfull";
 
     }
 
 }
-
-

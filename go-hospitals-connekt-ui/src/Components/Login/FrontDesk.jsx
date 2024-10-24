@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import '../../Style/HomePage.css'
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const FrontDesk = () => {
 
@@ -83,15 +85,35 @@ const FrontDesk = () => {
 
                             const fetchedRole = response.data.role;
 
-                            if ( fetchedRole === 'ADMIN' ){
+                            toast.success("Login Succesfull", {
+                                autoClose: 1000,
+                                style: {
+                                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                                    color: '#fff', // Tailwind text-white
+                                    fontWeight: '600', // Tailwind font-semibold
+                                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                                    marginTop: '2.5rem' // Tailwind mt-10,
+                                },
+                                progressStyle: {
+                                    backgroundColor: '#22c55e' // Tailwind bg-green-400
+                                },
+                                position: 'top-center'
+                            });
 
-                                navigate('/admin-new-approvals');
+                            setTimeout(() => {
 
-                            } else {
+                                if ( fetchedRole === 'ADMIN' ){
 
-                                navigate('/front-desk-new-patient-on-board');
+                                    navigate('/admin-new-approvals');
 
-                            }
+                                } else {
+
+                                    navigate('/front-desk-new-patient-on-board');
+
+                                }
+
+                            }, 1600);
 
                         }
 
@@ -111,7 +133,21 @@ const FrontDesk = () => {
 
             handleError(error);
 
-            alert("Invalid Credentials")
+            toast.error("Invalid Credentials", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: 'red' // Tailwind bg-green-400
+                },
+                position: 'top-center'
+            });
 
             Cookies.remove('access_token');
 
@@ -150,6 +186,8 @@ const FrontDesk = () => {
             ): (
 
                 <div className="absolute max-sm:relative top-0 bottom-0 left-0 right-0 flex">
+
+                <ToastContainer />
 
                     <div 
                         className="absolute top-10 text-[35px] left-5 cursor-pointer hover:scale-125 transition-all"

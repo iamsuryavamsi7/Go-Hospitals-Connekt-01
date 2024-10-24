@@ -1,6 +1,5 @@
-package com.Go_Work.Go_Work.Entity;
+package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,18 +7,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Entity
-@Table(
-        name = "appointments_table"
-)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Appointments {
+public class ApplicationsResponseModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private int age;
@@ -33,5 +26,8 @@ public class Appointments {
     private Date appointmentCreatedOn;
     private boolean appointmentFinished;
     private String bookedBy;
+
+    private Long medicalSupportUserId;
+    private String medicalSupportUserName;
 
 }

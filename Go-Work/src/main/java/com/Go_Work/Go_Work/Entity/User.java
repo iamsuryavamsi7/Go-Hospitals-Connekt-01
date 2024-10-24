@@ -37,7 +37,7 @@ public class User implements UserDetails {
     @GeneratedValue
     private Long id;
 
-    @NotNull
+    @NotNull(message = "firstName is required")
     private String firstName;
 
     @NotNull
@@ -55,9 +55,25 @@ public class User implements UserDetails {
 
     private Date registeredOn;
 
-    @OneToMany(mappedBy = "goWorkUser", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "goWorkUser",
+            cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Token> tokens = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "medicalSupportUser",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference
+    private List<Applications> applications = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference
+    private List<Notification> notifications = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Role role;

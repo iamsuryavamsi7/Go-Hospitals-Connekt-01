@@ -121,7 +121,7 @@ const ConsultationQueueProfileFrontDesk = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/appointments/fetchAppointmentById/${id}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -157,7 +157,7 @@ const ConsultationQueueProfileFrontDesk = () => {
 
         }
 
-    }, []);
+    }, [id]);
 
     return (
 
@@ -325,6 +325,39 @@ const ConsultationQueueProfileFrontDesk = () => {
 
                             <div className="text-base text-gray-300">
 
+                                Medical Support Name 
+
+                            </div>
+
+                            <div className="text-lg">
+                                
+                                {patientData.medicalSupportUserName ? (
+
+                                    <>
+                                    
+                                        <span>{patientData.medicalSupportUserName}</span>
+
+                                    </>
+
+                                ) : (
+
+                                    <>
+                                    
+                                        <span className='text-red-500'>Not Taken</span>
+
+                                    </>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                            <div className="text-base text-gray-300">
+
                                 Appointment Created On
 
                             </div>
@@ -359,7 +392,7 @@ const ConsultationQueueProfileFrontDesk = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    OP Status
+                                    Op Status
 
                                 </div>
 

@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdManageAccounts } from 'react-icons/md';
-import { FaPeopleArrows } from 'react-icons/fa';
+import { FaTasks } from 'react-icons/fa';
 
 const LeftNavBar = () => {
 
@@ -53,6 +53,10 @@ const LeftNavBar = () => {
     const [adminmanagement1, setAdminmanagement1] = useState(`text-gray-400`);
 
     const [adminmanagement2, setAdminmanagement2] = useState(`text-gray-400`);
+
+    const [myJobsMedical1, setMyJobsMedical1] = useState(`text-gray-400`);
+
+    const [myJobsMedical2, setMyJobsMedical2] = useState(`text-gray-400`);
 
     const pathName = window.location.pathname;
 
@@ -189,6 +193,20 @@ const LeftNavBar = () => {
             setConsulationQueueMedical1(`text-gray-400`);
 
             setConsulationQueueMedical2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/medical-support-current-job`){
+
+            setMyJobsMedical1(`text-sky-500`);
+
+            setMyJobsMedical2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setMyJobsMedical1(`text-gray-400`);
+
+            setMyJobsMedical2(`text-gray-400`);
 
         }
 
@@ -346,6 +364,27 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Consulation Queue
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${myJobsMedical1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-current-job')}
+                        >
+
+                            <div className="">
+
+                                <FaTasks 
+                                    className={`${myJobsMedical2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                My Jobs
 
                             </div>
 

@@ -4,6 +4,9 @@ import { RiDeleteBin5Line } from 'react-icons/ri';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { ImCancelCircle } from 'react-icons/im';
+import { FaUserDoctor } from 'react-icons/fa6';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminManagement02 = () => {
 
@@ -108,6 +111,21 @@ const AdminManagement02 = () => {
 
             if ( response.status === 200 ){
 
+                toast.success("Doctor Added", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
+                });
+
                 const departmentData = response.data;
 
                 console.log(departmentData);
@@ -139,6 +157,21 @@ const AdminManagement02 = () => {
             })
 
             if ( response.status === 200 ){
+
+                toast.success("Doctor Deleted", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: 'red' // Tailwind bg-green-400
+                    }
+                });
 
                 const departmentData = response.data;
 
@@ -243,6 +276,22 @@ const AdminManagement02 = () => {
 
             if ( response.status === 200 ){
 
+                toast.success("Doctor Updated", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
+                });
+
+
                 fetchDoctors();
 
                 setEditDoctorVisible(false);
@@ -274,6 +323,8 @@ const AdminManagement02 = () => {
     return (
 
         <div className="my-10 w-[70%]">
+
+            <ToastContainer />
 
             {editDoctorVisible && (
 
@@ -353,9 +404,19 @@ const AdminManagement02 = () => {
 
             )}
 
-            <div className="text-center text-xl">
+            <div className="text-left flex items-center space-x-3 text-lg mx-24">
 
-                Doctors
+                <div className="">
+                    
+                    <FaUserDoctor />
+
+                </div> 
+                
+                <div className="">
+
+                    Doctors    
+                    
+                </div>
 
             </div>
 
@@ -485,7 +546,7 @@ const AdminManagement02 = () => {
 
                                     <label
                                         className='text-xs'
-                                    >Department Name <span className='text-red-400'>*</span></label><br />
+                                    >Doctor Name <span className='text-red-400'>*</span></label><br />
                                     <input 
                                         className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                         value={addDoctorData}

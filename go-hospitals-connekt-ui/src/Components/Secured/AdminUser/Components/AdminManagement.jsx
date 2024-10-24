@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { MdAddBox, MdOutlineEdit } from 'react-icons/md';
-import { TiDeleteOutline } from 'react-icons/ti';
 import { RiDeleteBin5Line } from 'react-icons/ri';
 import { ImCancelCircle } from 'react-icons/im';
 import AdminManagement02 from './MinorComponents/AdminManagement02';
+import { FcDepartment } from 'react-icons/fc';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminManagement = () => {
 
@@ -127,9 +129,30 @@ const AdminManagement = () => {
 
             if ( response.status === 200 ){
 
-                fetchDepartmentName();       
-                
-                setAddDepartmentIsVisible(false);
+                toast.success("Department Created", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
+                });
+
+                setTimeout(() => {
+
+                    fetchDepartmentName();       
+                    
+                    setAddDepartmentIsVisible(false);
+
+                    setDepartmentName('');
+
+                }, 2500);
 
             }
 
@@ -153,7 +176,26 @@ const AdminManagement = () => {
 
             if ( response.status === 200 ){
 
-                fetchDepartmentName();       
+                toast.success("Department Deleted", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: 'red' // Tailwind bg-green-400
+                    }
+                });
+
+                setTimeout(() => {
+
+                    fetchDepartmentName();  
+
+                }, 2500);     
                 
             }
 
@@ -197,14 +239,33 @@ const AdminManagement = () => {
 
                 const responseData = response.data;
 
-                setEditDepartmentData({
-                    departmentId: '',
-                    departmentName: '',
+                toast.success("Department Edited", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
                 });
 
-                setEditDepartmentVisible(false);
+                setTimeout(() => {
 
-                fetchDepartmentName();
+                    setEditDepartmentData({
+                        departmentId: '',
+                        departmentName: '',
+                    });
+    
+                    setEditDepartmentVisible(false);
+    
+                    fetchDepartmentName();
+
+                }, 2500);
 
             }
 
@@ -283,6 +344,8 @@ const AdminManagement = () => {
 
         <>
 
+            <ToastContainer />
+
             {role === admin && (
 
                 <>
@@ -309,7 +372,7 @@ const AdminManagement = () => {
                                     <label
                                         className='text-sm'
                                     > Department Name <span className='text-red-400'>*</span></label><br />
-                                    <input 
+                                    <input
                                         type='text'
                                         className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600 focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                         value={editDepartmentData.departmentName}
@@ -340,9 +403,19 @@ const AdminManagement = () => {
 
                         <div className="w-[50%] mx-20">
 
-                            <div className="text-lg text-center mb-5">
+                            <div className="text-lg mx-5 mb-5 flex items-center space-x-2">
 
-                                Departments
+                                <div className="">
+
+                                    <FcDepartment />
+
+                                </div>
+                                
+                                <div className="">
+
+                                    Departments
+
+                                </div>
 
                             </div>
 

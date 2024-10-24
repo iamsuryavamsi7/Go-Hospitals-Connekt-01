@@ -40,7 +40,7 @@ public class AdminService {
 
         return userRepo.findAll()
                 .stream()
-                .filter(user -> !user.isUnLocked() )
+                .filter(user -> !user.isUnLocked() || !user.isAccountNonLocked() )
                 .map(fetchedUser -> {
 
                     UserObject fetchedUser1 = new UserObject();

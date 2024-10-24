@@ -1,10 +1,11 @@
 package com.Go_Work.Go_Work.Controller.Secured.FRONTDESK;
 
-import com.Go_Work.Go_Work.Entity.Appointments;
+import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
+import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,40 +14,40 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/appointments")
+@RequestMapping("/api/v1/front-desk")
 @RequiredArgsConstructor
 public class FrontDeskController {
 
     private final FrontDeskService frontDeskService;
 
-    @PostMapping("/bookAppointment")
+    @PostMapping("/bookApplication")
     public ResponseEntity<String> bookAppointment(
-        @RequestBody Appointments appointments
+        @RequestBody Applications applications
     ){
 
-        String message = frontDeskService.bookAppointment(appointments);
+        String message = frontDeskService.bookAppointment(applications);
 
         return ResponseEntity.ok(message);
 
     }
 
     @GetMapping("/getAllBookingsByNotComplete")
-    public ResponseEntity<List<Appointments>> getAllBookingsByNotComplete(){
+    public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(){
 
-        List<Appointments> message = frontDeskService.getAllBookingsByNotComplete();
+        List<ApplicationsResponseModel> message = frontDeskService.getAllBookingsByNotComplete();
 
         return ResponseEntity.ok(message);
 
     }
 
-    @GetMapping("/fetchAppointmentById/{appointmentId}")
-    public ResponseEntity<Appointments> fetchAppointmentById(
-            @PathVariable("appointmentId") Long id
+    @GetMapping("/fetchApplicationById/{applicationId}")
+    public ResponseEntity<ApplicationsResponseModel> fetchAppointmentById(
+            @PathVariable("applicationId") Long id
     ) throws AppointmentNotFoundException {
 
-        Appointments fetchedAppointment = frontDeskService.fetchAppointmentById(id);
+        ApplicationsResponseModel fetchedApplication = frontDeskService.fetchApplicationById(id);
 
-        return ResponseEntity.ok(fetchedAppointment);
+        return ResponseEntity.ok(fetchedApplication);
 
     }
 

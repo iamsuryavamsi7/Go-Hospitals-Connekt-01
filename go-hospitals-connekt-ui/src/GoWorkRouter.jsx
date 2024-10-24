@@ -25,6 +25,7 @@ import FrontDeskLayout from './Components/Secured/FrontDeskUser/FrontDeskLayout'
 import AdminPageLayout from './Components/Secured/AdminUser/AdminPageLayout'
 import MedicalSupportLayout from './Components/Secured/MedicalSupportUser/MedicalSupportLayout'
 import AdminManagement from './Components/Secured/AdminUser/Components/AdminManagement'
+import CurrentJob from './Components/Secured/MedicalSupportUser/Components/CurrentJob'
 
 function GoWorkRouter() {
 
@@ -69,6 +70,7 @@ function GoWorkRouter() {
 					<Route element={<MedicalSupportLayout />}>
 						<Route path='/medical-support-consulation-queue' element={<ConsultationQueueMedicalSupport />}/>
 						<Route path="/medical-support-consultation-queue/:id" element={<ConsultationQueueProfileMedicalSupport />} />
+						<Route path='/medical-support-current-job' element={<CurrentJob />} />
 					</Route>
 
 				</Routes>

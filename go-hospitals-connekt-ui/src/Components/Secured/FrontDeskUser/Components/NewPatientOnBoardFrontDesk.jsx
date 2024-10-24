@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-
+import { LuNewspaper } from 'react-icons/lu';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NewPatientOnBoardFrontDesk = () => {
 
@@ -104,7 +104,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/appointments/bookAppointment', {
+            const response = await axios.post('http://localhost:7777/api/v1/front-desk/bookApplication', {
                 name: patientOnBoardData.name,
                 age: patientOnBoardData.age,
                 contact: patientOnBoardData.contact,
@@ -123,9 +123,26 @@ const NewPatientOnBoardFrontDesk = () => {
 
             if ( response.status === 200 ){
 
-                alert("Appointment Booked");
+                toast.success("Patient Onboard Success", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
+                });
+                
+                setTimeout(() => {
 
-                window.location.reload();
+                    window.location.reload();
+
+                }, 1500);
 
             }
 
@@ -141,7 +158,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/appointments/getDepartments', {
+            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartments', {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -171,7 +188,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/appointments/getDepartmentById/' + departmentId, {
+                const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartmentById/' + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -201,7 +218,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/appointments/fetchDoctorsByDepartmentId/' + departmentId, {
+                const response = await axios.get('http://localhost:7777/api/v1/front-desk/fetchDoctorsByDepartmentId/' + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -254,6 +271,22 @@ const NewPatientOnBoardFrontDesk = () => {
 
                 <div className="inline-block">
 
+                    <div className="text-lg mx-20 mb-7 flex items-center space-x-2">
+
+                        <div className="">
+
+                            <LuNewspaper />
+
+                        </div>
+
+                        <div className="">
+
+                            New Patient Onboard
+
+                        </div>
+
+                    </div>
+
                     <form
                         className='mx-20'
                         onSubmit={bookAnAppointment}
@@ -294,7 +327,7 @@ const NewPatientOnBoardFrontDesk = () => {
                                 <label>Contact <span className='text-red-400'>*</span></label><br />
                                 <input 
                                     required
-                                    type='number'
+                                    type='text'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     name='contact'
                                     value={patientOnBoardData.contact}
@@ -427,13 +460,15 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             <button
                             className='bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 mt-7'
-                        > Book an appointment </button>
+                        > Onboard Patient </button>
 
                         </div>
 
                     </form>
 
                 </div>
+
+                <ToastContainer />
 
             </>
 

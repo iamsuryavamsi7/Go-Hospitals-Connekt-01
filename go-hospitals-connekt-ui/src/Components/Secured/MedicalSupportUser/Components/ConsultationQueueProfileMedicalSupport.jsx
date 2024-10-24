@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ConsultationQueueProfileMedicalSupport = () => {
 
@@ -35,14 +37,7 @@ const access_token = Cookies.get('access_token');
     });
 
     const roles = {
-        admin: 'ADMIN',
-        frontDesk: 'FRONTDESK',
         medicalSupport: 'MEDICALSUPPORT',
-        teleSupport: 'TELESUPPORT',
-        pharmacyCare: 'PHARMACYCARE',
-        otCoordination: 'OTCOORDINATION',
-        diagnosticsCenter: 'DIAGNOSTICSCENTER',
-        transportTeam: 'TRANSPORTTEAM'
     }
 
     // Your patient data
@@ -122,7 +117,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/appointments/fetchAppointmentById/${id}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -133,6 +128,53 @@ const access_token = Cookies.get('access_token');
                 const appointmentData = response.data;
 
                 setPatientData(appointmentData);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+        }
+
+    }
+
+    const takeJobFunction = async (applicationid) => {
+
+        const applicationId = applicationid;
+
+        const medicalSupportUserId = userObject.id
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                toast.success("Job Taken", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    },
+                });
+
+                setTimeout(() => {
+
+                    navigate('/medical-support-current-job');
+                    
+                }, 1600);
 
             }
 
@@ -158,11 +200,13 @@ const access_token = Cookies.get('access_token');
 
         }
 
-    }, []);
+    }, [id]);
 
     return (
 
         <>
+
+            <ToastContainer />
 
             {role === roles.medicalSupport && (
 
@@ -326,6 +370,38 @@ const access_token = Cookies.get('access_token');
 
                             <div className="text-base text-gray-300">
 
+                                Medical Support Name
+
+                            </div>
+
+                            <div className="text-lg">
+                                
+                                {patientData.medicalSupportUserName ? (
+
+                                    <>
+                                    
+                                        <span>{patientData.medicalSupportUserName}</span>
+
+                                    </>
+
+                                ) : (
+
+                                    <>
+                                    
+                                        <span className='text-red-500'>Not Taken</span>
+
+                                    </>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+                        <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                            <div className="text-base text-gray-300">
+
                                 Appointment Created On
 
                             </div>
@@ -386,6 +462,23 @@ const access_token = Cookies.get('access_token');
                                 <div className="text-lg">
                                     
                                     Completed
+
+                                </div>
+
+                            </div>
+
+                        )}
+
+                        {!patientData.medicalSupportUserName && (
+
+                            <div className="rounded-lg flex justify-center items-center">
+
+                                <div 
+                                    className="hover:opacity-60 active:opacity-40 cursor-pointer text-green-400"
+                                    onClick={(id) => takeJobFunction(patientData.id)}    
+                                >
+
+                                    Take Job
 
                                 </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { BiSolidInjection } from 'react-icons/bi'
 
 const ConsulationQueueFrontDesk = () => {
 
@@ -49,25 +50,35 @@ const ConsulationQueueFrontDesk = () => {
     }
 
     const fetchIncompleteAppointments = async () => {
+        
         try {
-            const response = await axios.get('http://localhost:7777/api/v1/appointments/getAllBookingsByNotComplete', {
+            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getAllBookingsByNotComplete', {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
             });
     
             if (response.status === 200) {
-                
-                const appointmentsData = response.data;
-                
-                setInCompleteAppointments(appointmentsData);
 
-                console.log(appointmentsData);
+                let appointmentsData = response.data;
+
+                appointmentsData = appointmentsData.sort((a, b) => {
+                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
+                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
+
+                    return aHasSupportUser - bHasSupportUser;
+                });
+
+                setInCompleteAppointments(appointmentsData);
     
+
             }
         } catch (error) {
+            
             handleError(error);
+        
         }
+    
     };
     
     const fetchUserObject = async () => {
@@ -128,6 +139,22 @@ const ConsulationQueueFrontDesk = () => {
 
                     <div className="">
 
+                        <div className="mx-10 text-lg mb-5 flex items-center space-x-2">
+
+                            <div className="">
+
+                                <BiSolidInjection />
+
+                            </div>
+                            
+                            <div className="">
+
+                                Consultations
+
+                            </div>
+
+                        </div>
+
                         <div className="mx-10 mr-56">
 
                             <table
@@ -144,6 +171,7 @@ const ConsulationQueueFrontDesk = () => {
                                         <th>Patient Name</th>
                                         <th>Doctors Name</th>
                                         <th>Bill No</th>
+                                        <th>Medical Support User</th>
 
                                     </tr>
 
@@ -182,6 +210,23 @@ const ConsulationQueueFrontDesk = () => {
                                                 <th>{appointment.name}</th>
                                                 <th>{appointment.preferredDoctorName}</th>
                                                 <th>{appointment.billNo}</th>
+                                                <th>{appointment.medicalSupportUserName ? (
+
+                                                    <>
+
+                                                        {appointment.medicalSupportUserName}
+
+                                                    </>
+
+                                                ) : (
+
+                                                    <>
+                                                    
+                                                        <span className='text-red-500'>Not Taken</span>
+
+                                                    </>
+
+                                                )}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
                                                     onClick={(id) => navigate(`/front-desk-consultation-queue/${appointment.id}`)}

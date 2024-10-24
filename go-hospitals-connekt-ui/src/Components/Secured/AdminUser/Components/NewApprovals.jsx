@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { FiRefreshCw } from 'react-icons/fi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const NewApprovals = () => {
 
@@ -125,13 +127,28 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/user/deleteUserRequest/' + id, {
+            const response = await axios.get('http://localhost:7777/api/v1/admin/deleteUserRequest/' + id, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
             })
 
             if ( response.status === 200 ){
+
+                toast.success("User Rejected", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: 'red' // Tailwind bg-green-400
+                    }
+                }); 
 
                 lockedUsersFunction();
 
@@ -145,18 +162,33 @@ const access_token = Cookies.get('access_token');
     
     }
 
-    // Function to rejectUsers
+    // Function to acceptUsers
     const acceptUserFunction = async (e, id) => {
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/user/acceptUserRequest/' + id, {
+            const response = await axios.get('http://localhost:7777/api/v1/admin/acceptUserRequest/' + id, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
             })
 
             if ( response.status === 200 ){
+
+                toast.success("User Approved", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    }
+                });
 
                 lockedUsersFunction();
 
@@ -194,6 +226,14 @@ const access_token = Cookies.get('access_token');
 
                 <div className="">
 
+                    <ToastContainer />
+
+                <div className="text-lg mb-5 mx-20">
+
+                    New Approvals
+
+                </div>
+
                 <div className="mt-10 flex relative">
 
                     <FiRefreshCw 
@@ -208,7 +248,7 @@ const access_token = Cookies.get('access_token');
                         <thead>
 
                             <tr
-                                className='h-[60px]'
+                                className='h-[60px] border-b-[.5px] border-gray-800'
                             >
 
                                 <th
@@ -279,7 +319,7 @@ const access_token = Cookies.get('access_token');
                             <tbody>
 
                                 <tr
-                                className='leading-10 border-b-[.5px] border-gray-800'
+                                className='leading-10 border-b-[.5px] border-gray-800 text-gray-400'
                                 >
 
                                     <td
