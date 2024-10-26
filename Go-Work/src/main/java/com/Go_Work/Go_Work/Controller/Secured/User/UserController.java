@@ -1,5 +1,6 @@
 package com.Go_Work.Go_Work.Controller.Secured.User;
 
+import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Service.Secured.User.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,17 @@ public class UserController {
     ){
 
         UserObject fetchedUserObject = userService.fetchUserObject(jwtToken);
+
+        return ResponseEntity.ok(fetchedUserObject);
+
+    }
+
+    @PostMapping("/fetchUserObjectFull")
+    public ResponseEntity<User> fetchUserObjectFull(
+            @RequestParam("jwtToken") String jwtToken
+    ){
+
+        User fetchedUserObject = userService.fetchUserObjectFull(jwtToken);
 
         return ResponseEntity.ok(fetchedUserObject);
 

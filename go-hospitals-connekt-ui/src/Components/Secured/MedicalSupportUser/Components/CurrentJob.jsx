@@ -45,8 +45,6 @@ const CurrentJob = () => {
 
         const medicalSupportId = userObject.id;
 
-        console.log(medicalSupportId);
-        
         try {
             
             const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchMedicalSupportJobsById/${medicalSupportId}`, {
@@ -57,10 +55,29 @@ const CurrentJob = () => {
     
             if (response.status === 200) {
                 
-                const myJobsData = response.data;
+                let myJobsData = response.data;
+
+                // Sort to place items with consultationType "WAITING" first
+                myJobsData = myJobsData.sort((a, b) => {
+                    
+                    if (a.consultationType === "WAITING" && b.consultationType !== "WAITING") {
+                    
+                        return -1;
+                    
+                    } else if (a.consultationType !== "WAITING" && b.consultationType === "WAITING") {
+                    
+                        return 1;
+                    
+                    } else {
+                    
+                        return 0;
+                    
+                    }
+                
+                });
 
                 setMyJobs(myJobsData);
-    
+
             }
 
         } catch (error) {
@@ -147,6 +164,7 @@ const CurrentJob = () => {
                                     <th>S.No</th>
                                     <th>Patient Name</th>
                                     <th>Doctors Name</th>
+                                    <th>Status</th>
                                     <th>Bill No</th>
 
                                 </tr>
@@ -161,6 +179,7 @@ const CurrentJob = () => {
                                     className='text-left'
                                 >
 
+                                    <th>No Data</th>
                                     <th>No Data</th>
                                     <th>No Data</th>
                                     <th>No Data</th>
@@ -185,10 +204,19 @@ const CurrentJob = () => {
 
                                             <th>{job.name}</th>
                                             <th>{job.preferredDoctorName}</th>
+                                            <th>{job.consultationType === null ? (
+
+                                                <span>Not Decided</span>
+
+                                            ) : (
+
+                                                <span>{job.consultationType}</span>
+
+                                            )}</th>
                                             <th>{job.billNo}</th>
                                             <th
                                                 className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                onClick={(id) => navigate(`/medical-support-consultation-queue/${job.id}`)}
+                                                onClick={(id) => navigate(`/medical-support-consultation-queue-current-job/${job.id}`)}
                                             >View Full Profile</th>
 
                                         </tr>

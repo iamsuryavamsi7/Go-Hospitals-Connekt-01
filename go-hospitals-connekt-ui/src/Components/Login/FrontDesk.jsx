@@ -240,6 +240,13 @@ const FrontDesk = () => {
                                     <label> Password</label><br />
                                     <button
                                         className='text-blue-500 text-xs hover:cursor-pointer'
+                                        onClick={(e) => {
+
+                                            e.preventDefault();
+                                            
+                                            navigate(`/front-desk-forget`)
+                                        
+                                        }}
                                     >
 
                                         Forgot password?

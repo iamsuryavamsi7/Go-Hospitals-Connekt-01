@@ -1,5 +1,6 @@
 package com.Go_Work.Go_Work.Entity;
 
+import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,8 +33,16 @@ public class Applications {
     private String preferredDoctorName;
     private String billNo;
     private Date appointmentCreatedOn;
-    private boolean appointmentFinished;
     private String bookedBy;
+
+    @Enumerated(EnumType.STRING)
+    private ConsultationType consultationType;
+    private String treatmentDoneMessage;
+    private String prescriptionUrl;
+    private boolean treatmentDone;
+    private boolean paymentDone;
+    private Date paymentDoneTime;
+    private Date applicationCompletedTime;
 
     @ManyToOne
     @JsonBackReference

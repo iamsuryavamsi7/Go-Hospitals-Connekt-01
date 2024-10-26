@@ -4,7 +4,10 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdManageAccounts } from 'react-icons/md';
-import { FaTasks } from 'react-icons/fa';
+import { FaBriefcaseMedical, FaHospitalUser, FaStethoscope, FaTasks } from 'react-icons/fa';
+import { GiMedicines } from 'react-icons/gi';
+import { LiaExchangeAltSolid } from 'react-icons/lia';
+import { TbExchange } from 'react-icons/tb';
 
 const LeftNavBar = () => {
 
@@ -57,6 +60,38 @@ const LeftNavBar = () => {
     const [myJobsMedical1, setMyJobsMedical1] = useState(`text-gray-400`);
 
     const [myJobsMedical2, setMyJobsMedical2] = useState(`text-gray-400`);
+
+    const [onSiteTreatment1, setOnSiteTreatment1] = useState(`text-gray-400`);
+
+    const [onSiteTreatment2, setOnSiteTreatment2] = useState(`text-gray-400`);
+
+    const [medicationPlusFollowUp1, setMedicationPlusFollowUp1] = useState(`text-gray-400`);
+
+    const [medicationPlusFollowUp2, setMedicationPlusFollowUp2] = useState(`text-gray-400`);
+
+    const [surgeryCare1, setSurgeryCare1] = useState(`text-gray-400`);
+
+    const [surgeryCare2, setSurgeryCare2] = useState(`text-gray-400`);
+
+    const [pharmacy1, setPharmacy1] = useState(`text-gray-400`);
+
+    const [pharmacy2, setPharmacy2] = useState(`text-gray-400`);
+
+    const [crossConsultation1, setCrossConsultation1] = useState(`text-gray-400`);
+
+    const [crossConsultation2, setCrossConsultation2] = useState(`text-gray-400`);
+
+    const [patientAdmit1, setPatientAdmit1] = useState(`text-gray-400`);
+
+    const [patientAdmit2, setPatientAdmit2] = useState(`text-gray-400`);
+
+    const [pendingMedications1, setPendingMedications1] = useState(`text-gray-400`);
+
+    const [pendingMedications2, setPendingMedications2] = useState(`text-gray-400`);
+
+    const [completedMedication1, setCompletedMedications1] = useState(`text-gray-400`);
+
+    const [completedMedication2, setCompletedMedications2] = useState(`text-gray-400`);
 
     const pathName = window.location.pathname;
 
@@ -210,6 +245,119 @@ const LeftNavBar = () => {
 
         }
 
+        if ( pathName === `/medical-support-on-site-treatement`){
+
+            setOnSiteTreatment1(`text-sky-500`);
+
+            setOnSiteTreatment2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setOnSiteTreatment1(`text-gray-400`);
+
+            setOnSiteTreatment2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/medical-support-medication-plus-follow-up`){
+
+            setMedicationPlusFollowUp1(`text-sky-500`);
+
+            setMedicationPlusFollowUp2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setMedicationPlusFollowUp1(`text-gray-400`);
+
+            setMedicationPlusFollowUp2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/medical-support-surgery-care`){
+
+            setSurgeryCare1(`text-sky-500`);
+
+            setSurgeryCare2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setSurgeryCare1(`text-gray-400`);
+
+            setSurgeryCare2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/medical-support-pharmacy`){
+
+            setPharmacy1(`text-sky-500`);
+
+            setPharmacy2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setPharmacy1(`text-gray-400`);
+
+            setPharmacy2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/medical-support-cross-consultation`){
+
+            setCrossConsultation1(`text-sky-500`);
+
+            setCrossConsultation2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setCrossConsultation1(`text-gray-400`);
+
+            setCrossConsultation2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/medical-support-patient-admit`){
+
+            setPatientAdmit1(`text-sky-500`);
+
+            setPatientAdmit2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setPatientAdmit1(`text-gray-400`);
+
+            setPatientAdmit2(`text-gray-400`);            
+
+        }
+
+        // PHARMACY LEFTNAVBAR
+        if ( pathName === `/pharmacy-pending-medications`){
+
+            setPendingMedications1(`text-sky-500`);
+
+            setPendingMedications2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setPendingMedications1(`text-gray-400`);
+
+            setPendingMedications2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/pharmacy-completed-medications`){
+
+            setCompletedMedications1(`text-sky-500`);
+
+            setCompletedMedications2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setCompletedMedications1(`text-gray-400`);
+
+            setCompletedMedications2(`text-gray-400`);            
+
+        }
+
     }, [pathName]);
 
     return (
@@ -353,7 +501,7 @@ const LeftNavBar = () => {
                             onClick={() => navigate('/medical-support-consulation-queue')}
                         >
 
-                            <div className="">
+                            <div className=""> 
 
                                 <IoPersonAddSharp 
                                     className={`${consulationQueueMedical2} text-2xl  leading-8 p-1 rounded-md`}
@@ -385,6 +533,186 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 My Jobs
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${onSiteTreatment1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-on-site-treatement')}
+                        >
+
+                            <div className="">
+
+                                <FaStethoscope 
+                                    className={`${onSiteTreatment2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                On site treatment
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${medicationPlusFollowUp1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-medication-plus-follow-up')}
+                        >
+
+                            <div className="">
+
+                                <FaBriefcaseMedical 
+                                    className={`${medicationPlusFollowUp2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Medication + Follow Up
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${surgeryCare1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-surgery-care')}
+                        >
+
+                            <div className="">
+
+                                <FaHospitalUser 
+                                    className={`${surgeryCare2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Surgery Care
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${pharmacy1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-pharmacy')}
+                        >
+
+                            <div className="">
+
+                                <GiMedicines 
+                                    className={`${pharmacy2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Pharmacy
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${crossConsultation1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-cross-consultation')}
+                        >
+
+                            <div className="">
+
+                                <TbExchange 
+                                    className={`${crossConsultation2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Cross Consultation
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${patientAdmit1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/medical-support-patient-admit')}
+                        >
+
+                            <div className="">
+
+                                <FaHospitalUser 
+                                    className={`${patientAdmit2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Patient Admit
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </>
+
+            )}
+
+            {role === roles.pharmacyCare && (
+
+                <>
+
+                    <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
+
+                        <div 
+                            className={`${pendingMedications1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/pharmacy-pending-medications')}
+                        >
+
+                            <div className="">
+
+                                <IoPersonAddSharp 
+                                    className={`${pendingMedications2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Pending Medications
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${completedMedication1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/pharmacy-completed-medications')}
+                        >
+
+                            <div className="">
+
+                                <IoPeopleCircleOutline 
+                                    className={`${completedMedication2} text-2xl  leading-8 p-[1px] rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Completed Medications
 
                             </div>
 

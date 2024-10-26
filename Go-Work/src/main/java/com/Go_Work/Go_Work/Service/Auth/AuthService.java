@@ -1,10 +1,11 @@
 package com.Go_Work.Go_Work.Service.Auth;
 
-import com.Go_Work.Go_Work.Entity.Role.Role;
-import com.Go_Work.Go_Work.Entity.Role.TokenType;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
+import com.Go_Work.Go_Work.Entity.Enum.TokenType;
 import com.Go_Work.Go_Work.Entity.Token;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.InvalidJwtTokenException;
+import com.Go_Work.Go_Work.Error.InvalidOTPException;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationRequestObject;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationResponseObject;
 import com.Go_Work.Go_Work.Model.Auth.RegistrationRequestObject;
@@ -26,6 +27,7 @@ import javax.security.auth.login.AccountLockedException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -353,6 +355,92 @@ public class AuthService {
         }
 
         throw new InvalidJwtTokenException("Invalid JWT Token");
+
+    }
+
+    @Async
+    private void sendOTP(String email, int otp) {
+        emailSenderService.sendSimpleEmail(
+                email,
+                "\n\nYour OTP for password change is " + otp + "\n\nDon't share your OTP with anyone",
+                "Password Change OTP"
+        );
+    }
+
+    public String generateOTP(String userEmail) {
+
+        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            int otp = generateRandomOTP();
+
+            user.setOtpCode(otp);
+
+            userRepo.save(user);
+
+            sendOTP(user.getEmail(), otp);
+
+            return "OTP Generated";
+
+        }
+
+        throw new UsernameNotFoundException("User Not Found");
+
+    }
+
+    // Method to generate a 6-digit random number
+    private int generateRandomOTP() {
+
+        Random random = new Random();
+
+        return 100000 + random.nextInt(900000); // Generates a number between 100000 and 999999
+
+    }
+
+    public String checkOTP(int otp, String userEmail) throws InvalidOTPException {
+
+        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            if ( user.getOtpCode() == otp ){
+
+                return "OTP Success";
+
+            } else {
+
+                throw new InvalidOTPException("Invalid OTP");
+
+            }
+
+        }
+
+        throw new UsernameNotFoundException("User Not Found");
+
+    }
+
+    public String updatePassword(String password, String userEmail) {
+
+        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            user.setPassword(passwordEncoder.encode(password));
+
+            userRepo.save(user);
+
+            return "Password Updated";
+
+        }
+
+        throw new UsernameNotFoundException("User Not Found");
 
     }
 

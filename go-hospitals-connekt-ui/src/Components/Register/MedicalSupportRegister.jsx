@@ -104,7 +104,7 @@ const MedicalSupportRegister = () => {
 
                 handleError(error);
 
-                toast.error("Email already exist", {
+                toast.error("Email already exist", { 
                     autoClose: 1000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
@@ -140,8 +140,6 @@ const MedicalSupportRegister = () => {
                 },
                 position: 'top-center'
             });
-
-            Cookies.remove('access_token');
 
         }
 

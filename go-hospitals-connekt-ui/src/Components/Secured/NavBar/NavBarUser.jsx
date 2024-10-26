@@ -13,6 +13,8 @@ const NavBarUser = () => {
 // Jwt Token
     const access_token = Cookies.get('access_token');
 
+    const[ role, setRole ] = useState(null);
+
     const [userObject, setUserObject] = useState(null);
 
     const [notificationsVisible, setNotificationsVisible] = useState(false);
@@ -20,6 +22,17 @@ const NavBarUser = () => {
     const [notificationArray, setNotificationArray] = useState([]);
 
     const [notificationCount, setNotificationCount] = useState(0);
+
+    const roles = {
+        admin: 'ADMIN',
+        frontDesk: 'FRONTDESK',
+        medicalSupport: 'MEDICALSUPPORT',
+        teleSupport: 'TELESUPPORT',
+        pharmacyCare: 'PHARMACYCARE',
+        otCoordination: 'OTCOORDINATION',
+        diagnosticsCenter: 'DIAGNOSTICSCENTER',
+        transportTeam: 'TRANSPORTTEAM'
+    }
 
 // useNavigate Hook
     const navigate = useNavigate();
@@ -64,6 +77,8 @@ const NavBarUser = () => {
                 setUserObject(userObject);
 
                 fetchNotifications(userObject);
+
+                setRole(userObject.role);
 
             }
 
@@ -170,8 +185,6 @@ const NavBarUser = () => {
     
                 setNotificationArray(notificationData);
 
-                console.log(notificationData);
-
             }
 
         }catch(error){
@@ -188,7 +201,58 @@ const NavBarUser = () => {
 
         setNotificationsVisible(false);
 
-        notificationId
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                try{
+
+                    const userId = userObject.id;
+        
+                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${access_token}`
+                        }
+                    })
+        
+                    if ( response.status === 200 ){
+        
+                        let notificationData = response.data;
+
+                        // Sort notifications by timeStamp in descending order (latest first)
+                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+            
+                        setNotificationArray(notificationData);
+        
+                    }
+        
+                }catch(error){
+        
+                    handleError(error);
+        
+                }
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+        }
+
+    }
+
+    const notificationPharmacyCareFunction = async (id, notificationId) => {
+
+        navigate(`/pharmacy-profiles/${id}`);
+
+        setNotificationsVisible(false);
 
         try{
 
@@ -265,148 +329,184 @@ const NavBarUser = () => {
 
     return (
 
-        <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0 bg-[#0F172A]">
-
+        <>
+        
             <ToastContainer />
 
-            <div className="ml-56 flex items-center">
+            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0 bg-[#0F172A]">
 
-                <div className="">
+                <div className="ml-56 flex items-center">
 
-                    <img
-                        src='/Go-Hospitals-Logo.webp'
-                        alt='Go Hospitals'
-                        className='h-6 w-auto'
-                    />
+                    <div className="">
+
+                        <img
+                            src='/Go-Hospitals-Logo.webp'
+                            alt='Go Hospitals'
+                            className='h-6 w-auto'
+                        />
+
+                    </div>
+
+                    <div className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser">
+
+                        works
+
+                    </div>
 
                 </div>
 
-                <div className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser">
+                <div className="mr-56 flex items-center space-x-3">
 
-                    works
+                    <div className="relative">
 
-                </div>
+                        <HiOutlineSpeakerphone 
+                            className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
+                            onClick={activateNotifications}
+                        />
 
-            </div>
+                        <div className="absolute top-[-10px] right-[-7px]">
 
-            <div className="mr-56 flex items-center space-x-3">
+                            {/* {notif} */}
 
-                <div className="relative">
-
-                    <HiOutlineSpeakerphone 
-                        className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
-                        onClick={activateNotifications}
-                    />
-
-                    <div className="absolute top-[-10px] right-[-7px]">
-
-                        {/* {notif} */}
-
-                        {notificationCount > 0 && notificationCount <= 9 && (
-                        
-                            <>
+                            {notificationCount > 0 && notificationCount <= 9 && (
                             
-                                {notificationCount}
-                            
-                            </>
+                                <>
+                                
+                                    {notificationCount}
+                                
+                                </>
 
-                        )}
+                            )}
 
-                        {notificationCount > 9 && (
+                            {notificationCount > 9 && (
 
-                            <>
-                            
-                                9+
-                            
-                            </>
-                            
+                                <>
+                                
+                                    9+
+                                
+                                </>
+                                
+                            )}
+
+                        </div>
+
+                        {notificationsVisible && (
+
+                            <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-[#0F172A]">
+
+                                <div className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800">
+
+                                    Notifications
+
+                                </div>
+
+                                <div className="mb-2 space-y-1 h-[300px] overflow-hidden overflow-y-auto custom-scrollbar relative">
+
+                                    {notificationArray && notificationArray.length === 0 ? (
+
+                                        <div className={`absolute top-0 right-0 bottom-0 left-0 flex justify-center items-center`}>
+
+                                            No Notifications found
+                                            
+                                        </div>
+
+                                    ) : (
+
+                                        <>
+
+                                            {notificationArray.map((notification) => {
+
+                                                return (
+
+                                                    <div
+                                                        key={notification.id}
+                                                    >
+
+                                                        {role === roles.medicalSupport && (
+
+                                                            <div 
+                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
+                                                                onClick={(id, notificationid) => notificationFunction(notification.applicationId, notification.id)} 
+                                                            >
+
+                                                                <div className="">
+
+                                                                    {notification.message}
+
+                                                                </div>
+
+                                                                <div className="text-xs text-gray-400">
+
+                                                                    {new Date(notification.timeStamp).toLocaleString()}
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        )}
+
+                                                        {role === roles.pharmacyCare && (
+
+                                                            <div 
+                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
+                                                                onClick={(id, notificationid) => notificationPharmacyCareFunction(notification.applicationId, notification.id)} 
+                                                            >
+
+                                                                <div className="">
+
+                                                                    {notification.message}
+
+                                                                </div>
+
+                                                                <div className="text-xs text-gray-400">
+
+                                                                    {new Date(notification.timeStamp).toLocaleString()}
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        )}
+
+                                                    </div>
+                                                    
+                                                );
+
+                                            })}
+
+                                        </>
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
                         )}
 
                     </div>
 
-                    {notificationsVisible && (
+                    <div className="border-x-[1px] border-gray-800 px-3">
 
-                        <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-[#0F172A]">
+                    {userObject ? userObject.firstName : 'Loading...'}
 
-                            <div className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800">
+                    </div>
 
-                                Notifications
+                    <div className="">
 
-                            </div>
+                        <HiOutlineLogout 
+                            className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
+                            onClick={logoutFunction}
+                        />
 
-                            <div className="mb-2 space-y-1 h-[300px] overflow-hidden overflow-y-auto custom-scrollbar relative">
-
-                                {notificationArray && notificationArray.length === 0 ? (
-
-                                    <div className={`absolute top-0 right-0 bottom-0 left-0 flex justify-center items-center`}>
-
-                                        No Notifications found
-                                        
-                                    </div>
-
-                                ) : (
-
-                                    <>
-
-                                        {notificationArray.map((notification) => {
-
-                                            return (
-
-                                                <div 
-                                                    key={notification.id}
-                                                    className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                    onClick={(id, notificationid) => notificationFunction(notification.applicationId, notification.id)}    
-                                                >
-
-                                                    <div className="">
-
-                                                        {notification.message}
-
-                                                    </div>
-
-                                                    <div className="text-xs text-gray-400">
-
-                                                        {new Date(notification.timeStamp).toLocaleString()}
-
-                                                    </div>
-
-                                                </div>
-
-                                            );
-
-                                        })}
-
-                                    </>
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-                    )}
+                    </div>
 
                 </div>
 
-                <div className="border-x-[1px] border-gray-800 px-3">
-
-                {userObject ? userObject.firstName : 'Loading...'}
-
-                </div>
-
-                <div className="">
-
-                    <HiOutlineLogout 
-                        className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
-                        onClick={logoutFunction}
-                    />
-
-                </div>
 
             </div>
 
-
-        </div>
+        </>
 
     )
 

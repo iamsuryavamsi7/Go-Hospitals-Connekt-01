@@ -1,6 +1,6 @@
 package com.Go_Work.Go_Work.Model.Auth;
 
-import com.Go_Work.Go_Work.Entity.Role.Role;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;

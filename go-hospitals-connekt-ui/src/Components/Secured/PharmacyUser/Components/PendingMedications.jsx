@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const ConsultationQueueMedicalSupport = () => {
+const PendingMedications = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -21,7 +21,7 @@ const ConsultationQueueMedicalSupport = () => {
     const [inCompleteApplications, setInCompleteApplications] = useState([]);
 
     const roles = {
-        medicalSupport: 'MEDICALSUPPORT'
+        pharmacy: 'PHARMACYCARE'
     }
 
 // Functions
@@ -47,7 +47,7 @@ const ConsultationQueueMedicalSupport = () => {
         
         try {
             
-            const response = await axios.get('http://localhost:7777/api/v1/medical-support/getAllBookingsByNotComplete', {
+            const response = await axios.get('http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyMedications', {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -74,7 +74,7 @@ const ConsultationQueueMedicalSupport = () => {
         }
 
     };
-    
+
     const fetchUserObject = async () => {
 
         const formData = new FormData();
@@ -96,49 +96,6 @@ const ConsultationQueueMedicalSupport = () => {
                 setRole(userObject.role);
 
                 setUserObject(userObject);
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-        }
-
-    }
-
-    const takeJobFunction = async (applicationid) => {
-
-        const applicationId = applicationid;
-
-        const medicalSupportUserId = userObject.id
-
-        try{
-
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                toast.success("Job Taken", {
-                    autoClose: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
-                });
-
-                fetchIncompleteApplications();
 
             }
 
@@ -172,7 +129,7 @@ const ConsultationQueueMedicalSupport = () => {
 
             <ToastContainer />
 
-            {role === roles.medicalSupport && (
+            {role === roles.pharmacy && (
 
                 <>
 
@@ -255,7 +212,7 @@ const ConsultationQueueMedicalSupport = () => {
                                                 )}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/medical-support-consultation-queue/${application.id}`)}
+                                                    onClick={(id) => navigate(`/pharmacy-profiles/${application.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>
@@ -282,4 +239,4 @@ const ConsultationQueueMedicalSupport = () => {
 
 }
 
-export default ConsultationQueueMedicalSupport
+export default PendingMedications

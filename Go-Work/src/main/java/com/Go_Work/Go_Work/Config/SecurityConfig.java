@@ -1,6 +1,5 @@
 package com.Go_Work.Go_Work.Config;
 
-import com.Go_Work.Go_Work.Entity.Role.Role;
 import com.Go_Work.Go_Work.Service.LogoutService;
 import com.Go_Work.Go_Work.Service.MyUserDetailsService;
 import lombok.RequiredArgsConstructor;

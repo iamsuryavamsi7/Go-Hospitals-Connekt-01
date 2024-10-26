@@ -1,4 +1,4 @@
-package com.Go_Work.Go_Work.Entity.Role;
+package com.Go_Work.Go_Work.Entity.Enum;
 
 public enum Role {
 
@@ -17,5 +17,4 @@ public enum Role {
     DIAGNOSTICSCENTER,
 
     TRANSPORTTEAM
-
 }

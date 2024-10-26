@@ -1,7 +1,9 @@
 package com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Notification;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
@@ -13,9 +15,18 @@ import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,11 +40,16 @@ public class MedicalSupportService {
 
     private final NotificationRepo notificationRepo;
 
+    private final S3Client s3;
+
+    @Value("${cloud.aws.bucket-name}")
+    private String bucketName;
+
     public List<ApplicationsResponseModel> getAllBookingsByNotComplete() {
 
         return applicationsRepo.findAll()
                 .stream()
-                .filter(appointment -> !appointment.isAppointmentFinished())
+                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
                 .map(user01 -> {
 
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();
@@ -142,6 +158,276 @@ public class MedicalSupportService {
         notificationRepo.save(fetchedNotification);
 
         return "Notification Reading Successfull";
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllOnsiteTreatmentData(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.ONSITETREATMENT))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllMedicationPlusFollowUp(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllSurgeryCare(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllPharmacy(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllCrossConsultation(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchAllPatientAdmit(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public String makeConsultationType(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setConsultationType(consultationType);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return "Consultation Type updated";
+
+    }
+
+    public String uploadPrescription(
+            Long applicationId,
+            MultipartFile imageFile,
+            String prescriptionMessage
+    ) throws ApplicationNotFoundException, IOException {
+
+        Applications fetchedapplication  = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        deleteS3Object(fetchedapplication.getPrescriptionUrl());
+
+        String originalFileName = imageFile.getOriginalFilename();
+
+        if ( originalFileName != null ){
+
+            originalFileName = originalFileName.replace(" ", "_");
+
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+
+        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+
+        userRepo.findAll()
+                .stream()
+                .filter(user -> user.getRole().equals(Role.PHARMACYCARE) )
+                        .forEach(pharmacyUser -> {
+
+                            Notification newNotification = new Notification();
+
+                            newNotification.setMessage("Treatment done and need medicines");
+                            newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
+                            newNotification.setApplicationId(applicationId);
+                            newNotification.setUser(pharmacyUser);
+
+                            notificationRepo.save(newNotification);
+
+                            pharmacyUser.getNotifications().add(newNotification);
+
+                            userRepo.save(pharmacyUser);
+
+                        });
+
+        fetchedapplication.setPrescriptionUrl(fileName);
+
+        fetchedapplication.setTreatmentDoneMessage(prescriptionMessage);
+
+        fetchedapplication.setTreatmentDone(true);
+
+        applicationsRepo.save(fetchedapplication);
+
+        return "Prescription Uploaded";
+
+    }
+
+    private void deleteS3Object(String filename){
+
+        if ( filename != null && !filename.isEmpty() ){
+
+            DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(filename)
+                    .build();
+
+            DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
+
+        }
 
     }
 

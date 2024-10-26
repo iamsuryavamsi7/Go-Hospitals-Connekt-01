@@ -1,7 +1,8 @@
 package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.*;
-import com.Go_Work.Go_Work.Entity.Role.Role;
+import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +34,9 @@ public class FrontDeskService {
 
         // Set appointment details
         applications.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
-        applications.setAppointmentFinished(false);
+        applications.setConsultationType(ConsultationType.WAITING);
+        applications.setTreatmentDone(false);
+        applications.setPaymentDone(false);
 
         // Save the appointment
         Applications savedApplication = applicationsRepo.save(applications);
@@ -71,7 +73,7 @@ public class FrontDeskService {
 
         return applicationsRepo.findAll()
                 .stream()
-                .filter(appointment -> !appointment.isAppointmentFinished())
+                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
                 .map(user01 -> {
 
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();

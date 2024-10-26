@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const ConsultationQueueProfileMedicalSupport = () => {
+const MyJobsConsulationProfileMedicalSupport = () => {
 
 // JWT Token
 const access_token = Cookies.get('access_token');
@@ -34,6 +34,17 @@ const access_token = Cookies.get('access_token');
         appointmentCreatedOn: '',
         appointmentFinished: ''
     });
+
+    const consultationType = ({
+        onSite: 'ONSITETREATMENT',
+        medication: 'MEDICATIONPLUSFOLLOWUP',
+        surgery: 'SURGERYCARE',
+        pharmacy: 'PHARMACY',
+        crossConsultation: 'CROSSCONSULTATION',
+        patientAdmit: 'PATIENTADMIT'
+    });
+
+    const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT',
@@ -185,6 +196,91 @@ const access_token = Cookies.get('access_token');
 
     }
 
+    const consulationTypeUpdateFunction = async (consultation) => {
+
+        const applicationId = id;
+
+        const consultationType1 = consultation;
+
+        const formData = new FormData();
+
+        formData.append('consultationType', consultationType1);
+
+        try{
+
+            const response = await axios.post(`http://localhost:7777/api/v1/medical-support/makeConsultationType/${applicationId}`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                toast.success("Consultation Status Updated", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    },
+                });
+
+                setTimeout(() => {
+
+                    if ( consultationType1 === consultationType.onSite ) {
+
+                        navigate('/medical-support-on-site-treatement');
+
+                    }
+
+                    if ( consultationType1 === consultationType.medication ) {
+
+                        navigate('/medical-support-medication-plus-follow-up');
+
+                    }
+
+                    if ( consultationType1 === consultationType.surgery ) {
+
+                        navigate('/medical-support-surgery-care');
+
+                    }
+
+                    if ( consultationType1 === consultationType.pharmacy ) {
+
+                        navigate('/medical-support-pharmacy');
+
+                    }
+
+                    if ( consultationType1 === consultationType.crossConsultation ) {
+
+                        navigate('/medical-support-cross-consultation');
+
+                    }
+
+                    if ( consultationType1 === consultationType.patientAdmit ) {
+
+                        navigate('/medical-support-patient-admit');
+
+                    }
+                    
+                }, 1600);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+        }
+
+    }
+
     useEffect(() => {
 
         if ( access_token ){
@@ -215,13 +311,13 @@ const access_token = Cookies.get('access_token');
                         className=""
                     >
 
-                        <div className="mr-40 ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
+                        <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
 
                             Patient Details    
 
                         </div>
 
-                        <div className="mr-40 ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
+                        <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -447,8 +543,7 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
-
-                            { !patientData.medicalSupportUserName && (
+                            {!patientData.medicalSupportUserName && (
 
                                 <div className="rounded-lg flex justify-center items-center">
 
@@ -469,6 +564,101 @@ const access_token = Cookies.get('access_token');
 
                     </div>
 
+                    {patientData.consultationType === 'WAITING' && (
+
+                        <>
+
+                        <button
+                            className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
+                            type='submit'
+                            onClick={() => {
+
+                                    setConsulationDoneisVisible(true);
+
+                            }}
+                        >
+
+                            Consultation Done
+
+                        </button>
+
+                        {consulationDoneisVisible && (
+
+                            <div 
+                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
+                                onClick={() => {
+
+                                    setConsulationDoneisVisible(false);
+
+                                }}
+                            >
+
+                                <div className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800">
+                                
+                                    <div 
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
+                                    >
+
+                                        <button>On site treatment</button>
+
+                                    </div>
+
+                                    <div 
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.medication)}
+                                    >
+
+                                        <button>Medication + Follow Up</button>
+
+                                    </div>
+
+                                    <div 
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.surgery)}
+                                    >
+
+                                        <button>Surgery Care</button>
+
+                                    </div>
+
+                                    <div 
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.pharmacy)}    
+                                    >
+
+                                        <button>Pharmacy</button>
+
+                                    </div>
+
+                                    <div 
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.crossConsultation)}    
+                                    >
+
+                                        <button>Cross Consultation</button>
+
+                                    </div>
+
+                                    <div    
+                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.patientAdmit)}    
+                                    >
+
+                                        <button>Patient Admit</button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        )}
+
+                        </>
+
+                    )}
+
                 </>
 
             )}
@@ -479,4 +669,4 @@ const access_token = Cookies.get('access_token');
 
 }
 
-export default ConsultationQueueProfileMedicalSupport
+export default MyJobsConsulationProfileMedicalSupport

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { IoCloseCircle } from 'react-icons/io5';
 
-const ConsultationQueueProfileMedicalSupport = () => {
+const PharmacyProfiles = () => {
 
 // JWT Token
-const access_token = Cookies.get('access_token');
+    const access_token = Cookies.get('access_token');
 
 // Use Navigate Hook
     const navigate = useNavigate();
@@ -36,18 +37,15 @@ const access_token = Cookies.get('access_token');
     });
 
     const roles = {
-        medicalSupport: 'MEDICALSUPPORT',
+        pharmacy: 'PHARMACYCARE',
     }
 
-    // Your patient data
-    const patientCreatedOn = {
-    appointmentCreatedOn: "2024-10-20T09:36:33.702+00:00",
-    // other data...
-    };
-  
-    // Convert to Date object
-    const appointmentDate = new Date(patientData.appointmentCreatedOn);
-    
+    const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState(null);
+
+    const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
+
+    const [ checkedStatus, setCheckedStatus] = useState(false);
+
     // Format the date and time (example: MM/DD/YYYY, HH:MM AM/PM)
     const options = { 
         year: 'numeric', 
@@ -57,11 +55,18 @@ const access_token = Cookies.get('access_token');
         minute: 'numeric', 
         hour12: true // for AM/PM format
     };
+      
+    // Convert to Date object
+    const appointmentDate = new Date(patientData.appointmentCreatedOn);
     
     const formattedDate = appointmentDate.toLocaleString('en-US', options);
-    
 
-// Functions
+    // Convert to Date object
+    const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
+
+    const appointmentCompletedFormattedDate = appointmentCompletedDate.toLocaleString('en-US', options);
+
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -75,6 +80,34 @@ const access_token = Cookies.get('access_token');
                 console.error(error);
 
             }
+
+        }
+
+    }
+
+    const fetchAppointmentData = async () => {
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchApplicationById/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const appointmentData = response.data;
+
+                setPatientData(appointmentData);
+
+                console.log(response.data);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
 
         }
 
@@ -112,23 +145,74 @@ const access_token = Cookies.get('access_token');
 
     }
 
-    const fetchAppointmentData = async () => {
+    const fetchImage = async () => {
+
+        const fileName = patientData.prescriptionUrl;
+
+        setPatientPrescriptionSrc(null);
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName}`, {
+                responseType: 'blob',
                 headers: {
-                    'Authorization': `Bearer ${access_token}`
+                    Authorization: `Bearer ${access_token}`,
                 }
             })
 
             if ( response.status === 200 ){
 
-                const appointmentData = response.data;
+                const image = URL.createObjectURL(response.data);
 
-                setPatientData(appointmentData);
+                setPatientPrescriptionSrc(image);
 
-            }
+                setFetchedImageVisible(true);
+
+            } 
+
+        }catch(error){
+
+            handleError(error);
+
+            setPatientPrescriptionSrc(null);
+
+        }
+
+    }
+
+    const downloadImage = async () => {
+
+        const fileName = patientData.prescriptionUrl; 
+
+        setPatientPrescriptionSrc(null);
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
+                responseType: 'blob'
+            })
+
+            if ( response.status === 200 ){
+
+                console.log("Download Started");
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+
+                const link = document.createElement('a');
+
+                link.href = url;
+
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+            } 
 
         }catch(error){
 
@@ -138,48 +222,61 @@ const access_token = Cookies.get('access_token');
 
     }
 
-    const takeJobFunction = async (applicationid) => {
+    const paymentDoneFunction = async () => {
 
-        const applicationId = applicationid;
+        const applicationId = id; 
 
-        const medicalSupportUserId = userObject.id
+        if ( checkedStatus ){
 
-        try{
+            try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
+                const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/consultationCompleted/${applicationId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+    
+                if ( response.status === 200 ){
+    
+                    console.log(response.data);
+
+                    toast.success("Application Completed", {
+                        autoClose: 1000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        },
+                        position: 'top-center'
+                    });
+
+                    fetchAppointmentData();
+    
                 }
-            })
-
-            if ( response.status === 200 ){
-
-                toast.success("Job Taken", {
-                    autoClose: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
-                });
-
-                setTimeout(() => {
-
-                    navigate('/medical-support-current-job');
-                    
-                }, 1600);
-
+    
+            }catch(error){
+    
+                handleError(error);
+    
             }
 
-        }catch(error){
+        } else {
 
-            handleError(error);
+            toast.error("Checkbox is not checked", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                position: 'top-center'
+            });
 
         }
 
@@ -207,7 +304,7 @@ const access_token = Cookies.get('access_token');
 
             <ToastContainer />
 
-            {role === roles.medicalSupport && (
+            {role === roles.pharmacy && (
 
                 <>
 
@@ -215,13 +312,13 @@ const access_token = Cookies.get('access_token');
                         className=""
                     >
 
-                        <div className="mr-40 ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
+                        <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
 
                             Patient Details    
 
                         </div>
 
-                        <div className="mr-40 ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
+                        <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -377,23 +474,7 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.medicalSupportUserName ? (
-
-                                        <>
-                                        
-                                            <span>{patientData.medicalSupportUserName}</span>
-
-                                        </>
-
-                                    ) : (
-
-                                        <>
-                                        
-                                            <span className='text-red-500'>Not Taken</span>
-
-                                        </>
-
-                                    )}
+                                    {patientData.medicalSupportUserName}
 
                                 </div>
 
@@ -447,25 +528,137 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
+                            {patientData.consultationType === 'COMPLETED' && (
 
-                            { !patientData.medicalSupportUserName && (
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
-                                <div className="rounded-lg flex justify-center items-center">
+                                    <div className="text-base text-gray-300">
 
-                                    <div 
-                                        className="hover:opacity-60 active:opacity-40 cursor-pointer text-green-400"
-                                        onClick={(id) => takeJobFunction(patientData.id)}    
-                                    >
+                                        Application Completed On
 
-                                        Take Job
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {appointmentCompletedFormattedDate}
 
                                     </div>
 
                                 </div>
 
                             )}
-                            
+
+                            {patientData.consultationType === 'COMPLETED' && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Payment Status
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        Done
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
                         </div>
+
+                        <div className="flex">
+
+                            <div className="ml-10 my-10">
+
+                                <button
+                                    onClick={fetchImage}
+                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                >
+
+                                    Show Prescription
+
+                                </button>
+
+                            </div>
+
+                            <div className="mx-5 my-10">
+
+                                <button
+                                    onClick={downloadImage}
+                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                >
+
+                                    Download Prescription
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        {fetchedImageVisible && (
+
+                            <div className="absolute top-10 right-10 bottom-10 left-10 flex items-center justify-center">
+
+                                <div className="mx-20 my-20 relative">
+
+                                    <img 
+                                        src={patientPrescriptionSrc}
+                                        className='w-[600px] h-auto transition-transform duration-300 ease-in-out transform hover:scale-105'
+                                    />
+
+                                <IoCloseCircle 
+                                    className='absolute top-5 right-5 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                    onClick={() => {
+
+                                        setFetchedImageVisible(false);
+
+                                    }}
+                                />
+
+                                </div>
+
+                            </div>
+
+                        )}
+
+                        {patientData.consultationType != 'COMPLETED' && (
+
+                            <div className="ml-10">
+
+                                <div className="flex space-x-2 text-xs mb-3">
+
+                                    <input 
+                                        type='checkbox'
+                                        onChange={(e) => {
+
+                                            const value = e.target.checked;
+
+                                            setCheckedStatus(value);
+
+                                        }}
+                                    /><br />
+
+                                    <p className=''>Is the payment completed ?<span className='text-red-400 ml-1 relative bottom-[2px]'>*</span></p>
+
+                                </div>
+
+                                <button
+                                    className='cursor-pointer bg-green-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    onClick={paymentDoneFunction}
+                                >
+
+                                    Payment Done
+
+                                </button>
+
+                            </div>
+
+                        )}
 
                     </div>
 
@@ -479,4 +672,4 @@ const access_token = Cookies.get('access_token');
 
 }
 
-export default ConsultationQueueProfileMedicalSupport
+export default PharmacyProfiles

@@ -12,7 +12,12 @@ spring:
     password: 1234
     driver-class-name: org.postgresql.Driver
 
-  # Configuration for Postgresql Hibernate
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+# Configuration for Postgresql Hibernate
 
   jpa:
     show-sql: true
@@ -30,7 +35,7 @@ cloud:
     keys:
       access-key: AKIA3DQFZSRKGGTIENNL
       secret-key: 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
-    bucket-name: teamupxbucketdevelopment
+    bucket-name: go-works-bucket
 
 # Values for JwtService
 
@@ -40,7 +45,7 @@ application:
     access_token:
       expiration: 86400000
 
-  # Configuration for Spring Email
+# Configuration for Spring Email
 
   mail:
     host: smtp.gmail.com

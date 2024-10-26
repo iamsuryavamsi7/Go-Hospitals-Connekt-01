@@ -26,6 +26,21 @@ import AdminPageLayout from './Components/Secured/AdminUser/AdminPageLayout'
 import MedicalSupportLayout from './Components/Secured/MedicalSupportUser/MedicalSupportLayout'
 import AdminManagement from './Components/Secured/AdminUser/Components/AdminManagement'
 import CurrentJob from './Components/Secured/MedicalSupportUser/Components/CurrentJob'
+import MyJobsConsulationProfileMedicalSupport from './Components/Secured/MedicalSupportUser/Components/MyJobsConsulationProfileMedicalSupport'
+import OnSiteTreatement from './Components/Secured/MedicalSupportUser/Components/OnSiteTreatement'
+import MedicationPlusFollowUp from './Components/Secured/MedicalSupportUser/Components/MedicationPlusFollowUp'
+import SurgeryCare from './Components/Secured/MedicalSupportUser/Components/SurgeryCare'
+import Pharmacy from './Components/Secured/MedicalSupportUser/Components/Pharmacy'
+import CrossConsulation from './Components/Secured/MedicalSupportUser/Components/CrossConsulation'
+import PatientAdmit from './Components/Secured/MedicalSupportUser/Components/PatientAdmit'
+import OnSiteTreatmentProfile from './Components/Secured/MedicalSupportUser/Components/OnSiteTreatmentProfile'
+import PharmacyPageLayout from './Components/Secured/PharmacyUser/PharmacyPageLayout'
+import PendingMedications from './Components/Secured/PharmacyUser/Components/PendingMedications'
+import CompletedMedications from './Components/Secured/PharmacyUser/Components/CompletedMedications'
+import PharmacyProfiles from './Components/Secured/PharmacyUser/Components/PharmacyProfiles'
+import FrontDeskForgetPassword from './Components/ForgetPassword/FrontDeskForgetPassword'
+import MedicalSupportForgetPassword from './Components/ForgetPassword/MedicalSupportForgetPassword'
+import PharmacyCareForgetPassword from './Components/ForgetPassword/PharmacyCareForgetPassword'
 
 function GoWorkRouter() {
 
@@ -35,8 +50,11 @@ function GoWorkRouter() {
 
 				<Routes>
 
+					{/* BASE ROUTING */}
 					<Route index element={<HomePage />} />
 					<Route path='/' element={<HomePage />} />
+
+					{/* LOGIN ROUTING */}
 					<Route path='/front-desk-login' element={<FrontDesk />} />
 					<Route path='/medical-support-login' element={<MedicalSupport />} />
 					<Route path='/tele-support-login' element={<TeleSupport />} />
@@ -45,6 +63,12 @@ function GoWorkRouter() {
 					<Route path='/diagnostics-center-login' element={<DiagnosticsCenter />} />
 					<Route path='/transport-team-login' element={<TransportTeam />} />
 
+					{/* FORGET PASSWORD ROUTING */}
+					<Route path='/front-desk-forget' element={<FrontDeskForgetPassword />}/>
+					<Route path='/medical-support-forget' element={<MedicalSupportForgetPassword />}/>
+					<Route path='/pharmacy-care-forget' element={<PharmacyCareForgetPassword />}/>
+
+					{/* REGISTER ROUTING */}
 					<Route path='/front-desk-register' element={<FrontDeskRegister />} />
 					<Route path='/medical-support-register' element={<MedicalSupportRegister />} />
 					<Route path='/tele-support-register' element={<TeleSupportRegister />} />
@@ -71,6 +95,20 @@ function GoWorkRouter() {
 						<Route path='/medical-support-consulation-queue' element={<ConsultationQueueMedicalSupport />}/>
 						<Route path="/medical-support-consultation-queue/:id" element={<ConsultationQueueProfileMedicalSupport />} />
 						<Route path='/medical-support-current-job' element={<CurrentJob />} />
+						<Route path='/medical-support-consultation-queue-current-job/:id' element={<MyJobsConsulationProfileMedicalSupport />} />
+						<Route path='/medical-support-on-site-treatement' element={<OnSiteTreatement />}/>
+						<Route path='/medical-support-medication-plus-follow-up' element={<MedicationPlusFollowUp />}/>
+						<Route path='/medical-support-surgery-care' element={<SurgeryCare />}/>
+						<Route path='/medical-support-pharmacy' element={<Pharmacy />}/>
+						<Route path='/medical-support-cross-consultation' element={<CrossConsulation />}/>
+						<Route path='/medical-support-patient-admit' element={<PatientAdmit />}/>
+						<Route path='/medical-support-onsite-treatment-profile/:id' element={<OnSiteTreatmentProfile />}/>
+					</Route>
+
+					<Route element={<PharmacyPageLayout />}>
+						<Route path='/pharmacy-pending-medications' element={<PendingMedications />}/>
+						<Route path='/pharmacy-completed-medications' element={<CompletedMedications />}/>
+						<Route path='/pharmacy-profiles/:id' element={<PharmacyProfiles />}/>
 					</Route>
 
 				</Routes>

@@ -1,6 +1,6 @@
 package com.Go_Work.Go_Work.Entity;
 
-import com.Go_Work.Go_Work.Entity.Role.TokenType;
+import com.Go_Work.Go_Work.Entity.Enum.TokenType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

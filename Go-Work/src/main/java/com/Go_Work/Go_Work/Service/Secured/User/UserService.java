@@ -43,4 +43,22 @@ public class UserService {
 
     }
 
+    public User fetchUserObjectFull(String jwtToken) {
+
+        String extractedUserName = jwtService.extractUserName(jwtToken);
+
+        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+
+        if ( fetchedUser.isPresent() ){
+
+            return fetchedUser.get();
+
+        }else{
+
+            throw new UsernameNotFoundException("User Not Found");
+
+        }
+
+    }
+
 }

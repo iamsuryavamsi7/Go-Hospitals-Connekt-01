@@ -240,6 +240,13 @@ const navigate = useNavigate();
                                     <label> Password</label><br />
                                     <button
                                         className='text-blue-500 text-xs hover:cursor-pointer'
+                                        onClick={(e) => {
+
+                                            e.preventDefault();
+
+                                            navigate(`/medical-support-forget`);
+
+                                        }}
                                     >
 
                                         Forgot password?

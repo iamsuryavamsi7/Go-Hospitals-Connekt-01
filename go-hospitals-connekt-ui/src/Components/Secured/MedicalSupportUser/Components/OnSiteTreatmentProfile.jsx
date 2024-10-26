@@ -4,11 +4,12 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { IoCloseCircleSharp } from 'react-icons/io5';
 
-const ConsultationQueueProfileMedicalSupport = () => {
+const OnSiteTreatmentProfile = () => {
 
 // JWT Token
-const access_token = Cookies.get('access_token');
+    const access_token = Cookies.get('access_token');
 
 // Use Navigate Hook
     const navigate = useNavigate();
@@ -18,7 +19,13 @@ const access_token = Cookies.get('access_token');
 
     const [userObject, setUserObject] = useState(null);
 
+    const [image, setImage] = useState(null);
+
     const {id} = useParams();
+
+    const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
+
+    const [treatmentDone, steTreatmentDone] = useState(``);
 
     const [patientData, setPatientData] = useState({
         id: id,
@@ -34,6 +41,8 @@ const access_token = Cookies.get('access_token');
         appointmentCreatedOn: '',
         appointmentFinished: ''
     });
+
+    const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT',
@@ -138,52 +147,81 @@ const access_token = Cookies.get('access_token');
 
     }
 
-    const takeJobFunction = async (applicationid) => {
+    const handleCapture = (e) => {
+        
+        const file = e.target.files[0];
+        
+        setImage(file);
+    
+    };
 
-        const applicationId = applicationid;
+    const handleSubmit = async (e) => {
+        
+        e.preventDefault();
 
-        const medicalSupportUserId = userObject.id
+        const applicationId = id;
+    
+        // Create FormData object
+        const formData = new FormData();
+        formData.append("imageFile", image);
+        formData.append("prescriptionMessage", treatmentDone);
 
-        try{
+        try {
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                toast.success("Job Taken", {
-                    autoClose: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
-                });
-
-                setTimeout(() => {
-
-                    navigate('/medical-support-current-job');
-                    
-                }, 1600);
-
+          // Send the form data to the backend
+          const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
+            headers: {
+                'Authorization': `Bearer ${access_token}`
             }
+          });
 
-        }catch(error){
+          if ( response.status === 200 ){
 
+            toast.success("Treatment Completed", {
+                autoClose: 1000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: '#22c55e' // Tailwind bg-green-400
+                },
+            });
+
+            steTreatmentDone(``);
+
+            setImage(null);
+
+            setTreatMentDoneVisible(false);
+
+            fetchAppointmentData();
+
+          }
+
+        } catch (error) {
+        
             handleError(error);
 
+            toast.error("File size exceeded", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                position: 'top-center'
+            });
+        
         }
 
-    }
+    };
 
     useEffect(() => {
 
@@ -215,13 +253,13 @@ const access_token = Cookies.get('access_token');
                         className=""
                     >
 
-                        <div className="mr-40 ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
+                        <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
 
                             Patient Details    
 
                         </div>
 
-                        <div className="mr-40 ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
+                        <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -377,23 +415,7 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.medicalSupportUserName ? (
-
-                                        <>
-                                        
-                                            <span>{patientData.medicalSupportUserName}</span>
-
-                                        </>
-
-                                    ) : (
-
-                                        <>
-                                        
-                                            <span className='text-red-500'>Not Taken</span>
-
-                                        </>
-
-                                    )}
+                                    {patientData.medicalSupportUserName}
 
                                 </div>
 
@@ -447,25 +469,128 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
-                            { !patientData.medicalSupportUserName && (
+                                <div className="text-base text-gray-300">
 
-                                <div className="rounded-lg flex justify-center items-center">
-
-                                    <div 
-                                        className="hover:opacity-60 active:opacity-40 cursor-pointer text-green-400"
-                                        onClick={(id) => takeJobFunction(patientData.id)}    
-                                    >
-
-                                        Take Job
-
-                                    </div>
+                                    Treatment Status
 
                                 </div>
 
-                            )}
+                                <div className="text-lg">
+                                    
+                                    {patientData.treatmentDone ? (
+
+                                        <div className="text-base text-gray-300">
+
+                                            Completed
+
+                                        </div>
+
+                                    ) : (
+
+                                        <div className="text-lg">
+
+                                            Not Completed
+
+                                        </div>
+
+                                    )}
+
+                                </div>
+
+                            </div>
                             
+
                         </div>
+
+                        {!patientData.treatmentDone && (
+
+                            <div
+                                className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                onClick={() => {
+
+                                    setTreatMentDoneVisible(true);
+
+                                }}
+                            >
+
+                                Treatment Done
+
+                            </div>
+
+                        )}
+
+                        {treatMentDoneVisible && (
+
+                            <div 
+                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
+                            >
+
+                                <form 
+                                    className="block relative bg-gray-900 text-xl rounded-2xl border-[1px] border-gray-800"
+                                    onSubmit={handleSubmit}
+                                >
+                                
+                                    <div 
+                                        className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                    >
+                                        
+                                        <label className='text-xs'>Write any feed (Optional)</label><br />
+
+                                        <textarea 
+                                            type='text'
+                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                            value={treatmentDone}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                steTreatmentDone(value);
+
+                                            }}
+                                        />
+                                    
+                                    </div>
+
+                                    <div 
+                                        className="px-10 transition-all duration-200 cursor-pointer"
+                                    >
+
+                                        <label className='text-xs'>Upload the prescription <span className='text-red-400'>*</span></label><br />
+
+                                        <input 
+                                            type="file"
+                                            accept="image/*"
+                                            capture="environment" // opens the camera on mobile devices
+                                            onChange={(e) => handleCapture(e)}
+                                            className='mt-2 cursor-pointer'
+                                        />
+
+                                    </div>
+
+                                    <button 
+                                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        type='submit'
+                                    >
+                                        Submit
+
+                                    </button>
+
+                                    <IoCloseCircleSharp 
+                                        className='absolute z-50 top-5 right-5 cursor-pointer'
+                                        onClick={() => {
+
+                                            setTreatMentDoneVisible(false);
+
+                                        }}
+                                    />
+
+                                </form>
+
+                            </div>
+
+                        )}
 
                     </div>
 
@@ -479,4 +604,4 @@ const access_token = Cookies.get('access_token');
 
 }
 
-export default ConsultationQueueProfileMedicalSupport
+export default OnSiteTreatmentProfile

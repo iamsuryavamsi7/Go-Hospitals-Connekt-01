@@ -1,6 +1,6 @@
 package com.Go_Work.Go_Work.Entity;
 
-import com.Go_Work.Go_Work.Entity.Role.Role;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -54,6 +54,8 @@ public class User implements UserDetails {
     private boolean unLocked;
 
     private Date registeredOn;
+
+    private int otpCode;
 
     @OneToMany(
             mappedBy = "goWorkUser",

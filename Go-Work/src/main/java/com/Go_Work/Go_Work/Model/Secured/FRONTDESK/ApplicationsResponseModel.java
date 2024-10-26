@@ -1,5 +1,6 @@
 package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
+import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,8 +25,14 @@ public class ApplicationsResponseModel {
     private String preferredDoctorName;
     private String billNo;
     private Date appointmentCreatedOn;
-    private boolean appointmentFinished;
     private String bookedBy;
+    private ConsultationType consultationType;
+    private String treatmentDoneMessage;
+    private String prescriptionUrl;
+    private boolean treatmentDone;
+    private boolean paymentDone;
+    private Date paymentDoneTime;
+    private Date applicationCompletedTime;
 
     private Long medicalSupportUserId;
     private String medicalSupportUserName;

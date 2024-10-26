@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Controller.Auth;
 
 import com.Go_Work.Go_Work.Error.InvalidJwtTokenException;
+import com.Go_Work.Go_Work.Error.InvalidOTPException;
 import com.Go_Work.Go_Work.Error.PasswordsNotMatchException;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationRequestObject;
 import com.Go_Work.Go_Work.Model.Auth.AuthenticationResponseObject;
@@ -125,6 +126,41 @@ public class AuthController {
         UserRoleModel fetchedUserRole = authService.fetchUserRole(jwtToken);
 
         return ResponseEntity.ok(fetchedUserRole);
+
+    }
+
+    @PostMapping("/generateOTP")
+    public ResponseEntity<String> generateOTP(
+            @RequestParam("userEmail") String userEmail
+    ){
+
+        String successMessage = authService.generateOTP(userEmail);
+
+        return ResponseEntity.ok(successMessage);
+
+    }
+
+    @PostMapping("/checkOTP")
+    public ResponseEntity<String> checkOTP(
+            @RequestParam("otp") int otp,
+            @RequestParam("userEmail") String userEmail
+    ) throws InvalidOTPException {
+
+        String successMessage = authService.checkOTP(otp, userEmail);
+
+        return ResponseEntity.ok(successMessage);
+
+    }
+
+    @PostMapping("/updatePassword")
+    public ResponseEntity<String> updatePassword(
+            @RequestParam("password") String password,
+            @RequestParam("userEmail") String userEmail
+    ){
+
+        String successMessage = authService.updatePassword(password, userEmail);
+
+        return ResponseEntity.ok(successMessage);
 
     }
 
