@@ -16,7 +16,7 @@ const SurgeryCare = () => {
 
     const [userObject, setUserObject] = useState(null);
 
-    const [setOnSurgeryCare, setOnSurgeryCaresetOnSurgeryCare] = useState([]);
+    const [medicalPlusFollowUpData, setMedicalPlusFollowUpData] = useState([]);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT'
@@ -64,7 +64,7 @@ const SurgeryCare = () => {
 
                 setUserObject(userObject);
 
-                fetchSurgeryCare(userObject);
+                fetchSurgeryCareData(userObject);
 
             }
 
@@ -76,13 +76,13 @@ const SurgeryCare = () => {
 
     }
 
-    const fetchSurgeryCare = async (userObject) => {
+    const fetchSurgeryCareData = async (userObject) => {
 
         const userObjectId = userObject.id;
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllSurgeryCare/${userObjectId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchSurgeryCareData/${userObjectId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -90,9 +90,14 @@ const SurgeryCare = () => {
 
             if ( response.status === 200 ){
 
-                const userObject = response.data;
+                let onsiteData = response.data;
 
-                setOnSurgeryCaresetOnSurgeryCare(userObject);
+                // Sort data to put items with treatmentDone: false at the top
+                onsiteData = onsiteData.sort((a, b) => {
+                    return a.treatmentDone === b.treatmentDone ? 0 : a.treatmentDone ? 1 : -1;
+                });
+
+                setMedicalPlusFollowUpData(onsiteData);
 
             }
 
@@ -128,7 +133,7 @@ const SurgeryCare = () => {
                 
                     <div className="">
 
-                        <div className="mx-10 mr-56">
+                        <div className="mx-10 ">
 
                             <table
                                 className='w-full'
@@ -143,13 +148,14 @@ const SurgeryCare = () => {
                                         <th>S.No</th>
                                         <th>Patient Name</th>
                                         <th>Doctors Name</th>
+                                        <th>Treatment Status</th>
                                         <th>Bill No</th>
 
                                     </tr>
 
                                 </thead>
 
-                                {setOnSurgeryCare && setOnSurgeryCare.length === 0 ? (
+                                {medicalPlusFollowUpData && medicalPlusFollowUpData.length === 0 ? (
 
                                     <tbody>
 
@@ -157,6 +163,7 @@ const SurgeryCare = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -170,7 +177,7 @@ const SurgeryCare = () => {
 
                                     <tbody>
 
-                                        {setOnSurgeryCare.map((application, index) => (
+                                        {medicalPlusFollowUpData.map((application, index) => (
 
                                             <tr
                                                 key={application.id}
@@ -181,10 +188,19 @@ const SurgeryCare = () => {
 
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>
+                                                <th>{application.treatmentDone ? (
+
+                                                    <span>Done</span>
+
+                                                ) : (
+
+                                                    <span>Not Done</span>
+
+                                                )}</th>
                                                 <th>{application.billNo}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/medical-support-consultation-queue/${application.id}`)}
+                                                    onClick={(id) => navigate(`/medical-support-surgery-care-profile/${application.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>

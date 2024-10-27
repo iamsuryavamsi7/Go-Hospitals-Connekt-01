@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-const MedicationPlusFollowUp = () => {
+const MedicalPlusFollowUp = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -16,7 +16,7 @@ const MedicationPlusFollowUp = () => {
 
     const [userObject, setUserObject] = useState(null);
 
-    const [onMedicationPlusFollowUp, setOnMedicationPlusFollowUp] = useState([]);
+    const [medicalPlusFollowUpData, setMedicalPlusFollowUpData] = useState([]);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT'
@@ -64,7 +64,7 @@ const MedicationPlusFollowUp = () => {
 
                 setUserObject(userObject);
 
-                fetchMedicationPlusFollowUp(userObject);
+                fetchMedicalPlusFollowUpData(userObject);
 
             }
 
@@ -76,13 +76,13 @@ const MedicationPlusFollowUp = () => {
 
     }
 
-    const fetchMedicationPlusFollowUp = async (userObject) => {
+    const fetchMedicalPlusFollowUpData = async (userObject) => {
 
         const userObjectId = userObject.id;
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllMedicationPlusFollowUp/${userObjectId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchMedicalPlusFollowUpData/${userObjectId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -90,9 +90,14 @@ const MedicationPlusFollowUp = () => {
 
             if ( response.status === 200 ){
 
-                const userObject = response.data;
+                let onsiteData = response.data;
 
-                setOnMedicationPlusFollowUp(userObject);
+                // Sort data to put items with treatmentDone: false at the top
+                onsiteData = onsiteData.sort((a, b) => {
+                    return a.treatmentDone === b.treatmentDone ? 0 : a.treatmentDone ? 1 : -1;
+                });
+
+                setMedicalPlusFollowUpData(onsiteData);
 
             }
 
@@ -128,7 +133,7 @@ const MedicationPlusFollowUp = () => {
                 
                     <div className="">
 
-                        <div className="mx-10 mr-56">
+                        <div className="mx-10 ">
 
                             <table
                                 className='w-full'
@@ -143,13 +148,14 @@ const MedicationPlusFollowUp = () => {
                                         <th>S.No</th>
                                         <th>Patient Name</th>
                                         <th>Doctors Name</th>
+                                        <th>Treatment Status</th>
                                         <th>Bill No</th>
 
                                     </tr>
 
                                 </thead>
 
-                                {onMedicationPlusFollowUp && onMedicationPlusFollowUp.length === 0 ? (
+                                {medicalPlusFollowUpData && medicalPlusFollowUpData.length === 0 ? (
 
                                     <tbody>
 
@@ -157,6 +163,7 @@ const MedicationPlusFollowUp = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -170,7 +177,7 @@ const MedicationPlusFollowUp = () => {
 
                                     <tbody>
 
-                                        {onMedicationPlusFollowUp.map((application, index) => (
+                                        {medicalPlusFollowUpData.map((application, index) => (
 
                                             <tr
                                                 key={application.id}
@@ -181,10 +188,19 @@ const MedicationPlusFollowUp = () => {
 
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>
+                                                <th>{application.treatmentDone ? (
+
+                                                    <span>Done</span>
+
+                                                ) : (
+
+                                                    <span>Not Done</span>
+
+                                                )}</th>
                                                 <th>{application.billNo}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/medical-support-consultation-queue/${application.id}`)}
+                                                    onClick={(id) => navigate(`/medical-support-medical-plus-follow-up-profile/${application.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>
@@ -211,4 +227,4 @@ const MedicationPlusFollowUp = () => {
 
 }
 
-export default MedicationPlusFollowUp
+export default MedicalPlusFollowUp

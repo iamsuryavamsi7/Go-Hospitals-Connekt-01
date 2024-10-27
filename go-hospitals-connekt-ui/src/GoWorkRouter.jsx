@@ -41,6 +41,13 @@ import PharmacyProfiles from './Components/Secured/PharmacyUser/Components/Pharm
 import FrontDeskForgetPassword from './Components/ForgetPassword/FrontDeskForgetPassword'
 import MedicalSupportForgetPassword from './Components/ForgetPassword/MedicalSupportForgetPassword'
 import PharmacyCareForgetPassword from './Components/ForgetPassword/PharmacyCareForgetPassword'
+import MedicalPlusFollowUpProfile from './Components/Secured/MedicalSupportUser/Components/MedicalPlusFollowUpProfile'
+import SurgeryCareProfile from './Components/Secured/MedicalSupportUser/Components/SurgeryCareProfile'
+import PharmacyProfile from './Components/Secured/MedicalSupportUser/Components/PharmacyProfile'
+import PatientAdmitProfile from './Components/Secured/MedicalSupportUser/Components/PatientAdmitProfile'
+import FollowUp from './Components/Secured/FrontDeskUser/Components/FollowUp'
+import FollowUpProfile from './Components/Secured/FrontDeskUser/Components/FollowUpProfile'
+import PatientApprovals from './Components/Secured/FrontDeskUser/Components/PatientApprovals'
 
 function GoWorkRouter() {
 
@@ -53,6 +60,15 @@ function GoWorkRouter() {
 					{/* BASE ROUTING */}
 					<Route index element={<HomePage />} />
 					<Route path='/' element={<HomePage />} />
+
+					{/* REGISTER ROUTING */}
+					<Route path='/front-desk-register' element={<FrontDeskRegister />} />
+					<Route path='/medical-support-register' element={<MedicalSupportRegister />} />
+					<Route path='/tele-support-register' element={<TeleSupportRegister />} />
+					<Route path='/pharmacy-care-register' element={<PharmacyCareRegister />} />
+					<Route path='/ot-coordination-register' element={<OtCoordinationRegister />} />
+					<Route path='/diagnostics-center-register' element={<DiagnosticsCenterRegister />} />
+					<Route path='/transport-team-register' element={<TransportTeamRegister />} />
 
 					{/* LOGIN ROUTING */}
 					<Route path='/front-desk-login' element={<FrontDesk />} />
@@ -68,26 +84,20 @@ function GoWorkRouter() {
 					<Route path='/medical-support-forget' element={<MedicalSupportForgetPassword />}/>
 					<Route path='/pharmacy-care-forget' element={<PharmacyCareForgetPassword />}/>
 
-					{/* REGISTER ROUTING */}
-					<Route path='/front-desk-register' element={<FrontDeskRegister />} />
-					<Route path='/medical-support-register' element={<MedicalSupportRegister />} />
-					<Route path='/tele-support-register' element={<TeleSupportRegister />} />
-					<Route path='/pharmacy-care-register' element={<PharmacyCareRegister />} />
-					<Route path='/ot-coordination-register' element={<OtCoordinationRegister />} />
-					<Route path='/diagnostics-center-register' element={<DiagnosticsCenterRegister />} />
-					<Route path='/transport-team-register' element={<TransportTeamRegister />} />
-
 					{/* ADMIN ROUTING */}
 					<Route element={<AdminPageLayout />}>
 						<Route path='/admin-new-approvals' element={<NewApprovals />}/>
 						<Route path='/admin-management' element={<AdminManagement />}/>
 					</Route>
 
-					{/* FRONTDESK ROUTING */}
+					{/* FRONTDESK ROUTING */} 
 					<Route element={<FrontDeskLayout />}>
 						<Route path="/front-desk-new-patient-on-board" element={<NewPatientOnBoardFrontDesk />} />
 						<Route path="/front-desk-consultation-queue" element={<ConsulationQueueFrontDesk />} />
 						<Route path="/front-desk-consultation-queue/:id" element={<ConsultationQueueProfileFrontDesk />} />
+						<Route path="/front-desk-follow-up" element={<FollowUp />} />
+						<Route path="/front-desk-follow-up-profile/:id" element={<FollowUpProfile />} />
+						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
 					</Route>
 
 					{/* MEDICALSUPPORT ROUTING */}
@@ -103,8 +113,13 @@ function GoWorkRouter() {
 						<Route path='/medical-support-cross-consultation' element={<CrossConsulation />}/>
 						<Route path='/medical-support-patient-admit' element={<PatientAdmit />}/>
 						<Route path='/medical-support-onsite-treatment-profile/:id' element={<OnSiteTreatmentProfile />}/>
+						<Route path='/medical-support-medical-plus-follow-up-profile/:id' element={<MedicalPlusFollowUpProfile />}/>
+						<Route path='/medical-support-surgery-care-profile/:id' element={<SurgeryCareProfile />}/>
+						<Route path='/medical-support-pharmacy-profile/:id' element={<PharmacyProfile />}/>
+						<Route path='/medical-support-patient-admit-profile/:id' element={<PatientAdmitProfile />}/>
 					</Route>
 
+					{/* PHARMACYPAGE LAYOUT */}
 					<Route element={<PharmacyPageLayout />}>
 						<Route path='/pharmacy-pending-medications' element={<PendingMedications />}/>
 						<Route path='/pharmacy-completed-medications' element={<CompletedMedications />}/>

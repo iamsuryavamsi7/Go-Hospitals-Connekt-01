@@ -9,7 +9,7 @@ import { IoCloseCircle } from 'react-icons/io5';
 import { data } from 'autoprefixer';
 import { CgLoadbar } from 'react-icons/cg';
 
-const PharmacyProfiles = () => {
+const FollowUpProfile = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -40,7 +40,7 @@ const PharmacyProfiles = () => {
     });
 
     const roles = {
-        pharmacy: 'PHARMACYCARE',
+        frontDesk: 'FRONTDESK'
     }
 
     const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
@@ -148,72 +148,6 @@ const PharmacyProfiles = () => {
 
     }    
 
-    const paymentDoneFunction = async () => {
-
-        const applicationId = id; 
-
-        const pharmacyMessage = ifNeededData;
-
-        const formData = new FormData();
-
-        formData.append('pharmacyMessage', pharmacyMessage);
-
-        if ( checkedStatus ){
-
-            try{
-
-                const response = await axios.post(`http://localhost:7777/api/v1/pharmacy/consultationCompleted/${applicationId}`, formData, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`
-                    }
-                })
-    
-                if ( response.status === 200 ){
-    
-                    console.log(response.data);
-
-                    toast.success("Application Completed", {
-                        autoClose: 1000,
-                        style: {
-                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                            color: '#fff', // Tailwind text-white
-                            fontWeight: '600', // Tailwind font-semibold
-                            borderRadius: '0.5rem', // Tailwind rounded-lg
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                            marginTop: '2.5rem' // Tailwind mt-10,
-                        },
-                        position: 'top-center'
-                    });
-
-                    fetchAppointmentData();
-    
-                }
-    
-            }catch(error){
-    
-                handleError(error);
-    
-            }
-
-        } else {
-
-            toast.error("Checkbox is not checked", {
-                autoClose: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
-
-        }
-
-    }
-
     const [images, setImages] = useState([]);
 
     const fetchImages = async () => {
@@ -225,8 +159,6 @@ const PharmacyProfiles = () => {
         const imagePromises = imageSrc.map(async (imgSrc) => {
             
             const imageSrc1 = imgSrc.prescriptionURL;
-
-            console.log("Started...");
 
             try{
 
@@ -240,8 +172,6 @@ const PharmacyProfiles = () => {
                 const value = response.data;
 
                 const imageBlob = URL.createObjectURL(value);
-
-                console.log("Finished...");
 
                 return imageBlob;
 
@@ -271,8 +201,6 @@ const PharmacyProfiles = () => {
             
             const fileName1 = file1.prescriptionURL;
 
-            console.log("Started");
-
             try{
 
                 const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
@@ -299,8 +227,6 @@ const PharmacyProfiles = () => {
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
 
-                    console.log("Finished");
-
                 }
 
             }catch(error){
@@ -313,8 +239,124 @@ const PharmacyProfiles = () => {
 
     }
 
-    const [ ifNeededData, setIfNeededData] = useState('');
-    
+    const approveFunction = async () => {
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/acceptApplicationById/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                toast.success("Patient Approved", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: '#22c55e' // Tailwind bg-green-400
+                    },
+                });
+                
+                setTimeout(() => {
+
+                    navigate('/front-desk-new-patient-on-board');
+
+                });
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+            toast.success("Something Went Wrong", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: 'red' // Tailwind bg-green-400
+                },
+                position: 'top-center'
+            });
+
+        }
+
+    }
+
+    const rejectFunction = async () => {
+
+        try{
+
+            const response = await axios.delete(`http://localhost:7777/api/v1/front-desk/deleteApplicationById/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                toast.success("Patient Rejected", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: 'red' // Tailwind bg-green-400
+                    },
+                });
+                
+                setTimeout(() => {
+
+                    navigate("/front-desk-new-patient-on-board");
+
+                }, 1600);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+            toast.success("Something Went Wrong", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: 'red' // Tailwind bg-green-400
+                },
+                position: 'top-center'
+            });
+
+        }
+
+    }
+
     useEffect(() => {
 
         if ( access_token ){
@@ -337,7 +379,7 @@ const PharmacyProfiles = () => {
 
             <ToastContainer />
 
-            {role === roles.pharmacy && (
+            {role === roles.frontDesk && (
 
                 <>
 
@@ -601,55 +643,65 @@ const PharmacyProfiles = () => {
 
                             )}
 
-                        </div>
+                            {patientData.consultationType === 'COMPLETED' && (
 
-                        <div className="flex">
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
-                            <div className="ml-10 mt-10">
+                                    <div className="text-base text-gray-300">
 
-                                <button
-                                    onClick={fetchImages}
-                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                >
+                                        Pharmacy Message
 
-                                    Show Prescription
+                                    </div>
 
-                                </button>
+                                    <div className="text-lg">
+                                        
+                                        {patientData.pharmacyMessage ? (
 
-                            </div>
+                                            <span>{patientData.pharmacyMessage}</span>
 
-                            <div className="mx-5 mt-10">
+                                        ): (
 
-                                <button
-                                    onClick={downloadImage}
-                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                >
+                                            <span>No Data</span>
 
-                                    Download Prescription
+                                        )}
 
-                                </button>
+                                    </div>
 
-                            </div>
+                                </div>
+
+                            )}
 
                         </div>
 
-                        {patientData.consultationType != 'COMPLETED' && (
+                        {patientData.patientGotApproved && (
 
-                            <div className="mx-10 my-5">
+                            <div className="flex">
 
-                                <label className='text-xs'>Write any feed (Optional)</label><br />
+                                <div className="ml-10 mt-10">
 
-                                <textarea
-                                    className='mt-2 h-[80px] border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                    value={ifNeededData}
-                                    onChange={(e) => {
+                                    <button
+                                        onClick={fetchImages}
+                                        className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    >
 
-                                        const value = e.target.value;
+                                        Show Prescription
 
-                                        setIfNeededData(value);
+                                    </button>
 
-                                    }}
-                                />
+                                </div>
+
+                                <div className="mx-5 mt-10">
+
+                                    <button
+                                        onClick={downloadImage}
+                                        className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    >
+
+                                        Download Prescription
+
+                                    </button>
+
+                                </div>
 
                             </div>
 
@@ -720,36 +772,19 @@ const PharmacyProfiles = () => {
                         
                         )} 
 
-                        {patientData.consultationType != 'COMPLETED' && (
+                        {!patientData.patientGotApproved && (
 
-                            <div className="ml-10">
-
-                                <div className="flex space-x-2 text-xs mb-3">
-
-                                    <input 
-                                        type='checkbox'
-                                        onChange={(e) => {
-
-                                            const value = e.target.checked;
-
-                                            setCheckedStatus(value);
-
-                                        }}
-                                        id='checkBox'
-                                    /><br />
-
-                                    <label htmlFor='checkBox' className='cursor-pointer'>Is the payment completed ?<span className='text-red-400 ml-1 relative bottom-[2px]'>*</span></label>
-
-                                </div>
+                            <div className="mx-10 my-10 space-x-5">
 
                                 <button
-                                    className='cursor-pointer bg-green-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                    onClick={paymentDoneFunction}
-                                >
+                                    className = {`bg-green-700 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-40`}
+                                    onClick = {approveFunction}
+                                > Approve </button>
 
-                                    Payment Done
-
-                                </button>
+                                <button
+                                    className = {`bg-red-800 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-40`}
+                                    onClick = {rejectFunction}
+                                > Reject </button>
 
                             </div>
 
@@ -767,4 +802,4 @@ const PharmacyProfiles = () => {
 
 }
 
-export default PharmacyProfiles
+export default FollowUpProfile

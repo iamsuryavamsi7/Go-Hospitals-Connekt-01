@@ -41,6 +41,7 @@ public class Applications {
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType;
     private String treatmentDoneMessage;
+    private String pharmacyMessage;
 
     @OneToMany(
             mappedBy = "application",
@@ -49,10 +50,14 @@ public class Applications {
     @JsonManagedReference
     private List<ImageUrls> prescriptionUrl = new ArrayList<>();
 
+    private boolean isPatientGotApproved;
+
     private boolean treatmentDone;
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
+
+    private boolean isMedicationPlusFollowUp;
 
     @ManyToOne
     @JsonBackReference

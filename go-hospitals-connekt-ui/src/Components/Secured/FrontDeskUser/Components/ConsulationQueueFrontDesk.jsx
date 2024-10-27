@@ -19,6 +19,12 @@ const ConsulationQueueFrontDesk = () => {
 
     const [inCompleteAppointments, setInCompleteAppointments] = useState([]);
 
+    const [page, setPage] = useState(0); // Track the current page
+    
+    const pageSize = 10; 
+
+    const [isLastPage, setIsLastPage] = useState(false); // 
+
     const roles = {
         admin: 'ADMIN',
         frontDesk: 'FRONTDESK',
@@ -49,10 +55,38 @@ const ConsulationQueueFrontDesk = () => {
 
     }
 
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchcompleteApplications(page + 1);
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
+
+    }
+
     const fetchIncompleteAppointments = async () => {
         
         try {
-            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getAllBookingsByNotComplete', {
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/getAllBookingsByNotCompletePaging/${pageNumber}/${defaultSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -62,6 +96,14 @@ const ConsulationQueueFrontDesk = () => {
 
                 let appointmentsData = response.data;
 
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(appointmentsData.length < pageSize);
+
                 appointmentsData = appointmentsData.sort((a, b) => {
                     const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
                     const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
@@ -70,12 +112,15 @@ const ConsulationQueueFrontDesk = () => {
                 });
 
                 setInCompleteAppointments(appointmentsData);
-    
+
+                return true;
 
             }
         } catch (error) {
             
             handleError(error);
+
+            return false;
         
         }
     
@@ -129,6 +174,12 @@ const ConsulationQueueFrontDesk = () => {
 
     }, []);
 
+    useEffect(() => {
+
+        fetchIncompleteAppointments();
+
+    }, [page]);
+
     return (
 
         <>
@@ -177,7 +228,7 @@ const ConsulationQueueFrontDesk = () => {
 
                                 </thead>
 
-                                {inCompleteAppointments && inCompleteAppointments === 0 ? (
+                                {inCompleteAppointments && inCompleteAppointments.length === 0 ? (
 
                                     <tbody>
 
@@ -205,7 +256,7 @@ const ConsulationQueueFrontDesk = () => {
                                                 className='text-left text-gray-500 leading-10 text-base'
                                             >
 
-                                                <th>{index + 1}</th>
+                                                <th>{(page * pageSize) + (index + 1)}</th>
 
                                                 <th>{appointment.name}</th>
                                                 <th>{appointment.preferredDoctorName}</th>
@@ -242,6 +293,23 @@ const ConsulationQueueFrontDesk = () => {
 
                             </table>
 
+                        </div>
+
+                        <div className="space-x-5 text-center mx-10 mt-5">
+                            
+                            <button 
+                                onClick={prevPage} 
+                                disabled={page === 0}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                            >Previous</button>
+                            
+                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                            
+                            <button 
+                                onClick={nextPage}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                            >Next</button>
+                        
                         </div>
 
                     </div>

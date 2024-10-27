@@ -1,4 +1,4 @@
-package com.Go_Work.Go_Work.Model.MEDICALSUPPORT;
+package com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.ImageUrls;
@@ -34,6 +34,9 @@ public class MedicalSupportResponseModel {
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
+    private String pharmacyMessage;
+
+    private boolean isPatientGotApproved;
 
     private List<ImageUrls> prescriptionsUrls;
 

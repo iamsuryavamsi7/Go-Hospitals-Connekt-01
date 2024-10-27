@@ -3,15 +3,20 @@ package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
+import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.DepartmentRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -37,6 +42,8 @@ public class FrontDeskService {
         applications.setConsultationType(ConsultationType.WAITING);
         applications.setTreatmentDone(false);
         applications.setPaymentDone(false);
+        applications.setPatientGotApproved(true);
+        applications.setMedicationPlusFollowUp(false);
 
         // Save the appointment
         Applications savedApplication = applicationsRepo.save(applications);
@@ -162,6 +169,127 @@ public class FrontDeskService {
         return departmentRepo.findById(departmentId).orElseThrow(
                 () -> new DepartmentNotFoundException("Department Not Found")
         );
+
+    }
+
+    public List<ApplicationsResponseModel> getAllBookingsByNotCompletePaging(int pageNumber, int size) {
+
+        Pageable pageable = PageRequest.of(pageNumber, size);
+
+        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+
+        return applicationsPage
+                .stream()
+                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+                .map(user01 -> {
+
+                    ApplicationsResponseModel user1 = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(user01, user1);
+
+                    User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        user1.setMedicalSupportUserId(null);
+                        user1.setMedicalSupportUserName(null);
+
+                    }
+
+                    return user1;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<MedicalSupportResponseModel> fetchPatientApprovals(int pageNumber, int size) {
+
+        Pageable pageable = PageRequest.of(pageNumber, size);
+
+        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+
+        return applicationsPage
+                .stream()
+                .filter(application -> application.getConsultationType().equals(ConsultationType.PATIENTADMIT) && !application.isPatientGotApproved())
+                .map(application1 -> {
+
+                    MedicalSupportResponseModel applicationNew = new MedicalSupportResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    User fetchedMedicalSupportUserDetails = application1.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        applicationNew.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        applicationNew.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        applicationNew.setMedicalSupportUserId(null);
+                        applicationNew.setMedicalSupportUserName(null);
+
+                    }
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public String deleteApplicationById(Long applicationId) {
+
+        applicationsRepo.deleteById(applicationId);
+
+        return "Application Deleted";
+
+    }
+
+    public String acceptApplicationById(Long applicationId) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setPatientGotApproved(true);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return "Approved";
+
+    }
+
+    public List<ApplicationsResponseModel> fetchMedicationPlusFollowUpPaging(int pageNumber, int size) {
+
+        Pageable pageable = PageRequest.of(pageNumber, size);
+
+        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+
+        return applicationsPage
+                .stream()
+                .filter(applications -> applications.getConsultationType().equals(ConsultationType.COMPLETED) && applications.isMedicationPlusFollowUp() )
+                .map(application1 -> {
+
+                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, application);
+
+                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+
+                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
+                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+
+                    return application;
+
+                })
+                .collect(Collectors.toList());
 
     }
 

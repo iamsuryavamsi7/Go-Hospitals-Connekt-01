@@ -33,6 +33,8 @@ public class ApplicationsResponseModel {
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
 
+    private boolean isPatientGotApproved;
+
     private Long medicalSupportUserId;
     private String medicalSupportUserName;
 

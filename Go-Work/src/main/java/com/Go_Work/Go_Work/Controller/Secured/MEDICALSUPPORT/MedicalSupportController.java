@@ -112,6 +112,50 @@ public class MedicalSupportController {
 
     }
 
+    @GetMapping("/fetchMedicalPlusFollowUpData/{userObjectId}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchMedicalPlusFollowUpData(
+            @PathVariable("userObjectId") Long userObjectId
+    ){
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchMedicalPlusFollowUpData(userObjectId);
+
+        return ResponseEntity.ok(fetchedData);
+
+    }
+
+    @GetMapping("/fetchSurgeryCareData/{userObjectId}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchSurgeryCareData(
+            @PathVariable("userObjectId") Long userObjectId
+    ){
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchSurgeryCareData(userObjectId);
+
+        return ResponseEntity.ok(fetchedData);
+
+    }
+
+    @GetMapping("/fetchPharmacyData/{userObjectId}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchPharmacyData(
+            @PathVariable("userObjectId") Long userObjectId
+    ){
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchPharmacyData(userObjectId);
+
+        return ResponseEntity.ok(fetchedData);
+
+    }
+
+    @GetMapping("/fetchPatientAdmitData/{userObjectId}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchPatientAdmitData(
+            @PathVariable("userObjectId") Long userObjectId
+    ){
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchPatientAdmitData(userObjectId);
+
+        return ResponseEntity.ok(fetchedData);
+
+    }
+
     @GetMapping("/fetchAllMedicationPlusFollowUp/{userObjectId}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchAllMedicationPlusFollowUp(
             @PathVariable("userObjectId") Long userObjectId

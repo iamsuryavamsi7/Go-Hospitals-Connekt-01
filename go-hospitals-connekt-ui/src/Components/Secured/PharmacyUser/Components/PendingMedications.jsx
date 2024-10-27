@@ -192,11 +192,39 @@ const PendingMedications = () => {
                                                 <th>{application.preferredDoctorName}</th>
                                                 <th>{application.billNo}</th>
                                                 <th>{application.medicalSupportUserName}</th>
-                                                <th>{application.consultationType === 'ONSITETREATMENT' && (
+                                                <th>
+                                                    
+                                                    {application.consultationType === 'ONSITETREATMENT' && (
 
                                                     <span>On Site Treatment</span>
 
-                                                )}</th>
+                                                    )}
+
+                                                    {application.consultationType === 'MEDICATIONPLUSFOLLOWUP' && (
+
+                                                    <span>Medication Plus Follow Up</span>
+
+                                                    )}
+
+                                                    {application.consultationType === 'SURGERYCARE' && (
+
+                                                    <span>Surgery Care</span>
+
+                                                    )}
+
+                                                    {application.consultationType === 'PHARMACY' && (
+
+                                                    <span>Pharmacy</span>
+
+                                                    )}
+
+                                                    {application.consultationType === 'PATIENTADMIT' && (
+
+                                                    <span>Patient Admit</span>
+
+                                                    )}
+
+                                                </th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
                                                     onClick={(id) => navigate(`/pharmacy-profiles/${application.id}`)}

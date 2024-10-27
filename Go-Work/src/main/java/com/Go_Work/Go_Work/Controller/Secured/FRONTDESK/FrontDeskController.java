@@ -3,9 +3,11 @@ package com.Go_Work.Go_Work.Controller.Secured.FRONTDESK;
 import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,18 @@ public class FrontDeskController {
     public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(){
 
         List<ApplicationsResponseModel> message = frontDeskService.getAllBookingsByNotComplete();
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/getAllBookingsByNotCompletePaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> message = frontDeskService.getAllBookingsByNotCompletePaging(pageNumber, size);
 
         return ResponseEntity.ok(message);
 
@@ -79,6 +93,52 @@ public class FrontDeskController {
         List<Doctor> fetchedDoctors = frontDeskService.fetchDoctorsByDepartmentId(departmentId);
 
         return ResponseEntity.ok(fetchedDoctors);
+
+    }
+
+    @GetMapping("/fetchPatientApprovals/{pageNumber}/{size}")
+    public ResponseEntity<List<MedicalSupportResponseModel>> fetchPatientApprovals(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("size") int size
+    ){
+
+        List<MedicalSupportResponseModel> response = frontDeskService.fetchPatientApprovals( pageNumber, size );
+
+        return ResponseEntity.ok(response);
+
+    }
+
+    @DeleteMapping("/deleteApplicationById/{applicationId}")
+    public ResponseEntity<String> deleteApplicationById(
+            @PathVariable("applicationId") Long applicationId
+    ){
+
+        String message = frontDeskService.deleteApplicationById(applicationId);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/acceptApplicationById/{applicationId}")
+    public ResponseEntity<String> acceptApplicationById(
+            @PathVariable("applicationId") Long applicationId
+    ) throws ApplicationNotFoundException {
+
+        String message = frontDeskService.acceptApplicationById(applicationId);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/fetchMedicationPlusFollowUpPaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchMedicationPlusFollowUpPaging(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = frontDeskService.fetchMedicationPlusFollowUpPaging(pageNumber, size);
+
+        return ResponseEntity.ok(fetchedApplications);
 
     }
 

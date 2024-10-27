@@ -2,7 +2,7 @@ package com.Go_Work.Go_Work.Controller.Secured.PHARMACY;
 
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Model.MEDICALSUPPORT.MedicalSupportResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Service.Secured.PHARMACY.PharmacyService;
@@ -35,12 +35,13 @@ public class PharmacyController {
 
     }
 
-    @GetMapping("/consultationCompleted/{applicationId}")
+    @PostMapping("/consultationCompleted/{applicationId}")
     public ResponseEntity<String> consultationCompleted(
-            @PathVariable("applicationId") Long applicationId
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam("pharmacyMessage") String pharmacyMessage
     ) throws ApplicationNotFoundException {
 
-        String successMessage = pharmacyService.consultationCompleted(applicationId);
+        String successMessage = pharmacyService.consultationCompleted(applicationId, pharmacyMessage);
 
         return ResponseEntity.ok(successMessage);
 
@@ -59,6 +60,18 @@ public class PharmacyController {
     public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyCompletedMedications(){
 
         List<ApplicationsResponseModel> fetchedApplications = pharmacyService.fetchAllPharmacyCompletedMedications();
+
+        return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @GetMapping("/fetchAllPharmacyCompletedMedicationsPaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyCompletedMedicationsPaging(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = pharmacyService.fetchAllPharmacyCompletedMedicationsPaging(pageNumber, size);
 
         return ResponseEntity.ok(fetchedApplications);
 

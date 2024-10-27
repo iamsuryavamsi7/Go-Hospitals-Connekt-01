@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const CompletedMedications = () => {
+const FollowUp = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -27,7 +27,7 @@ const CompletedMedications = () => {
     const [isLastPage, setIsLastPage] = useState(false); // 
 
     const roles = {
-        pharmacy: 'PHARMACYCARE'
+        frontDesk: 'FRONTDESK'
     }
 
 // Functions
@@ -49,11 +49,11 @@ const CompletedMedications = () => {
 
     }
 
-    const fetchcompleteApplications = async () => {
-        
+    const fetchMedicationPlusFollowUp = async () => {
+
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyCompletedMedicationsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchMedicationPlusFollowUpPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -89,10 +89,37 @@ const CompletedMedications = () => {
             handleError(error);
 
             return false;
-
         }
 
     };
+
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchMedicationPlusFollowUp(page + 1);
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
+
+    }
 
     const fetchUserObject = async () => {
 
@@ -126,41 +153,13 @@ const CompletedMedications = () => {
 
     }
 
-    const nextPage = async () => {
-
-        if ( !isLastPage ) {
-
-            const hasPage = await fetchcompleteApplications(page + 1);
-
-            if ( hasPage ){
-
-                setPage((prevPage) => prevPage + 1);
-
-            }
-
-        }
-
-    }
-
-    const prevPage = () => {
-
-        if ( page > 0 ) {
-
-            setPage((prevPage) => prevPage - 1);
-
-            setIsLastPage(false);
-
-        } 
-
-    }
-
     useEffect(() => {
 
         if ( access_token ){
 
             fetchUserObject();
 
-            fetchcompleteApplications();
+            fetchMedicationPlusFollowUp();
 
         } else {
 
@@ -172,7 +171,7 @@ const CompletedMedications = () => {
 
     useEffect(() => {
 
-        fetchcompleteApplications();
+        fetchMedicationPlusFollowUp();
 
     }, [page]);
 
@@ -182,7 +181,7 @@ const CompletedMedications = () => {
 
             <ToastContainer />
 
-            {role === roles.pharmacy && (
+            {role === roles.frontDesk && (
 
                 <>
 
@@ -210,7 +209,7 @@ const CompletedMedications = () => {
 
                                 </thead>
 
-                                {CompleteApplications && CompleteApplications === 0 ? (
+                                {CompleteApplications && CompleteApplications.length === 0 ? (
 
                                     <tbody>
 
@@ -218,6 +217,7 @@ const CompletedMedications = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -256,16 +256,15 @@ const CompletedMedications = () => {
                                                     <>
                                                     
                                                         <span 
-                                                            className='text-green-500 cursor-pointer'
-                                                            onClick={(id) => takeJobFunction(application.id)}
-                                                        >Take Job</span>
+                                                            className='text-red-500 cursor-pointer'
+                                                        >Not Taken</span>
 
                                                     </>
 
                                                 )}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/pharmacy-profiles/${application.id}`)}
+                                                    onClick={(id) => navigate(`/front-desk-follow-up-profile/${application.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>
@@ -309,4 +308,4 @@ const CompletedMedications = () => {
 
 }
 
-export default CompletedMedications
+export default FollowUp

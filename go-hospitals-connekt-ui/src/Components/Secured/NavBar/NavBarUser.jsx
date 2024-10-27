@@ -248,6 +248,59 @@ const NavBarUser = () => {
 
     }
 
+    const notificationFrontDeskFunction = async (id, notificationId) => {
+
+        navigate(`/front-desk-follow-up-profile/${id}`);
+
+        setNotificationsVisible(false);
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                try{
+
+                    const userId = userObject.id;
+        
+                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${access_token}`
+                        }
+                    })
+        
+                    if ( response.status === 200 ){
+        
+                        let notificationData = response.data;
+
+                        // Sort notifications by timeStamp in descending order (latest first)
+                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+            
+                        setNotificationArray(notificationData);
+        
+                    }
+        
+                }catch(error){
+        
+                    handleError(error);
+        
+                }
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+        }
+
+    }
+
     const notificationPharmacyCareFunction = async (id, notificationId) => {
 
         navigate(`/pharmacy-profiles/${id}`);
@@ -325,6 +378,18 @@ const NavBarUser = () => {
 
         setNotificationCount(unreadNotifications.length);
 
+        const notificationCountNumber = document.querySelector(".notificationCount");
+
+        if ( notificationCount > 9 ){
+
+            notificationCountNumber.style.right = '-20px';
+
+        } else {
+
+            notificationCountNumber.style.right = '-7px';
+
+        }
+
     }, [notificationArray, pathName]);
 
     return (
@@ -364,7 +429,7 @@ const NavBarUser = () => {
                             onClick={activateNotifications}
                         />
 
-                        <div className="absolute top-[-10px] right-[-7px]">
+                        <div className="absolute top-[-10px] notificationCount right-[-7px]">
 
                             {/* {notif} */}
 
@@ -421,6 +486,29 @@ const NavBarUser = () => {
                                                     <div
                                                         key={notification.id}
                                                     >
+
+                                                        {role === roles.frontDesk && (
+
+                                                            <div 
+                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
+                                                                onClick={(id, notificationid) => notificationFrontDeskFunction(notification.applicationId, notification.id)} 
+                                                            >
+
+                                                                <div className="">
+
+                                                                    {notification.message}
+
+                                                                </div>
+
+                                                                <div className="text-xs text-gray-400">
+
+                                                                    {new Date(notification.timeStamp).toLocaleString()}
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        )}
 
                                                         {role === roles.medicalSupport && (
 

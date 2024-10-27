@@ -3,11 +3,12 @@ import { IoPeopleCircleOutline, IoPersonAddSharp } from 'react-icons/io5';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { MdManageAccounts } from 'react-icons/md';
+import { MdFollowTheSigns, MdManageAccounts } from 'react-icons/md';
 import { FaBriefcaseMedical, FaHospitalUser, FaStethoscope, FaTasks } from 'react-icons/fa';
 import { GiMedicines } from 'react-icons/gi';
 import { LiaExchangeAltSolid } from 'react-icons/lia';
 import { TbExchange } from 'react-icons/tb';
+import { SiTicktick } from 'react-icons/si';
 
 const LeftNavBar = () => {
 
@@ -92,6 +93,10 @@ const LeftNavBar = () => {
     const [completedMedication1, setCompletedMedications1] = useState(`text-gray-400`);
 
     const [completedMedication2, setCompletedMedications2] = useState(`text-gray-400`);
+
+    const [patientApprovals1, setPatientApprovals1] = useState(`text-gray-400`);
+
+    const [patientApprovals2, setPatientApprovals2] = useState(`text-gray-400`);
 
     const pathName = window.location.pathname;
 
@@ -213,6 +218,34 @@ const LeftNavBar = () => {
             setPendingConsultations(`text-gray-400`);
 
             setPendingConsultations2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-patient-approvals` ){
+
+            setPatientApprovals1(`text-sky-500`);
+
+            setPatientApprovals2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setPatientApprovals1(`text-gray-400`);
+
+            setPatientApprovals2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-follow-up`){
+
+            setFollowUpPatients(`text-sky-500`);
+
+            setFollowUpPatients2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setFollowUpPatients(`text-gray-400`);
+
+            setFollowUpPatients2(`text-gray-400`);
 
         }
 
@@ -466,11 +499,37 @@ const LeftNavBar = () => {
 
                         </div>
 
-                        <div className={`${followUpPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}>
+                        <div 
+                            className={`${patientApprovals1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/front-desk-patient-approvals')}
+                        >
+
 
                             <div className="">
 
-                                <IoPersonAddSharp 
+                                <SiTicktick 
+                                    className={`${patientApprovals2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Patient Approvals
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${followUpPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/front-desk-follow-up')}
+                        >
+
+
+                            <div className="">
+
+                                <MdFollowTheSigns 
                                     className={`${followUpPatients2} text-2xl  leading-8 p-1 rounded-md`}
                                 />
 

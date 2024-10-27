@@ -138,7 +138,10 @@ public class MedicalSupportService {
                 () -> new MedicalSupportUserNotFound("Medical Support User Not Found")
         );
 
-        return fetchedMedicalSupportUser.getApplications();
+        return fetchedMedicalSupportUser.getApplications()
+                .stream()
+                .filter(application -> application.getConsultationType() != ConsultationType.COMPLETED)
+                .collect(Collectors.toList());
 
     }
 
@@ -348,15 +351,64 @@ public class MedicalSupportService {
 
     public String makeConsultationType(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException {
 
-        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
-                () -> new ApplicationNotFoundException("Application Not Found")
-        );
+        if ( consultationType.equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)){
 
-        fetchedApplication.setConsultationType(consultationType);
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
 
-        applicationsRepo.save(fetchedApplication);
+            fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setMedicationPlusFollowUp(true);
 
-        return "Consultation Type updated";
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type updated";
+
+        }
+
+        if (!consultationType.equals(ConsultationType.PATIENTADMIT)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(consultationType);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type updated";
+
+        }else {
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setPatientGotApproved(false);
+
+            applicationsRepo.save(fetchedApplication);
+
+            userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                    .forEach(fetchedUser -> {
+
+                        Notification notification = new Notification();
+
+                        notification.setApplicationId(fetchedApplication.getId());
+                        notification.setRead(false);
+                        notification.setMessage("New Patient Admit Request");
+                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                        notification.setUser(fetchedUser);
+
+                        notificationRepo.save(notification);
+
+                    });
+
+            return "Consultation Type updated";
+
+        }
 
     }
 
@@ -449,4 +501,123 @@ public class MedicalSupportService {
     }
 
 
+    public List<ApplicationsResponseModel> fetchMedicalPlusFollowUpData(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchSurgeryCareData(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchPharmacyData(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public List<ApplicationsResponseModel> fetchPatientAdmitData(Long userObjectId) {
+
+        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
+
+        return fetchedData
+                .stream()
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT))
+                .map(application1 -> {
+
+                    User medicalSupportUser = application1.getMedicalSupportUser();
+
+                    ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, applicationNew);
+
+                    applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
+
+                    applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
+
+                    return applicationNew;
+
+                })
+                .collect(Collectors.toList());
+
+    }
 }
