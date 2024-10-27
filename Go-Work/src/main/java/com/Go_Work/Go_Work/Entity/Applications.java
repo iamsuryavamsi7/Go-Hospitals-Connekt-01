@@ -2,13 +2,16 @@ package com.Go_Work.Go_Work.Entity;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(
@@ -38,7 +41,14 @@ public class Applications {
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType;
     private String treatmentDoneMessage;
-    private String prescriptionUrl;
+
+    @OneToMany(
+            mappedBy = "application",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference
+    private List<ImageUrls> prescriptionUrl = new ArrayList<>();
+
     private boolean treatmentDone;
     private boolean paymentDone;
     private Date paymentDoneTime;

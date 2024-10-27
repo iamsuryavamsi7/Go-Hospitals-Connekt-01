@@ -45,16 +45,15 @@ public class S3Service {
     }
 
     public byte[] downloadFile(String fileName) {
-
         GetObjectRequest objectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
                 .build();
 
         // Get the object from S3
-        ResponseInputStream<GetObjectResponse> objectInputStream = s3.getObject(objectRequest);
+        try (ResponseInputStream<GetObjectResponse> objectInputStream = s3.getObject(objectRequest);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024]; // Buffer for reading the stream
             int bytesRead;
 
@@ -67,10 +66,8 @@ public class S3Service {
             return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
-            return null; // or handle exception as needed
-
+            return null; // Handle the exception as needed
         }
-
     }
 
     public String uploadProfilePic(

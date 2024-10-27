@@ -1,18 +1,20 @@
-package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
+package com.Go_Work.Go_Work.Model.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.ImageUrls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ApplicationsResponseModel {
+public class MedicalSupportResponseModel {
 
     private Long id;
     private String name;
@@ -32,6 +34,8 @@ public class ApplicationsResponseModel {
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
+
+    private List<ImageUrls> prescriptionsUrls;
 
     private Long medicalSupportUserId;
     private String medicalSupportUserName;

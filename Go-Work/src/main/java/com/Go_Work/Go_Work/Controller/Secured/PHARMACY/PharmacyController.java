@@ -2,14 +2,14 @@ package com.Go_Work.Go_Work.Controller.Secured.PHARMACY;
 
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
+import com.Go_Work.Go_Work.Model.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Service.Secured.PHARMACY.PharmacyService;
+import com.Go_Work.Go_Work.Service.Secured.S3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,12 +20,16 @@ public class PharmacyController {
 
     private final PharmacyService pharmacyService;
 
+    private final ApplicationsRepo applicationsRepo;
+
+    private final S3Service s3Service;
+
     @GetMapping("/fetchApplicationById/{applicationId}")
-    public ResponseEntity<ApplicationsResponseModel> fetchAppointmentById(
+    public ResponseEntity<MedicalSupportResponseModel> fetchAppointmentById(
             @PathVariable("applicationId") Long id
     ) throws AppointmentNotFoundException {
 
-        ApplicationsResponseModel fetchedApplication= pharmacyService.fetchApplicationById(id);
+        MedicalSupportResponseModel fetchedApplication= pharmacyService.fetchApplicationById(id);
 
         return ResponseEntity.ok(fetchedApplication);
 

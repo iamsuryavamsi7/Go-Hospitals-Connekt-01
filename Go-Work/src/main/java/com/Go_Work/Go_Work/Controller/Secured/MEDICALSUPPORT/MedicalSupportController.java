@@ -170,7 +170,7 @@ public class MedicalSupportController {
     @PostMapping("/uploadPrescription/{applicationId}")
     public ResponseEntity<String> uploadPrescription(
             @PathVariable("applicationId") Long applicationId,
-            @RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile") List<MultipartFile> imageFile,
             @RequestParam("prescriptionMessage") String prescriptionMessage
     ) throws ApplicationNotFoundException, IOException {
 

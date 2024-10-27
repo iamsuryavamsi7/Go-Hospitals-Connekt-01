@@ -1,9 +1,11 @@
 package com.Go_Work.Go_Work.Service.Secured.PHARMACY;
 
 import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.ImageUrls;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
+import com.Go_Work.Go_Work.Model.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +23,13 @@ public class PharmacyService {
 
     private final ApplicationsRepo applicationsRepo;
 
-    public ApplicationsResponseModel fetchApplicationById(Long id) throws AppointmentNotFoundException {
+    public MedicalSupportResponseModel fetchApplicationById(Long id) throws AppointmentNotFoundException {
 
         Applications fetchedApplication = applicationsRepo.findById(id).orElseThrow(
                 () -> new AppointmentNotFoundException("Id Not Found")
         );
 
-        ApplicationsResponseModel application1 = new ApplicationsResponseModel();
+        MedicalSupportResponseModel application1 = new MedicalSupportResponseModel();
 
         BeanUtils.copyProperties(fetchedApplication, application1);
 
@@ -44,6 +46,10 @@ public class PharmacyService {
             application1.setMedicalSupportUserName(null);
 
         }
+
+        List<ImageUrls> imageUrls = fetchedApplication.getPrescriptionUrl();
+
+        application1.setPrescriptionsUrls(imageUrls);
 
         return application1;
 

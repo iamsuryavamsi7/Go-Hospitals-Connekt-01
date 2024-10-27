@@ -152,6 +152,7 @@ const PendingMedications = () => {
                                         <th>Doctors Name</th>
                                         <th>Bill No</th>
                                         <th>Medical Support User</th>
+                                        <th>Status</th>
 
                                     </tr>
 
@@ -190,24 +191,10 @@ const PendingMedications = () => {
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>
                                                 <th>{application.billNo}</th>
-                                                <th>{application.medicalSupportUserName ? (
+                                                <th>{application.medicalSupportUserName}</th>
+                                                <th>{application.consultationType === 'ONSITETREATMENT' && (
 
-                                                    <>
-
-                                                        {application.medicalSupportUserName}
-
-                                                    </>
-
-                                                ) : (
-
-                                                    <>
-                                                    
-                                                        <span 
-                                                            className='text-green-500 cursor-pointer'
-                                                            onClick={(id) => takeJobFunction(application.id)}
-                                                        >Take Job</span>
-
-                                                    </>
+                                                    <span>On Site Treatment</span>
 
                                                 )}</th>
                                                 <th

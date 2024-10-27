@@ -2,6 +2,7 @@ package com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.ImageUrls;
 import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Entity.User;
@@ -11,6 +12,7 @@ import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
+import com.Go_Work.Go_Work.Repo.ImageUrlsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +42,8 @@ public class MedicalSupportService {
     private final UserRepo userRepo;
 
     private final NotificationRepo notificationRepo;
+
+    private final ImageUrlsRepo imageUrlsRepo;
 
     private final S3Client s3;
 
@@ -355,80 +360,93 @@ public class MedicalSupportService {
 
     }
 
+
+
+    private void deleteS3Object(Applications application){
+
+        if ( application != null && application.getPrescriptionUrl() != null){
+
+            application.getPrescriptionUrl()
+                    .forEach(application1 -> {
+
+                        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(application1.getPrescriptionURL())
+                                .build();
+
+                        DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
+
+                    });
+
+        }
+
+    }
+
     public String uploadPrescription(
             Long applicationId,
-            MultipartFile imageFile,
-            String prescriptionMessage
-    ) throws ApplicationNotFoundException, IOException {
+            List<MultipartFile> imageFiles,
+            String prescriptionMessage) throws ApplicationNotFoundException {
 
-        Applications fetchedapplication  = applicationsRepo.findById(applicationId).orElseThrow(
-                () -> new ApplicationNotFoundException("Application Not Found")
-        );
+        Applications fetchedApplication = applicationsRepo.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
 
-        deleteS3Object(fetchedapplication.getPrescriptionUrl());
+        // Clear the previous URLs
+        deleteS3Object(fetchedApplication);
 
-        String originalFileName = imageFile.getOriginalFilename();
+        // Upload each image file and collect URLs
+        List<ImageUrls> uploadedFilenames = imageFiles.stream()
+                .map(imageFile -> {
+                    try {
+                        String originalFileName = imageFile.getOriginalFilename();
+                        if (originalFileName != null) {
+                            originalFileName = originalFileName.replace(" ", "_");
+                        }
+                        String fileName = System.currentTimeMillis() + "_" + originalFileName;
 
-        if ( originalFileName != null ){
+                        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(fileName)
+                                .build();
+                        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
 
-            originalFileName = originalFileName.replace(" ", "_");
+                        ImageUrls imageUrl = new ImageUrls();
 
-        }
+                        imageUrl.setPrescriptionURL(fileName);
 
-        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+                        imageUrl.setApplication(fetchedApplication);
 
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileName)
-                .build();
+                        return imageUrlsRepo.save(imageUrl);
 
-        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to upload image to S3", e);
+                    }
+                })
+                .toList();
 
-        userRepo.findAll()
-                .stream()
-                .filter(user -> user.getRole().equals(Role.PHARMACYCARE) )
-                        .forEach(pharmacyUser -> {
+        // Update the fetched application's prescription URL list
+        fetchedApplication.getPrescriptionUrl().clear();
+        fetchedApplication.getPrescriptionUrl().addAll(uploadedFilenames);
+        fetchedApplication.setTreatmentDoneMessage(prescriptionMessage);
+        fetchedApplication.setTreatmentDone(true);
 
-                            Notification newNotification = new Notification();
+        applicationsRepo.save(fetchedApplication);
 
-                            newNotification.setMessage("Treatment done and need medicines");
-                            newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
-                            newNotification.setApplicationId(applicationId);
-                            newNotification.setUser(pharmacyUser);
+        // Notify pharmacy users
+        userRepo.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.PHARMACYCARE))
+                .forEach(pharmacyUser -> {
+                    Notification newNotification = new Notification();
+                    newNotification.setMessage("Treatment done and need medicines");
+                    newNotification.setTimeStamp(new Date());
+                    newNotification.setApplicationId(applicationId);
+                    newNotification.setUser(pharmacyUser);
+                    notificationRepo.save(newNotification);
+                    pharmacyUser.getNotifications().add(newNotification);
+                    userRepo.save(pharmacyUser);
+                });
 
-                            notificationRepo.save(newNotification);
-
-                            pharmacyUser.getNotifications().add(newNotification);
-
-                            userRepo.save(pharmacyUser);
-
-                        });
-
-        fetchedapplication.setPrescriptionUrl(fileName);
-
-        fetchedapplication.setTreatmentDoneMessage(prescriptionMessage);
-
-        fetchedapplication.setTreatmentDone(true);
-
-        applicationsRepo.save(fetchedapplication);
-
-        return "Prescription Uploaded";
-
+        return "Prescription Uploaded Successfully";
     }
 
-    private void deleteS3Object(String filename){
-
-        if ( filename != null && !filename.isEmpty() ){
-
-            DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(filename)
-                    .build();
-
-            DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
-
-        }
-
-    }
 
 }

@@ -5,6 +5,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { IoCloseCircle } from 'react-icons/io5';
+import { data } from 'autoprefixer';
+import { CgLoadbar } from 'react-icons/cg';
 
 const PharmacyProfiles = () => {
 
@@ -40,11 +42,11 @@ const PharmacyProfiles = () => {
         pharmacy: 'PHARMACYCARE',
     }
 
-    const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState(null);
+    const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
 
     const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
 
-    const [ checkedStatus, setCheckedStatus] = useState(false);
+    const [checkedStatus, setCheckedStatus] = useState(false);
 
     // Format the date and time (example: MM/DD/YYYY, HH:MM AM/PM)
     const options = { 
@@ -143,84 +145,7 @@ const PharmacyProfiles = () => {
 
         }
 
-    }
-
-    const fetchImage = async () => {
-
-        const fileName = patientData.prescriptionUrl;
-
-        setPatientPrescriptionSrc(null);
-
-        try{
-
-            const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName}`, {
-                responseType: 'blob',
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                const image = URL.createObjectURL(response.data);
-
-                setPatientPrescriptionSrc(image);
-
-                setFetchedImageVisible(true);
-
-            } 
-
-        }catch(error){
-
-            handleError(error);
-
-            setPatientPrescriptionSrc(null);
-
-        }
-
-    }
-
-    const downloadImage = async () => {
-
-        const fileName = patientData.prescriptionUrl; 
-
-        setPatientPrescriptionSrc(null);
-
-        try{
-
-            const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                },
-                responseType: 'blob'
-            })
-
-            if ( response.status === 200 ){
-
-                console.log("Download Started");
-
-                const url = window.URL.createObjectURL(new Blob([response.data]));
-
-                const link = document.createElement('a');
-
-                link.href = url;
-
-                link.setAttribute('download', fileName);
-                document.body.appendChild(link);
-                link.click();
-
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-
-            } 
-
-        }catch(error){
-
-            handleError(error);
-
-        }
-
-    }
+    }    
 
     const paymentDoneFunction = async () => {
 
@@ -282,6 +207,105 @@ const PharmacyProfiles = () => {
 
     }
 
+    const [images, setImages] = useState([]);
+
+    const fetchImages = async () => {
+
+        const imageSrc = patientData.prescriptionsUrls;
+
+        setFetchedImageVisible(true);
+
+        const imagePromises = imageSrc.map(async (imgSrc) => {
+            
+            const imageSrc1 = imgSrc.prescriptionURL;
+
+            console.log("Started...");
+
+            try{
+
+                const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+                    responseType: 'blob',
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                })
+
+                const value = response.data;
+
+                const imageBlob = URL.createObjectURL(value);
+
+                console.log("Finished...");
+
+                return imageBlob;
+
+            }catch(error){
+
+                handleError(error);
+
+            }
+        
+        });
+
+        const blobs = await Promise.all(imagePromises);
+
+        setImages(
+            (prevImages) => [...prevImages, ...blobs.filter((blob) => blob !== null)]
+        );
+
+    }
+
+    const downloadImage = async () => {
+
+        setPatientPrescriptionSrc(null);
+
+        const fileName = patientData.prescriptionsUrls;
+
+        fileName.map( async (file1) => {
+            
+            const fileName1 = file1.prescriptionURL;
+
+            console.log("Started");
+
+            try{
+
+                const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    },
+                    responseType: 'blob'
+                })
+
+                if ( response.status === 200 ){
+
+                    console.log("Download Started");
+
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+
+                    const link = document.createElement('a');
+
+                    link.href = url;
+
+                    link.setAttribute('download', fileName1);
+                    document.body.appendChild(link);
+                    link.click();
+
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    console.log("Finished");
+
+                }
+
+            }catch(error){
+
+                handleError(error);
+
+            }
+
+        });
+
+    }
+    
     useEffect(() => {
 
         if ( access_token ){
@@ -575,7 +599,7 @@ const PharmacyProfiles = () => {
                             <div className="ml-10 my-10">
 
                                 <button
-                                    onClick={fetchImage}
+                                    onClick={fetchImages}
                                     className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
                                 >
 
@@ -601,30 +625,69 @@ const PharmacyProfiles = () => {
                         </div>
 
                         {fetchedImageVisible && (
+                            
+                            <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
 
-                            <div className="absolute top-10 right-10 bottom-10 left-10 flex items-center justify-center">
+                                <div className="absolute mx-20 mt-10 text-xl font-semibold">
 
-                                <div className="mx-20 my-20 relative">
-
-                                    <img 
-                                        src={patientPrescriptionSrc}
-                                        className='w-[600px] h-auto transition-transform duration-300 ease-in-out transform hover:scale-105'
-                                    />
-
-                                <IoCloseCircle 
-                                    className='absolute top-5 right-5 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
-                                    onClick={() => {
-
-                                        setFetchedImageVisible(false);
-
-                                    }}
-                                />
+                                    Preview Mode
 
                                 </div>
+                            
+                                <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden"> 
+                                    
+                                    {images && images.length > 0 ? images.map((imageSrc, index) => {
+                                        
+                                        console.log(imageSrc);
 
+                                        return (
+
+                                            <img 
+                                                key={index} 
+                                                src={imageSrc}
+                                                alt={`Prescription ${index + 1}`} 
+                                                className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
+                                            />
+
+                                    )}) : (
+
+                                        <div
+                                            className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'
+                                        >
+
+                                            <div className="flex items-center space-x-2 text-xl">
+
+                                                <div className="animate-spin">
+
+                                                    <CgLoadbar />
+
+                                                </div>
+
+                                                <div className="animate-pulse">
+
+                                                    Fetching ...
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                        <IoCloseCircle 
+                                            className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                            onClick={() => {
+                                                setFetchedImageVisible(false);
+                                                setImages([]);
+                                            }}
+                                            />
+                            
+                                </div>
+                            
                             </div>
-
-                        )}
+                        
+                        )} 
 
                         {patientData.consultationType != 'COMPLETED' && (
 
@@ -641,9 +704,10 @@ const PharmacyProfiles = () => {
                                             setCheckedStatus(value);
 
                                         }}
+                                        id='checkBox'
                                     /><br />
 
-                                    <p className=''>Is the payment completed ?<span className='text-red-400 ml-1 relative bottom-[2px]'>*</span></p>
+                                    <label htmlFor='checkBox' className='cursor-pointer'>Is the payment completed ?<span className='text-red-400 ml-1 relative bottom-[2px]'>*</span></label>
 
                                 </div>
 

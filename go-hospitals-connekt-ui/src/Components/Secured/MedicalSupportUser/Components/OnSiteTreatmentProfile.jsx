@@ -19,7 +19,7 @@ const OnSiteTreatmentProfile = () => {
 
     const [userObject, setUserObject] = useState(null);
 
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState([]);
 
     const {id} = useParams();
 
@@ -149,9 +149,11 @@ const OnSiteTreatmentProfile = () => {
 
     const handleCapture = (e) => {
         
-        const file = e.target.files[0];
+        const files = Array.from(e.target.files);
         
-        setImage(file);
+        setImage(
+            (prevFiles) => [...prevFiles, ...files]
+        );
     
     };
 
@@ -163,7 +165,13 @@ const OnSiteTreatmentProfile = () => {
     
         // Create FormData object
         const formData = new FormData();
-        formData.append("imageFile", image);
+
+        image.forEach((file) => {
+
+            formData.append("imageFile", file);
+
+        });
+
         formData.append("prescriptionMessage", treatmentDone);
 
         try {
@@ -171,8 +179,9 @@ const OnSiteTreatmentProfile = () => {
           // Send the form data to the backend
           const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
             headers: {
-                'Authorization': `Bearer ${access_token}`
-            }
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': `multipart/form-data`
+            },
           });
 
           if ( response.status === 200 ){
@@ -194,7 +203,7 @@ const OnSiteTreatmentProfile = () => {
 
             steTreatmentDone(``);
 
-            setImage(null);
+            setImage([]);
 
             setTreatMentDoneVisible(false);
 
@@ -218,6 +227,8 @@ const OnSiteTreatmentProfile = () => {
                 },
                 position: 'top-center'
             });
+
+            setImage([]);
         
         }
 
@@ -564,8 +575,14 @@ const OnSiteTreatmentProfile = () => {
                                             accept="image/*"
                                             capture="environment" // opens the camera on mobile devices
                                             onChange={(e) => handleCapture(e)}
-                                            className='mt-2 cursor-pointer'
-                                        />
+                                            multiple // Allows multiple file selection
+                                            className='mt-2 mb-5 cursor-pointer'
+                                            id='fileInput'
+                                        /><br />
+
+                                        <label htmlFor="fileInput" className="mt-2 cursor-pointer bg-gray-800 text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
+                                            Add More
+                                        </label>
 
                                     </div>
 
