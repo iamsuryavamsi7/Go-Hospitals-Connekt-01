@@ -63,6 +63,8 @@ public class Applications {
 
     private String patientAdmitMessage;
 
+    private Date medicalSupportUserAssignedTime;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(

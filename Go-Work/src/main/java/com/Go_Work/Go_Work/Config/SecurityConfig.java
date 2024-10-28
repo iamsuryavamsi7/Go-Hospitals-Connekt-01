@@ -3,6 +3,8 @@ package com.Go_Work.Go_Work.Config;
 import com.Go_Work.Go_Work.Service.LogoutService;
 import com.Go_Work.Go_Work.Service.MyUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -131,6 +133,17 @@ public class SecurityConfig {
         props.put("mail.debug", "true");
 
         return mailSender;
+    }
+
+//    @Bean
+//    public CacheManager cacheManager() {
+//        return new CaffeineCacheManager("cacheName");
+//    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("cacheName"); // Specify cache names here
+        return cacheManager;
     }
 
 }

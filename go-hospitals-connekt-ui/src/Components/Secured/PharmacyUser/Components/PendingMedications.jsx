@@ -20,6 +20,12 @@ const PendingMedications = () => {
 
     const [inCompleteApplications, setInCompleteApplications] = useState([]);
 
+    const [page, setPage] = useState(0); // Track the current page
+    
+    const pageSize = 10; 
+
+    const [isLastPage, setIsLastPage] = useState(false); // 
+
     const roles = {
         pharmacy: 'PHARMACYCARE'
     }
@@ -47,7 +53,7 @@ const PendingMedications = () => {
         
         try {
             
-            const response = await axios.get('http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyMedications', {
+            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyMedicationsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -57,6 +63,16 @@ const PendingMedications = () => {
 
                 let appointmentsData = response.data;
 
+                console.log(appointmentsData);
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(appointmentsData.length < pageSize);
+
                 appointmentsData = appointmentsData.sort((a, b) => {
                     const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
                     const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
@@ -65,12 +81,18 @@ const PendingMedications = () => {
                 });
 
                 setInCompleteApplications(appointmentsData);
+
+                console.log("Finished")
+
+                return true;
     
             }
 
         } catch (error) {
         
             handleError(error);
+
+            return false;
         }
 
     };
@@ -107,6 +129,34 @@ const PendingMedications = () => {
 
     }
 
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchIncompleteApplications(page + 1);
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
+
+    }
+
     useEffect(() => {
 
         if ( access_token ){
@@ -122,6 +172,12 @@ const PendingMedications = () => {
         }
 
     }, []);
+
+    useEffect(() => {
+
+        fetchIncompleteApplications();
+
+    }, [page]);
 
     return (
 
@@ -158,7 +214,7 @@ const PendingMedications = () => {
 
                                 </thead>
 
-                                {inCompleteApplications && inCompleteApplications === 0 ? (
+                                {inCompleteApplications && inCompleteApplications.length === 0 ? (
 
                                     <tbody>
 
@@ -240,6 +296,23 @@ const PendingMedications = () => {
 
                             </table>
 
+                        </div>
+
+                        <div className="space-x-5 text-center mx-10 mt-5">
+                            
+                            <button 
+                                onClick={prevPage} 
+                                disabled={page === 0}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Previous</button>
+                            
+                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                            
+                            <button 
+                                onClick={nextPage}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Next</button>
+                        
                         </div>
 
                     </div>

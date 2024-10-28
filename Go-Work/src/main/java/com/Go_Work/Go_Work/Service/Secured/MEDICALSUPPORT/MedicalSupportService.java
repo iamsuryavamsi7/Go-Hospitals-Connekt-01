@@ -15,9 +15,13 @@ import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.ImageUrlsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
+import com.Go_Work.Go_Work.Service.Config.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +32,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,38 +51,47 @@ public class MedicalSupportService {
 
     private final S3Client s3;
 
+    private final JwtService jwtService;
+
     @Value("${cloud.aws.bucket-name}")
     private String bucketName;
 
-    public List<ApplicationsResponseModel> getAllBookingsByNotComplete() {
+    public List<ApplicationsResponseModel> getAllBookingsByNotCompletePaging(int page, int pageSize) {
 
-        return applicationsRepo.findAll()
-                .stream()
-                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
-                .map(user01 -> {
+        List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
+            .stream()
+            .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+            .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
+            .map(user01 -> {
 
-                    ApplicationsResponseModel user1 = new ApplicationsResponseModel();
+                ApplicationsResponseModel user1 = new ApplicationsResponseModel();
 
-                    BeanUtils.copyProperties(user01, user1);
+                BeanUtils.copyProperties(user01, user1);
 
-                    User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
+                User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
 
-                    if ( fetchedMedicalSupportUserDetails != null ){
+                if ( fetchedMedicalSupportUserDetails != null ){
 
-                        user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
-                        user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+                    user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                    user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
 
-                    } else {
+                } else {
 
-                        user1.setMedicalSupportUserId(null);
-                        user1.setMedicalSupportUserName(null);
+                    user1.setMedicalSupportUserId(null);
+                    user1.setMedicalSupportUserName(null);
 
-                    }
+                }
 
-                    return user1;
+                return user1;
 
-                })
-                .collect(Collectors.toList());
+            })
+            .toList();
+
+        // Calculate pagination
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
 
     }
 
@@ -126,6 +139,8 @@ public class MedicalSupportService {
 
         fetchedApplication.setMedicalSupportUser(fetchedMedicalSupportUser);
 
+        fetchedApplication.setMedicalSupportUserAssignedTime(new Date(System.currentTimeMillis()));
+
         applicationsRepo.save(fetchedApplication);
 
         return "Application assigned to medical support user";
@@ -169,15 +184,17 @@ public class MedicalSupportService {
 
     }
 
-    public List<ApplicationsResponseModel> fetchAllOnsiteTreatmentData(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchAllOnsiteTreatmentData(String jwtToken, int page, int pageSize) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
         List<Applications> fetchedData = fetchedMedicalUser.getApplications();
 
-        return fetchedData
+        List<ApplicationsResponseModel> fetchedApplicationModels =  fetchedData
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.ONSITETREATMENT))
                 .map(application1 -> {
@@ -195,7 +212,12 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, fetchedApplicationModels.size());
+
+        return fetchedApplicationModels.subList(start, end);
 
     }
 
@@ -366,7 +388,7 @@ public class MedicalSupportService {
 
         }
 
-        if (!consultationType.equals(ConsultationType.PATIENTADMIT)){
+        if ( !consultationType.equals(ConsultationType.PATIENTADMIT)){
 
             Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                     () -> new ApplicationNotFoundException("Application Not Found")
@@ -648,9 +670,53 @@ public class MedicalSupportService {
 
                     notificationRepo.save(notification);
 
+//                    user1.getNotifications().add(notification);
+//
+//                    userRepo.save(user1);
+
                 });
 
         return "Request Sent";
+
+    }
+
+    public List<Applications> fetchMedicalSupportJobsByIdPaging(Long medicalSupportId, int page, int pageSize) {
+
+        User fetchedUser = userRepo.findById(medicalSupportId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        Page<Applications> fetchedApplications = applicationsRepo.findByMedicalSupportUser(fetchedUser, pageable);
+
+        return fetchedApplications
+                .stream()
+                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED )
+                .collect(Collectors.toList());
+
+    }
+
+    public List<Applications> fetchMedicalSupportJobsByIdPaging2(String jwtToken , int page, int pageSize) {
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        List<Applications> fetchedApplications = fetchedUser.getApplications()
+                .stream()
+                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED)
+                .sorted(Comparator.comparing(applications -> applications.getConsultationType() == ConsultationType.WAITING ? 0 : 1))
+                .toList();
+
+        // Calculate pagination
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, fetchedApplications.size());
+
+        // Return a sublist for the requested page
+        return fetchedApplications.subList(start, end);
 
     }
 

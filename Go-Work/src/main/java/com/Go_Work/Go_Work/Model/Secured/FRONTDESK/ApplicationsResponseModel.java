@@ -37,6 +37,9 @@ public class ApplicationsResponseModel {
 
     private boolean isForCrossConsultation;
 
+    private Date medicalSupportUserAssignedTime;
+
+
     private String patientAdmitMessage;
 
     private Long medicalSupportUserId;

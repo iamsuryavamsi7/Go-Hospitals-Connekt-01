@@ -168,6 +168,7 @@ const NavBarUser = () => {
 
         try{
 
+
             const userId = userObject.id;
 
             const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
@@ -391,6 +392,20 @@ const NavBarUser = () => {
         }
 
     }, [notificationArray, pathName]);
+
+    // useEffect(() => {
+
+    //     setTimeout(() => {
+
+    //         setInterval(() => {
+
+    //             fetchNotifications(userObject);
+
+    //         }, 5000);
+
+    //     }, 5000);
+
+    // }, [userObject])
 
     return (
 

@@ -42,6 +42,9 @@ public class MedicalSupportResponseModel {
 
     private String patientAdmitMessage;
 
+    private Date medicalSupportUserAssignedTime;
+
+
     private List<ImageUrls> prescriptionsUrls;
 
     private Long medicalSupportUserId;

@@ -128,6 +128,8 @@ const access_token = Cookies.get('access_token');
 
                 setPatientData(appointmentData);
 
+                console.log(appointmentData);
+
             }
 
         }catch(error){
@@ -215,13 +217,13 @@ const access_token = Cookies.get('access_token');
                         className=""
                     >
 
-                        <div className="mr-40 ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
+                        <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
 
                             Patient Details    
 
                         </div>
 
-                        <div className="mr-40 ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
+                        <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 

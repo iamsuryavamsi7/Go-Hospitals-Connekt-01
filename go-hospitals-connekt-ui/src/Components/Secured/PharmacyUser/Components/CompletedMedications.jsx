@@ -227,7 +227,7 @@ const CompletedMedications = () => {
 
                                     </tbody>
 
-                                ) : (
+                                ) : ( 
 
                                     <tbody>
 
@@ -285,14 +285,14 @@ const CompletedMedications = () => {
                             <button 
                                 onClick={prevPage} 
                                 disabled={page === 0}
-                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
                             >Previous</button>
                             
                             <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
                             
                             <button 
                                 onClick={nextPage}
-                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
                             >Next</button>
                         
                         </div>

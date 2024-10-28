@@ -9,6 +9,7 @@ import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT.MedicalSupportService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +25,13 @@ public class MedicalSupportController {
 
     private final MedicalSupportService medicalSupportService;
 
-    @GetMapping("/getAllBookingsByNotComplete")
-    public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(){
+    @GetMapping("/getAllBookingsByNotCompletePaging/{page}/{pageSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize
+    ){
 
-        List<ApplicationsResponseModel> message = medicalSupportService.getAllBookingsByNotComplete();
+        List<ApplicationsResponseModel> message = medicalSupportService.getAllBookingsByNotCompletePaging(page, pageSize);
 
         return ResponseEntity.ok(message);
 
@@ -101,12 +105,16 @@ public class MedicalSupportController {
 
     }
 
-    @GetMapping("/fetchAllOnsiteTreatmentData/{userObjectId}")
-    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllOnsiteTreatmentData(
-            @PathVariable("userObjectId") Long userObjectId
+    @GetMapping("/fetchAllOnsiteTreatmentDataPaging/{page}/{pageSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllOnsiteTreatmentDataPaging(
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllOnsiteTreatmentData(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllOnsiteTreatmentData(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 
@@ -232,6 +240,21 @@ public class MedicalSupportController {
         String message = medicalSupportService.sendRequestToFrontDeskCrossConsultation(applicationId);
 
         return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/fetchMedicalSupportJobsByIdPaging/{page}/{pageSize}")
+    public ResponseEntity<List<Applications>> fetchMedicalSupportJobsByIdPaging(
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
+    ){
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<Applications> fetchedApplications = medicalSupportService.fetchMedicalSupportJobsByIdPaging2(jwtToken, page, pageSize);
+
+        return ResponseEntity.ok(fetchedApplications);
 
     }
 

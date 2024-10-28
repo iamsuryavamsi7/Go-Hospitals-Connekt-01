@@ -180,4 +180,31 @@ public class PharmacyService {
 
     }
 
+    public List<ApplicationsResponseModel> fetchAllPharmacyMedicationsPaging(int pageNumber, int size) {
+
+        Pageable pageable = PageRequest.of(pageNumber, size);
+
+        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+
+        return applicationsPage
+                .stream()
+                .filter(applications -> !applications.getConsultationType().equals(ConsultationType.WAITING) && !applications.getConsultationType().equals(ConsultationType.COMPLETED) && applications.getMedicalSupportUser() != null )
+                .map(application1 -> {
+
+                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, application);
+
+                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+
+                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
+                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+
+                    return application;
+
+                })
+                .collect(Collectors.toList());
+
+    }
+
 }

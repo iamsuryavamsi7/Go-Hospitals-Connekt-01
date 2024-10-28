@@ -77,4 +77,17 @@ public class PharmacyController {
 
     }
 
+    @GetMapping("/fetchAllPharmacyMedicationsPaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyMedicationsPaging(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = pharmacyService.fetchAllPharmacyMedicationsPaging(pageNumber, size
+        );
+
+        return ResponseEntity.ok(fetchedApplications);
+
+    }
+
 }
