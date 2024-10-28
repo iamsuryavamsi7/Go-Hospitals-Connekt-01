@@ -38,6 +38,10 @@ public class MedicalSupportResponseModel {
 
     private boolean isPatientGotApproved;
 
+    private boolean isForCrossConsultation;
+
+    private String patientAdmitMessage;
+
     private List<ImageUrls> prescriptionsUrls;
 
     private Long medicalSupportUserId;

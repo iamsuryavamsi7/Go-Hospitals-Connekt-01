@@ -48,6 +48,7 @@ import PatientAdmitProfile from './Components/Secured/MedicalSupportUser/Compone
 import FollowUp from './Components/Secured/FrontDeskUser/Components/FollowUp'
 import FollowUpProfile from './Components/Secured/FrontDeskUser/Components/FollowUpProfile'
 import PatientApprovals from './Components/Secured/FrontDeskUser/Components/PatientApprovals'
+import CrossConsultationProfile from './Components/Secured/MedicalSupportUser/Components/CrossConsultationProfile'
 
 function GoWorkRouter() {
 
@@ -117,6 +118,7 @@ function GoWorkRouter() {
 						<Route path='/medical-support-surgery-care-profile/:id' element={<SurgeryCareProfile />}/>
 						<Route path='/medical-support-pharmacy-profile/:id' element={<PharmacyProfile />}/>
 						<Route path='/medical-support-patient-admit-profile/:id' element={<PatientAdmitProfile />}/>
+						<Route path='/medical-support-cross-consultation-profile/:id' element={<CrossConsultationProfile />}/>
 					</Route>
 
 					{/* PHARMACYPAGE LAYOUT */}

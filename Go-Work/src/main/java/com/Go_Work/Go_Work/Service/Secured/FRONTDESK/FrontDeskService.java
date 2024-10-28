@@ -44,6 +44,7 @@ public class FrontDeskService {
         applications.setPaymentDone(false);
         applications.setPatientGotApproved(true);
         applications.setMedicationPlusFollowUp(false);
+        applications.setForCrossConsultation(false);
 
         // Save the appointment
         Applications savedApplication = applicationsRepo.save(applications);
@@ -252,15 +253,31 @@ public class FrontDeskService {
 
     }
 
-    public String acceptApplicationById(Long applicationId) throws ApplicationNotFoundException {
+    public String acceptApplicationById(
+            Long applicationId,
+            String patientAdmitMessage
+    ) throws ApplicationNotFoundException {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
         fetchedApplication.setPatientGotApproved(true);
+        fetchedApplication.setPatientAdmitMessage(patientAdmitMessage);
 
         applicationsRepo.save(fetchedApplication);
+
+        User medicalSupportUser = fetchedApplication.getMedicalSupportUser();
+
+        Notification notification = new Notification();
+
+        notification.setMessage("Got Approval from Front Desk");
+        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+        notification.setApplicationId(applicationId);
+        notification.setRead(false);
+        notification.setUser(medicalSupportUser);
+
+        notificationRepo.save(notification);
 
         return "Approved";
 
@@ -290,6 +307,45 @@ public class FrontDeskService {
 
                 })
                 .collect(Collectors.toList());
+
+    }
+
+    public String acceptCrossConsultation(Long applicationId, String reasonForVisit, String doctorName) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setForCrossConsultation(false);
+        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+        fetchedApplication.setMedicalSupportUser(null);
+        fetchedApplication.setTreatmentDone(false);
+        fetchedApplication.setApplicationCompletedTime(null);
+        fetchedApplication.setPaymentDone(false);
+        fetchedApplication.setPatientGotApproved(true);
+        fetchedApplication.setMedicationPlusFollowUp(false);
+        fetchedApplication.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
+
+        applicationsRepo.save(fetchedApplication);
+
+        userRepo.findAll()
+                .stream()
+                .filter(users -> users.getRole().equals(Role.MEDICALSUPPORT))
+                .forEach(user -> {
+
+                    Notification notification = new Notification();
+
+                    notification.setMessage("New Application Booked");
+                    notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                    notification.setApplicationId(applicationId);
+                    notification.setRead(false);
+                    notification.setUser(user);
+
+                    notificationRepo.save(notification);
+
+                });
+
+        return "Accepted";
 
     }
 

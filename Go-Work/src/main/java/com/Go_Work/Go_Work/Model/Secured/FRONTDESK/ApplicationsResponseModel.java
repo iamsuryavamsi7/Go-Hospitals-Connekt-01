@@ -35,6 +35,10 @@ public class ApplicationsResponseModel {
 
     private boolean isPatientGotApproved;
 
+    private boolean isForCrossConsultation;
+
+    private String patientAdmitMessage;
+
     private Long medicalSupportUserId;
     private String medicalSupportUserName;
 

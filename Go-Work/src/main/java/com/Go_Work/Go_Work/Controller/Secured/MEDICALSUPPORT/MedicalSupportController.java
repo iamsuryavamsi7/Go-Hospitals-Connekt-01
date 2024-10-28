@@ -224,4 +224,15 @@ public class MedicalSupportController {
 
     }
 
+    @GetMapping("/sendRequestToFrontDeskCrossConsultation/{applicationId}")
+    public ResponseEntity<String> sendRequestToFrontDeskCrossConsultation(
+            @PathVariable("applicationId") Long applicationId
+    ) throws ApplicationNotFoundException {
+
+        String message = medicalSupportService.sendRequestToFrontDeskCrossConsultation(applicationId);
+
+        return ResponseEntity.ok(message);
+
+    }
+
 }

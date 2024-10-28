@@ -620,4 +620,38 @@ public class MedicalSupportService {
                 .collect(Collectors.toList());
 
     }
+
+    public String sendRequestToFrontDeskCrossConsultation(Long applicationId) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setTreatmentDone(true);
+
+        fetchedApplication.setForCrossConsultation(true);
+
+        applicationsRepo.save(fetchedApplication);
+
+        userRepo.findAll()
+                .stream()
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(user1 -> {
+
+                    Notification notification = new Notification();
+
+                    notification.setMessage("Cross Consultation Request !");
+                    notification.setApplicationId(fetchedApplication.getId());
+                    notification.setUser(user1);
+                    notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                    notification.setRead(false);
+
+                    notificationRepo.save(notification);
+
+                });
+
+        return "Request Sent";
+
+    }
+
 }

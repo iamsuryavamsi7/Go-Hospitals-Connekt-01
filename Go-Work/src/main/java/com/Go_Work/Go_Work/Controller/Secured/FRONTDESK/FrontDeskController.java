@@ -119,12 +119,13 @@ public class FrontDeskController {
 
     }
 
-    @GetMapping("/acceptApplicationById/{applicationId}")
+    @PostMapping("/acceptApplicationById/{applicationId}")
     public ResponseEntity<String> acceptApplicationById(
-            @PathVariable("applicationId") Long applicationId
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam("patientAdmitMessage") String patientAdmitMessage
     ) throws ApplicationNotFoundException {
 
-        String message = frontDeskService.acceptApplicationById(applicationId);
+        String message = frontDeskService.acceptApplicationById(applicationId, patientAdmitMessage);
 
         return ResponseEntity.ok(message);
 
@@ -139,6 +140,19 @@ public class FrontDeskController {
         List<ApplicationsResponseModel> fetchedApplications = frontDeskService.fetchMedicationPlusFollowUpPaging(pageNumber, size);
 
         return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @PostMapping("/acceptCrossConsultation/{applicationId}")
+    public ResponseEntity<String> acceptCrossConsultation(
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam("reasonForVisit") String reasonForVisit,
+            @RequestParam("doctorName") String doctorName
+    ) throws ApplicationNotFoundException {
+
+        String message = frontDeskService.acceptCrossConsultation(applicationId, reasonForVisit, doctorName);
+
+        return ResponseEntity.ok(message);
 
     }
 

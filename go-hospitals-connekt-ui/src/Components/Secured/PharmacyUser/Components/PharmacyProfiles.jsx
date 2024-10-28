@@ -221,45 +221,42 @@ const PharmacyProfiles = () => {
         const imageSrc = patientData.prescriptionsUrls;
 
         setFetchedImageVisible(true);
-
+    
         const imagePromises = imageSrc.map(async (imgSrc) => {
-            
+
             const imageSrc1 = imgSrc.prescriptionURL;
-
+    
             console.log("Started...");
-
-            try{
-
+    
+            try {
                 const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
                     responseType: 'blob',
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     }
-                })
-
+                });
+    
                 const value = response.data;
-
-                const imageBlob = URL.createObjectURL(value);
-
+                const mimeType = response.headers['content-type'];
+                const blobUrl = URL.createObjectURL(value);
+    
                 console.log("Finished...");
-
-                return imageBlob;
-
-            }catch(error){
-
+    
+                return { blobUrl, mimeType };
+    
+            } catch (error) {
                 handleError(error);
-
             }
-        
         });
-
+    
         const blobs = await Promise.all(imagePromises);
-
+    
         setImages(
             (prevImages) => [...prevImages, ...blobs.filter((blob) => blob !== null)]
         );
-
-    }
+        
+    };
+    
 
     const downloadImage = async () => {
 
@@ -284,7 +281,20 @@ const PharmacyProfiles = () => {
 
                 if ( response.status === 200 ){
 
-                    console.log("Download Started");
+                    toast.success("Download Started ...", {
+                        autoClose: 1000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        },
+                        position: 'top-center'
+                    });
+
+                    fetchAppointmentData();
 
                     const url = window.URL.createObjectURL(new Blob([response.data]));
 
@@ -306,6 +316,19 @@ const PharmacyProfiles = () => {
             }catch(error){
 
                 handleError(error);
+
+                toast.error("Download Error", {
+                    autoClose: 2000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    position: 'top-center'
+                });
 
             }
 
@@ -658,67 +681,72 @@ const PharmacyProfiles = () => {
                         {fetchedImageVisible && (
                             
                             <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
-
-                                <div className="absolute mx-20 mt-10 text-xl font-semibold">
-
-                                    Preview Mode
-
-                                </div>
                             
-                                <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden"> 
-                                    
-                                    {images && images.length > 0 ? images.map((imageSrc, index) => {
-                                        
-                                        console.log(imageSrc);
+                                <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
 
-                                        return (
+                                <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
 
-                                            <img 
-                                                key={index} 
-                                                src={imageSrc}
-                                                alt={`Prescription ${index + 1}`} 
+                                    {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
+
+                                        return mimeType === 'application/pdf' ? (
+                                            <object
+                                                key={index}
+                                                data={blobUrl}
+                                                type="application/pdf"
+                                                width="100%"
+                                                height="400px"
+                                                aria-label={`Prescription PDF ${index + 1}`}
+                                                className='transition-transform duration-300 ease-in-out transform'
+                                            >
+                                                <p>PDF Preview Not Available</p>
+                                            </object>
+                                        ) : (
+                                            <img
+                                                key={index}
+                                                src={blobUrl}
+                                                alt={`Prescription ${index + 1}`}
                                                 className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
                                             />
-
-                                    )}) : (
-
-                                        <div
-                                            className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'
-                                        >
-
+                                        );
+                                    }) : (
+                            
+                                        <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
+                                        
                                             <div className="flex items-center space-x-2 text-xl">
-
+                                        
                                                 <div className="animate-spin">
-
+                                        
                                                     <CgLoadbar />
-
+                                        
                                                 </div>
-
+                                        
                                                 <div className="animate-pulse">
-
+                                        
                                                     Fetching ...
-
+                                        
                                                 </div>
-
+                                        
                                             </div>
-
+                                        
                                         </div>
-
+                                    
                                     )}
 
-                                        <IoCloseCircle 
-                                            className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
-                                            onClick={() => {
-                                                setFetchedImageVisible(false);
-                                                setImages([]);
-                                            }}
-                                            />
-                            
+                                    <IoCloseCircle
+                                        className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                        onClick={() => {
+                                            
+                                            setFetchedImageVisible(false);
+                                            setImages([]);
+                                        
+                                        }}
+                                    />
+                                
                                 </div>
                             
                             </div>
                         
-                        )} 
+                        )}
 
                         {patientData.consultationType != 'COMPLETED' && (
 

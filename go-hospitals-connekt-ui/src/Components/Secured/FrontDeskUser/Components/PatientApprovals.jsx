@@ -211,7 +211,7 @@ const PatientApprovals = () => {
 
                                 </thead>
 
-                                {CompleteApplications && CompleteApplications === 0 ? (
+                                {CompleteApplications && CompleteApplications.length === 0 ? (
 
                                     <tbody>
 
@@ -281,22 +281,26 @@ const PatientApprovals = () => {
 
                         </div>
 
-                        <div className="space-x-5 text-center mx-10 mt-5">
+                        {CompleteApplications && CompleteApplications.length < 0 && (
+
+                            <div className="space-x-5 text-center mx-10 mt-5">
+                                
+                                <button 
+                                    onClick={prevPage} 
+                                    disabled={page === 0}
+                                    className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                                >Previous</button>
+                                
+                                <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                                
+                                <button 
+                                    onClick={nextPage}
+                                    className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
+                                >Next</button>
                             
-                            <button 
-                                onClick={prevPage} 
-                                disabled={page === 0}
-                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
-                            >Previous</button>
-                            
-                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
-                            
-                            <button 
-                                onClick={nextPage}
-                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md'
-                            >Next</button>
-                        
-                        </div>
+                            </div>
+
+                        )}
 
                     </div>
 

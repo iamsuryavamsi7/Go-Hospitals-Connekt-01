@@ -59,6 +59,10 @@ public class Applications {
 
     private boolean isMedicationPlusFollowUp;
 
+    private boolean isForCrossConsultation;
+
+    private String patientAdmitMessage;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(

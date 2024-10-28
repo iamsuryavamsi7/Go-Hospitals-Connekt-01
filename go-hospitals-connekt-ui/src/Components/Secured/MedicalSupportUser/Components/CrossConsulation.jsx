@@ -128,7 +128,7 @@ const CrossConsulation = () => {
                 
                     <div className="">
 
-                        <div className="mx-10 mr-56">
+                        <div className="mx-10">
 
                             <table
                                 className='w-full'
@@ -184,7 +184,7 @@ const CrossConsulation = () => {
                                                 <th>{application.billNo}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/medical-support-consultation-queue/${application.id}`)}
+                                                    onClick={(id) => navigate(`/medical-support-cross-consultation-profile/${application.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>
