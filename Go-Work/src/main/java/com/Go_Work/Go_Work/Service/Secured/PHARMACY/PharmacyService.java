@@ -188,7 +188,7 @@ public class PharmacyService {
 
         return applicationsPage
                 .stream()
-                .filter(Applications::isTreatmentDone )
+                .filter(applications -> applications.isTreatmentDone() && !applications.isPaymentDone())
                 .map(application1 -> {
 
                     ApplicationsResponseModel application = new ApplicationsResponseModel();

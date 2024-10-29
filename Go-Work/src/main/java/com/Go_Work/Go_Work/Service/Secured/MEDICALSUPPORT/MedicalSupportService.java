@@ -168,7 +168,11 @@ public class MedicalSupportService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        return user.getNotifications();
+        return user.getNotifications()
+                .stream()
+                .sorted(Comparator.comparing(Notification::getTimeStamp).reversed())
+                .limit(50)
+                .toList();
 
     }
 

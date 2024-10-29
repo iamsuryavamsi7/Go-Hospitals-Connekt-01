@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { LuNewspaper } from 'react-icons/lu';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+import toast, { Toaster } from 'react-hot-toast';
 
 const NewPatientOnBoardFrontDesk = () => {
 
@@ -18,6 +19,8 @@ const NewPatientOnBoardFrontDesk = () => {
     const [departmentsData, setDepartmentsData] = useState([]);
 
     const [doctorData, setDoctorData] = useState([]);
+
+    const [formSubmitButton, setFormSubmitButton] = useState(null);
 
     const roles = {
         frontDesk: 'FRONTDESK',
@@ -100,31 +103,69 @@ const NewPatientOnBoardFrontDesk = () => {
 
         e.preventDefault();
 
-        console.log(patientOnBoardData);
+        const gender = patientOnBoardData.gender;
 
-        try{
+        const reason = patientOnBoardData.reason;
 
-            const response = await axios.post('http://localhost:7777/api/v1/front-desk/bookApplication', {
-                name: patientOnBoardData.name,
-                age: patientOnBoardData.age,
-                contact: patientOnBoardData.contact,
-                address: patientOnBoardData.address,
-                gender: patientOnBoardData.gender,
-                medicalHistory: patientOnBoardData.medicalHistory,
-                reasonForVisit: patientOnBoardData.reason,
-                billNo: patientOnBoardData.billNo,
-                preferredDoctorName: patientOnBoardData.preferredDoctor,
-                bookedBy: bookedByName
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
+        const doctorName = patientOnBoardData.preferredDoctor;
+
+        if ( gender !== '' && gender !== 'Select Gender' && reason !== '' && reason !== 'Select Reason' && doctorName !== '' && doctorName !== 'Select Doctor'){
+
+            setFormSubmitButton(`pointer-events-none`);
+
+            try{
+
+                const response = await axios.post('http://localhost:7777/api/v1/front-desk/bookApplication', {
+                    name: patientOnBoardData.name,
+                    age: patientOnBoardData.age,
+                    contact: patientOnBoardData.contact,
+                    address: patientOnBoardData.address,
+                    gender: patientOnBoardData.gender,
+                    medicalHistory: patientOnBoardData.medicalHistory,
+                    reasonForVisit: patientOnBoardData.reason,
+                    billNo: patientOnBoardData.billNo,
+                    preferredDoctorName: patientOnBoardData.preferredDoctor,
+                    bookedBy: bookedByName
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+
+                if ( response.status === 200 ){
+
+                    toast.success("Patient Onboard Success", {
+                        autoClose: 1000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        },
+                        progressStyle: {
+                            backgroundColor: '#22c55e' // Tailwind bg-green-400
+                        }
+                    });
+                    
+                    setTimeout(() => {
+
+                        window.location.reload();
+
+                    }, 1500);
+
                 }
-            })
 
-            if ( response.status === 200 ){
+            }catch(error){
 
-                toast.success("Patient Onboard Success", {
-                    autoClose: 1000,
+                handleError(error);
+
+            }
+
+        }else {
+
+            toast.error("Fill all fields", {
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -133,22 +174,8 @@ const NewPatientOnBoardFrontDesk = () => {
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    duration: 2000
                 });
-                
-                setTimeout(() => {
-
-                    window.location.reload();
-
-                }, 1500);
-
-            }
-
-        }catch(error){
-
-            handleError(error);
 
         }
 
@@ -264,6 +291,8 @@ const NewPatientOnBoardFrontDesk = () => {
     return (
 
         <>
+
+            <Toaster />
 
             {role === roles.frontDesk && (
 
@@ -426,7 +455,7 @@ const NewPatientOnBoardFrontDesk = () => {
                                         }}
                                 >
 
-                                    <option>Select Reason</option>
+                                    <option>Select Doctor</option>
                                     {doctorData.map((doctor, index) => (
 
                                         <option 
@@ -459,8 +488,9 @@ const NewPatientOnBoardFrontDesk = () => {
                         <div className="">
 
                             <button
-                            className='bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 mt-7'
-                        > Onboard Patient </button>
+                                className={`bg-[#238636] ${formSubmitButton} hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 mt-7`}
+                                type='submit'
+                            > Onboard Patient </button>
 
                         </div>
 
@@ -468,7 +498,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
                 </div>
 
-                <ToastContainer />
+                {/* <ToastContainer /> */}
 
             </>
 

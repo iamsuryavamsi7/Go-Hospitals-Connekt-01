@@ -176,11 +176,6 @@ const NavBarUser = () => {
 
                 let notificationData = response.data;
 
-                console.log(notificationData);
-
-                // Sort notifications by timeStamp in descending order (latest first)
-                notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
-    
                 setNotificationArray(notificationData);
 
             }
