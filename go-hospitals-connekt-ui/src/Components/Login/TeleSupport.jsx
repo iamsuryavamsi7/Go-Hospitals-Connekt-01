@@ -4,8 +4,10 @@ import '../../Style/Login/FrontDesk.css'
 import { MdOutlineKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../../Style/HomePage.css'
-import axios from 'axios';
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const TeleSupport = () => {
 
@@ -79,19 +81,39 @@ const TeleSupport = () => {
 
                         const response = await axios.post('http://localhost:7777/api/v1/auth/fetchUserRole', formData);
 
-                        if ( response.status === 200 ){
+                        if ( response.status === 200 ){ 
 
                             const fetchedRole = response.data.role;
 
-                            if ( fetchedRole === 'ADMIN' ){
+                            toast.success("Login Succesfull", {
+                                autoClose: 1000,
+                                style: {
+                                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                                    color: '#fff', // Tailwind text-white
+                                    fontWeight: '600', // Tailwind font-semibold
+                                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                                    marginTop: '2.5rem' // Tailwind mt-10,
+                                },
+                                progressStyle: {
+                                    backgroundColor: '#22c55e' // Tailwind bg-green-400
+                                },
+                                position: 'top-center'
+                            });
 
-                                navigate('/admin-new-approvals');
+                            setTimeout(() => {
 
-                            } else {
+                                if ( fetchedRole === 'ADMIN' ){
 
-                                navigate('/');
+                                    navigate('/admin-new-approvals');
 
-                            }
+                                } else {
+
+                                    navigate('/telesupport-incomplete-patients');
+
+                                }
+
+                            }, 1600)
 
                         }
 
@@ -111,7 +133,21 @@ const TeleSupport = () => {
 
             handleError(error);
 
-            alert("Invalid Credentials")
+            toast.error("Invalid Credentials", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: 'red' // Tailwind bg-green-400
+                },
+                position: 'top-center'
+            });
 
             Cookies.remove('access_token');
 
@@ -132,6 +168,8 @@ const TeleSupport = () => {
     return (
 
         <>
+
+            <ToastContainer />
         
             {loading ? (
 
@@ -202,6 +240,13 @@ const TeleSupport = () => {
                                     <label> Password</label><br />
                                     <button
                                         className='text-blue-500 text-xs hover:cursor-pointer'
+                                        onClick={(e) => {
+
+                                            e.preventDefault();
+
+                                            navigate(`/tele-support-forget`);
+
+                                        }}
                                     >
 
                                         Forgot password?

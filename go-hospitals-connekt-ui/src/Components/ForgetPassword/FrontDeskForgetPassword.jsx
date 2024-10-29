@@ -549,7 +549,7 @@ const FrontDeskForgetPassword = () => {
                                     <span 
                                         className='text-blue-500 ml-2 hover:cursor-pointer'
                                         onClick={() => navigate('/front-desk-register')}
-                                    >Create an account</span>
+                                    >Go To Login</span>
 
                                 </div>
 

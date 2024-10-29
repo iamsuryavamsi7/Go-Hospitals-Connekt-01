@@ -8,7 +8,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const PharmacyCareForgetPassword = () => {
+const TeleSupportForgetPassword = () => {
 
 // Use Navigation Hook
     const navigate = useNavigate();
@@ -548,8 +548,8 @@ const PharmacyCareForgetPassword = () => {
                                     
                                     <span 
                                         className='text-blue-500 ml-2 hover:cursor-pointer'
-                                        onClick={() => navigate('/pharmacy-care-login')}
-                                    >Go To Login</span>
+                                        onClick={() => navigate('/tele-support-login')}
+                                    >Go to Login In</span>
 
                                 </div>
 
@@ -557,7 +557,7 @@ const PharmacyCareForgetPassword = () => {
 
                         </div>
 
-                        <div className="flex-1 loginPageImage4 m-2 max-sm:hidden">
+                        <div className="flex-1 loginPageImage3 m-2 max-sm:hidden">
 
                             {/* Image Area */}
 
@@ -577,4 +577,4 @@ const PharmacyCareForgetPassword = () => {
 
 }
 
-export default PharmacyCareForgetPassword
+export default TeleSupportForgetPassword

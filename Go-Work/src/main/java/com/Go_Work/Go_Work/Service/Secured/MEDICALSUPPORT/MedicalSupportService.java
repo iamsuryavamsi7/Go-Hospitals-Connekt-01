@@ -393,6 +393,41 @@ public class MedicalSupportService {
 
     public String makeConsultationType(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException {
 
+
+        // For SURGERYCARE Consultation Type
+        if ( consultationType.equals(ConsultationType.SURGERYCARE) ){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+
+            applicationsRepo.save(fetchedApplication);
+
+            userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.TELESUPPORT))
+                    .forEach(fetchedUser -> {
+
+                        Notification notification = new Notification();
+
+                        notification.setApplicationId(fetchedApplication.getId());
+                        notification.setRead(false);
+                        notification.setMessage("New Counselling Request ");
+                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                        notification.setUser(fetchedUser);
+
+                        notificationRepo.save(notification);
+
+                    });
+
+            return "Consultation Type Updated";
+
+        }
+
+        // For MEDICATIONPLUSFOLLOWUP Consultation Type
         if ( consultationType.equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)){
 
             Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
@@ -409,6 +444,7 @@ public class MedicalSupportService {
 
         }
 
+        // For Remaining Consultation Types
         if ( !consultationType.equals(ConsultationType.PATIENTADMIT)){
 
             Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
@@ -424,6 +460,7 @@ public class MedicalSupportService {
 
         }else {
 
+            // For PATIENTADMIT Consultation Type
             Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                     () -> new ApplicationNotFoundException("Application Not Found")
             );

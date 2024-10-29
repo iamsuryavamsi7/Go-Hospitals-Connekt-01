@@ -111,8 +111,6 @@ const NewPatientOnBoardFrontDesk = () => {
 
         if ( gender !== '' && gender !== 'Select Gender' && reason !== '' && reason !== 'Select Reason' && doctorName !== '' && doctorName !== 'Select Doctor'){
 
-            setFormSubmitButton(`pointer-events-none`);
-
             try{
 
                 const response = await axios.post('http://localhost:7777/api/v1/front-desk/bookApplication', {
@@ -133,6 +131,8 @@ const NewPatientOnBoardFrontDesk = () => {
                 })
 
                 if ( response.status === 200 ){
+
+                    setFormSubmitButton(`pointer-events-none`);
 
                     toast.success("Patient Onboard Success", {
                         autoClose: 1000,

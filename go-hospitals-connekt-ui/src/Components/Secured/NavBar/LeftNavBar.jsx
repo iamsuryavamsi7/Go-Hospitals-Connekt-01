@@ -98,6 +98,14 @@ const LeftNavBar = () => {
 
     const [patientApprovals2, setPatientApprovals2] = useState(`text-gray-400`);
 
+    const [incompletePatients1, setInCompletePatients1] = useState(`text-gray-400`);
+
+    const [incompletePatients2, setInCompletePatients2] = useState(`text-gray-400`);
+
+    const [myJobs1, setMyJobs1] = useState(`text-gray-400`);
+
+    const [myJobs2, setMyJobs2] = useState(`text-gray-400`);
+
     const pathName = window.location.pathname;
 
 // Functions
@@ -388,6 +396,35 @@ const LeftNavBar = () => {
             setCompletedMedications1(`text-gray-400`);
 
             setCompletedMedications2(`text-gray-400`);            
+
+        }
+
+        // TELESUPPORT LEFTNAVBAR
+        if ( pathName === `/telesupport-incomplete-patients` ){
+
+            setInCompletePatients1(`text-sky-500`);
+
+            setInCompletePatients2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setInCompletePatients1(`text-gray-400`);
+
+            setInCompletePatients2(`text-gray-400`);            
+
+        }
+
+        if ( pathName === `/telesupport-MyJobs` ) {
+
+            setMyJobs1(`text-sky-500`);
+
+            setMyJobs2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setMyJobs1(`text-gray-400`);
+
+            setMyJobs2(`text-gray-400`);            
 
         }
 
@@ -718,6 +755,60 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Patient Admit
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </>
+
+            )}
+
+            {role === roles.teleSupport && (
+
+                <>
+                
+                    <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
+
+                        <div 
+                            className={`${incompletePatients1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/telesupport-incomplete-patients')}
+                        >
+
+                            <div className="">
+
+                                <IoPersonAddSharp 
+                                    className={`${incompletePatients2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Incomplete Patients
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${myJobs1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/telesupport-MyJobs')}
+                        >
+
+                            <div className="">
+
+                                <MdManageAccounts 
+                                    className={`${myJobs2} text-[28px]  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                My Jobs
 
                             </div>
 

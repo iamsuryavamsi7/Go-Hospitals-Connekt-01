@@ -49,6 +49,12 @@ import FollowUp from './Components/Secured/FrontDeskUser/Components/FollowUp'
 import FollowUpProfile from './Components/Secured/FrontDeskUser/Components/FollowUpProfile'
 import PatientApprovals from './Components/Secured/FrontDeskUser/Components/PatientApprovals'
 import CrossConsultationProfile from './Components/Secured/MedicalSupportUser/Components/CrossConsultationProfile'
+import InCompletePatients from './Components/Secured/TeleSupport/Components/InCompletePatients'
+import TeleSupportLayout from './Components/Secured/TeleSupport/TeleSupportLayout'
+import TeleSupportForgetPassword from './Components/ForgetPassword/TeleSupportForgetPassword'
+import TeleSupportProfiles from './Components/Secured/TeleSupport/Components/TeleSupportProfiles'
+import PatientPublicForm from './Components/Secured/TeleSupport/Components/PatientPublicForm'
+import MyJobs from './Components/Secured/TeleSupport/Components/MyJobs'
 
 function GoWorkRouter() {
 
@@ -84,6 +90,7 @@ function GoWorkRouter() {
 					<Route path='/front-desk-forget' element={<FrontDeskForgetPassword />}/>
 					<Route path='/medical-support-forget' element={<MedicalSupportForgetPassword />}/>
 					<Route path='/pharmacy-care-forget' element={<PharmacyCareForgetPassword />}/>
+					<Route path='/tele-support-forget' element={<TeleSupportForgetPassword />}/>
 
 					{/* ADMIN ROUTING */}
 					<Route element={<AdminPageLayout />}>
@@ -126,6 +133,14 @@ function GoWorkRouter() {
 						<Route path='/pharmacy-pending-medications' element={<PendingMedications />}/>
 						<Route path='/pharmacy-completed-medications' element={<CompletedMedications />}/>
 						<Route path='/pharmacy-profiles/:id' element={<PharmacyProfiles />}/>
+					</Route>
+
+					{/* TELESUPPORT LAYOUT */}
+					<Route element={<TeleSupportLayout />}>
+						<Route path='/telesupport-incomplete-patients' element={<InCompletePatients />}/>
+						<Route path='/telesupport-profile/:id' element={<TeleSupportProfiles />}/>
+						<Route path='/telesupport-patient-public-page' element={<PatientPublicForm />}/>
+						<Route path='/telesupport-MyJobs' element={<MyJobs />}/>
 					</Route>
 
 				</Routes>

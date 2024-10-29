@@ -67,8 +67,15 @@ public class User implements UserDetails {
             mappedBy = "medicalSupportUser",
             cascade = CascadeType.ALL
     )
-    @JsonManagedReference
+    @JsonManagedReference("medical-application")
     private List<Applications> applications = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "teleSupportUser",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference("tele-support-application")
+    private List<Applications> teleSupportApplications = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "user",
@@ -76,8 +83,6 @@ public class User implements UserDetails {
     )
     @JsonManagedReference
     private List<Notification> notifications = new ArrayList<>();
-
-    private int notificationCount;
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -1,30 +1,21 @@
-package com.Go_Work.Go_Work.Entity;
+package com.Go_Work.Go_Work.Model.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import com.Go_Work.Go_Work.Entity.ImageUrls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(
-        name = "applications_table"
-)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Applications {
+public class TeleSupportResponseModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private int age;
@@ -37,27 +28,15 @@ public class Applications {
     private String billNo;
     private Date appointmentCreatedOn;
     private String bookedBy;
-
-    @Enumerated(EnumType.STRING)
     private ConsultationType consultationType;
     private String treatmentDoneMessage;
-    private String pharmacyMessage;
-
-    @OneToMany(
-            mappedBy = "application",
-            cascade = CascadeType.ALL
-    )
-    @JsonManagedReference
-    private List<ImageUrls> prescriptionUrl = new ArrayList<>();
-
-    private boolean isPatientGotApproved;
-
     private boolean treatmentDone;
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
+    private String pharmacyMessage;
 
-    private boolean isMedicationPlusFollowUp;
+    private boolean isPatientGotApproved;
 
     private boolean isForCrossConsultation;
 
@@ -67,20 +46,15 @@ public class Applications {
 
     private Date consultationAssignedTime;
 
-    @ManyToOne
-    @JsonBackReference("medical-application")
-    @JoinColumn(
-            name = "medical_support_user_id"
-    )
-    private User medicalSupportUser;
+    private List<ImageUrls> prescriptionsUrls;
 
-    @ManyToOne
-    @JsonBackReference("tele-support-application")
-    @JoinColumn(
-            name = "tele_support_user_id"
-    )
-    private User teleSupportUser;
+    private Long medicalSupportUserId;
+    private String medicalSupportUserName;
+
+    private Long teleSupportUserId;
+    private String teleSupportUserName;
 
     private Date teleSupportUserAssignedTime;
+
 
 }

@@ -549,7 +549,7 @@ const MedicalSupportForgetPassword = () => {
                                     <span 
                                         className='text-blue-500 ml-2 hover:cursor-pointer'
                                         onClick={() => navigate('/medical-support-login')}
-                                    >Create an account</span>
+                                    >Go To Login</span>
 
                                 </div>
 

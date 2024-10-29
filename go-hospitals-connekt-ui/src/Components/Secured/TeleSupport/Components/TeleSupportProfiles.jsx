@@ -1,28 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import axios from 'axios';
+import '../../../../Style/secured/navbar/navbaruser.css'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { IoCloseCircleSharp } from 'react-icons/io5';
+import axios from 'axios';
 
-const SurgeryCareProfile = () => {
+const TeleSupportProfiles = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
+
+    const navigate = useNavigate();
 
 // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
 
-    // const [image, setImage] = useState([]);
-
     const {id} = useParams();
-
-    const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
-
-    const [treatmentDone, steTreatmentDone] = useState(``);
 
     const [patientData, setPatientData] = useState({
         id: id,
@@ -39,21 +35,10 @@ const SurgeryCareProfile = () => {
         appointmentFinished: ''
     });
 
-    // const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
-
     const roles = {
-        medicalSupport: 'MEDICALSUPPORT',
+        teleSupport: 'TELESUPPORT',
     }
 
-    // Your patient data
-    const patientCreatedOn = {
-    appointmentCreatedOn: "2024-10-20T09:36:33.702+00:00",
-    // other data...
-    };
-  
-    // Convert to Date object
-    const appointmentDate = new Date(patientData.appointmentCreatedOn);
-    
     // Format the date and time (example: MM/DD/YYYY, HH:MM AM/PM)
     const options = { 
         year: 'numeric', 
@@ -63,11 +48,18 @@ const SurgeryCareProfile = () => {
         minute: 'numeric', 
         hour12: true // for AM/PM format
     };
+      
+    // Convert to Date object
+    const appointmentDate = new Date(patientData.appointmentCreatedOn);
     
     const formattedDate = appointmentDate.toLocaleString('en-US', options);
-    
 
-// Functions
+    // Convert to Date object
+    const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
+
+    const appointmentCompletedFormattedDate = appointmentCompletedDate.toLocaleString('en-US', options);
+
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -81,6 +73,34 @@ const SurgeryCareProfile = () => {
                 console.error(error);
 
             }
+
+        }
+
+    }
+
+    const fetchAppointmentData = async () => {
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchApplicationById/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const appointmentData = response.data;
+
+                setPatientData(appointmentData);
+
+                console.log(response.data);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
 
         }
 
@@ -116,23 +136,39 @@ const SurgeryCareProfile = () => {
 
         }
 
-    }
+    }    
 
-    const fetchAppointmentData = async () => {
+    const takeJobFunction = async () => {
+
+        console.log("Hi")
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/assign-tele-support-user/${id}`, {
                 headers: {
-                    'Authorization': `Bearer ${access_token}`
+                    Authorization: `Bearer ${access_token}`
                 }
             })
 
             if ( response.status === 200 ){
 
-                const appointmentData = response.data;
+                toast.success("Job Taken", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    }
+                });
 
-                setPatientData(appointmentData);
+                setTimeout(() => {
+
+                    navigate(`/telesupport-MyJobs`);
+
+                }, 1600);
 
             }
 
@@ -140,96 +176,22 @@ const SurgeryCareProfile = () => {
 
             handleError(error);
 
+            toast.error("Something went wrong", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                position: 'top-center'
+            });
+
         }
 
     }
-
-    // const handleCapture = (e) => {
-        
-    //     const files = Array.from(e.target.files);
-        
-    //     setImage(
-    //         (prevFiles) => [...prevFiles, ...files]
-    //     );
-    
-    // };
-
-    // const handleSubmit = async (e) => {
-        
-    //     e.preventDefault();
-
-    //     const applicationId = id;
-    
-    //     // Create FormData object
-    //     const formData = new FormData();
-
-    //     image.forEach((file) => {
-
-    //         formData.append("imageFile", file);
-
-    //     });
-
-    //     formData.append("prescriptionMessage", treatmentDone);
-
-    //     try {
-
-    //       // Send the form data to the backend
-    //       const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
-    //         headers: {
-    //             'Authorization': `Bearer ${access_token}`,
-    //             'Content-Type': `multipart/form-data`
-    //         },
-    //       });
-
-    //       if ( response.status === 200 ){
-
-    //         toast.success("Treatment Completed", {
-    //             autoClose: 1000,
-    //             style: {
-    //                 backgroundColor: '#1f2937', // Tailwind bg-gray-800
-    //                 color: '#fff', // Tailwind text-white
-    //                 fontWeight: '600', // Tailwind font-semibold
-    //                 borderRadius: '0.5rem', // Tailwind rounded-lg
-    //                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-    //                 marginTop: '2.5rem' // Tailwind mt-10,
-    //             },
-    //             progressStyle: {
-    //                 backgroundColor: '#22c55e' // Tailwind bg-green-400
-    //             },
-    //         });
-
-    //         steTreatmentDone(``);
-
-    //         setImage([]);
-
-    //         setTreatMentDoneVisible(false);
-
-    //         fetchAppointmentData();
-
-    //       }
-
-    //     } catch (error) {
-        
-    //         handleError(error);
-
-    //         toast.error("File size exceeded", {
-    //             autoClose: 2000,
-    //             style: {
-    //                 backgroundColor: '#1f2937', // Tailwind bg-gray-800
-    //                 color: '#fff', // Tailwind text-white
-    //                 fontWeight: '600', // Tailwind font-semibold
-    //                 borderRadius: '0.5rem', // Tailwind rounded-lg
-    //                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-    //                 marginTop: '2.5rem' // Tailwind mt-10,
-    //             },
-    //             position: 'top-center'
-    //         });
-
-    //         setImage([]);
-        
-    //     }
-
-    // };
 
     useEffect(() => {
 
@@ -253,12 +215,12 @@ const SurgeryCareProfile = () => {
 
             <ToastContainer />
 
-            {role === roles.medicalSupport && (
+            {role === roles.teleSupport && (
 
                 <>
 
                     <div 
-                        className=""
+                        className="mb-20"
                     >
 
                         <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
@@ -489,122 +451,88 @@ const SurgeryCareProfile = () => {
                                     
                                     {patientData.treatmentDone ? (
 
-                                        <div className="text-base text-gray-300">
-
-                                            Completed
-
-                                        </div>
+                                        <span> Done </span>
 
                                     ) : (
 
-                                        <div className="text-lg">
-
-                                            Not Completed
-
-                                        </div>
+                                        <span> Not Done </span>
 
                                     )}
 
                                 </div>
 
                             </div>
-                            
+
+                            {patientData.teleSupportUserName && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Tele Support User
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {patientData.teleSupportUserName}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+                            {patientData.consultationType === 'COMPLETED' && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Application Completed On
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {appointmentCompletedFormattedDate}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+                            {patientData.consultationType === 'COMPLETED' && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Payment Status
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        Done
+
+                                    </div>
+
+                                </div>
+
+                            )}
 
                         </div>
 
-                        {!patientData.treatmentDone && (
+                        {!patientData.teleSupportUserName && (
 
-                            <div
-                                className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer inline-block'
-                                onClick={() => {
-
-                                    // setTreatMentDoneVisible(true);
-
-                                }}
-                            >
-
-                                Sent to Tele Support
-
-                            </div>
+                            <button
+                                className='bg-green-800 px-2 py-1 rounded-md mx-10 my-10 hover:opacity-60 active:opacity-40'
+                                onClick={takeJobFunction}
+                            >Take Job</button>
 
                         )}
-
-                        {/* {treatMentDoneVisible && (
-
-                            <div 
-                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
-                            >
-
-                                <form 
-                                    className="block relative bg-gray-900 text-xl rounded-2xl border-[1px] border-gray-800"
-                                    onSubmit={handleSubmit}
-                                >
-                                
-                                    <div 
-                                        className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
-                                    >
-                                        
-                                        <label className='text-xs'>Write any feed (Optional)</label><br />
-
-                                        <textarea 
-                                            type='text'
-                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
-                                            value={treatmentDone}
-                                            onChange={(e) => {
-
-                                                const value = e.target.value;
-
-                                                steTreatmentDone(value);
-
-                                            }}
-                                        />
-                                    
-                                    </div>
-
-                                    <div 
-                                        className="px-10 transition-all duration-200 cursor-pointer"
-                                    >
-
-                                        <label className='text-xs'>Upload the prescription <span className='text-red-400'>*</span></label><br />
-
-                                        <input 
-                                            type="file"
-                                            accept="image/*"
-                                            capture="environment" // opens the camera on mobile devices
-                                            onChange={(e) => handleCapture(e)}
-                                            multiple // Allows multiple file selection
-                                            className='mt-2 mb-5 cursor-pointer'
-                                            id='fileInput'
-                                        /><br />
-
-                                        <label htmlFor="fileInput" className="mt-2 cursor-pointer bg-gray-800 text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
-                                            Add More
-                                        </label>
-
-                                    </div>
-
-                                    <button 
-                                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
-                                        type='submit'
-                                    >
-                                        Submit
-
-                                    </button>
-
-                                    <IoCloseCircleSharp 
-                                        className='absolute z-50 top-5 right-5 cursor-pointer'
-                                        onClick={() => {
-
-                                            setTreatMentDoneVisible(false);
-
-                                        }}
-                                    />
-
-                                </form>
-
-                            </div>
-
-                        )} */}
 
                     </div>
 
@@ -618,4 +546,4 @@ const SurgeryCareProfile = () => {
 
 }
 
-export default SurgeryCareProfile
+export default TeleSupportProfiles

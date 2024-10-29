@@ -5,6 +5,8 @@ import { MdOutlineKeyboardBackspace } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../../Style/HomePage.css'
 import axios from 'axios';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 const TeleSupportRegister = () => {
 
@@ -64,8 +66,6 @@ const TeleSupportRegister = () => {
 
                 if ( response.status === 200 ){
 
-                    alert("User Registered");
-
                     setUserData({
                         firstName: '',
                         lastName: '',
@@ -75,7 +75,27 @@ const TeleSupportRegister = () => {
                         role: role
                     });
 
-                    navigate('/');
+                    toast.success("User registered successfull", {
+                        autoClose: 1000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        },
+                        progressStyle: {
+                            backgroundColor: '#22c55e' // Tailwind bg-green-400
+                        },
+                        position: 'top-center'
+                    });
+
+                    setTimeout(() => {
+
+                        navigate('/');
+
+                    }, 1600);
 
                 }
 
@@ -83,13 +103,41 @@ const TeleSupportRegister = () => {
 
                 handleError(error);
 
-                alert("Email already taken");
+                toast.error("Email already exist", { 
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    progressStyle: {
+                        backgroundColor: 'red' // Tailwind bg-green-400
+                    },
+                    position: 'top-center'
+                });
 
             }
 
         } else {
 
-            alert("Passwords Not Matched");
+            toast.error("Passwords Not Matched", {
+                autoClose: 1000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                progressStyle: {
+                    backgroundColor: 'red' // Tailwind bg-green-400
+                },
+                position: 'top-center'
+            });
 
         }
 
@@ -109,6 +157,8 @@ const TeleSupportRegister = () => {
     return (
 
         <>
+
+            <ToastContainer />
         
             {loading ? (
 

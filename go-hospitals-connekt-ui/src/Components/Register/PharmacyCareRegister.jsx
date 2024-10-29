@@ -7,7 +7,6 @@ import '../../Style/HomePage.css'
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
-import Cookies from 'js-cookie';
 
 const PharmacyCareRegister = () => {
 
