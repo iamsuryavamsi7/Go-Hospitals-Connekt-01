@@ -11,9 +11,6 @@ const OnSiteTreatmentProfile = () => {
 // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
-    const navigate = useNavigate();
-
 // State Management
     const [role, setRole] = useState(null);
 
@@ -41,8 +38,6 @@ const OnSiteTreatmentProfile = () => {
         appointmentCreatedOn: '',
         appointmentFinished: ''
     });
-
-    const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT',

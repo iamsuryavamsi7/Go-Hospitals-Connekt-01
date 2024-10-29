@@ -76,8 +76,6 @@ const NavBarUser = () => {
 
                 setUserObject(userObject);
 
-                fetchNotifications(userObject);
-
                 setRole(userObject.role);
 
             }
@@ -164,14 +162,11 @@ const NavBarUser = () => {
 
     }
 
-    const fetchNotifications = async (userObject) => {
+    const fetchNotifications = async () => {
 
         try{
 
-
-            const userId = userObject.id;
-
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -180,6 +175,8 @@ const NavBarUser = () => {
             if ( response.status === 200 ){
 
                 let notificationData = response.data;
+
+                console.log(notificationData);
 
                 // Sort notifications by timeStamp in descending order (latest first)
                 notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
@@ -393,19 +390,19 @@ const NavBarUser = () => {
 
     }, [notificationArray, pathName]);
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     setTimeout(() => {
+        setTimeout(() => {
 
-    //         setInterval(() => {
+            setInterval(() => {
 
-    //             fetchNotifications(userObject);
+                fetchNotifications();
 
-    //         }, 5000);
+            }, 4000);
 
-    //     }, 5000);
+        }, 2000);
 
-    // }, [userObject])
+    }, [])
 
     return (
 
@@ -413,7 +410,7 @@ const NavBarUser = () => {
         
             <ToastContainer />
 
-            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0 bg-[#0F172A]">
+            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 absolute top-0 left-0 right-0 bg-[#0F172A]">
 
                 <div className="ml-56 flex items-center">
 
@@ -472,7 +469,7 @@ const NavBarUser = () => {
 
                         {notificationsVisible && (
 
-                            <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-[#0F172A]">
+                            <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-gray-900 z-50">
 
                                 <div className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800">
 

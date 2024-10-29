@@ -39,6 +39,7 @@ public class ApplicationsResponseModel {
 
     private Date medicalSupportUserAssignedTime;
 
+    private Date consultationAssignedTime;
 
     private String patientAdmitMessage;
 

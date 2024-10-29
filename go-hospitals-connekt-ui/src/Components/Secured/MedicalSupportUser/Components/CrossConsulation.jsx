@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CrossConsulation = () => {
 
@@ -17,6 +19,12 @@ const CrossConsulation = () => {
     const [userObject, setUserObject] = useState(null);
 
     const [onCrossConnection, setOnCrossConnection] = useState([]);
+
+    const [page, setPage] = useState(0); // Track the current page
+    
+    const pageSize = 25; 
+
+    const [isLastPage, setIsLastPage] = useState(false); // 
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT'
@@ -64,8 +72,6 @@ const CrossConsulation = () => {
 
                 setUserObject(userObject);
 
-                fetchCrossConnection(userObject);
-
             }
 
         }catch(error){
@@ -76,13 +82,11 @@ const CrossConsulation = () => {
 
     }
 
-    const fetchCrossConnection = async (userObject) => {
-
-        const userObjectId = userObject.id;
+    const fetchCrossConnection = async () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllCrossConsultation/${userObjectId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -92,7 +96,17 @@ const CrossConsulation = () => {
 
                 const userObject = response.data;
 
+                if ( userObject.length === 0 ){
+
+                    setIsLastPage(true);
+
+                    return false;
+
+                }
+
                 setOnCrossConnection(userObject);
+
+                return true;
 
             }
 
@@ -100,9 +114,54 @@ const CrossConsulation = () => {
 
             handleError(error);
 
+            return false;
+
         }
 
     }
+
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchCrossConnection();
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        } else {
+
+            toast.error("No Page Available", {
+                autoClose: 1000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                }
+            });
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
+
+    }
+
 
     useEffect(() => {
 
@@ -118,9 +177,17 @@ const CrossConsulation = () => {
 
     }, []);
 
+    useEffect(() => {
+
+        fetchCrossConnection();
+
+    }, [page]);
+
     return (
 
         <>
+
+            <ToastContainer />
         
             {role === roles.medicalSupport && (
 
@@ -197,6 +264,23 @@ const CrossConsulation = () => {
 
                             </table>
 
+                        </div>
+
+                        <div className="space-x-5 text-center mx-10 mt-5">
+                            
+                            <button 
+                                onClick={prevPage} 
+                                disabled={page === 0}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Previous</button>
+                            
+                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                            
+                            <button 
+                                onClick={nextPage}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Next</button>
+                        
                         </div>
 
                     </div>

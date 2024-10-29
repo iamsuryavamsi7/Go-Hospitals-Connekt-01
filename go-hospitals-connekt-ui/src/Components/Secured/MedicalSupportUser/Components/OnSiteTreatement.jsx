@@ -72,8 +72,6 @@ const OnSiteTreatement = () => {
 
                 setUserObject(userObject);
 
-                fetchOnSiteData(userObject);
-
             }
 
         }catch(error){
@@ -84,7 +82,7 @@ const OnSiteTreatement = () => {
 
     }
 
-    const fetchOnSiteData = async (userObject) => {
+    const fetchOnSiteData = async () => {
 
         try{
 
@@ -104,6 +102,8 @@ const OnSiteTreatement = () => {
 
                 }
 
+                setIsLastPage(onsiteData.length < pageSize);
+
                 // Sort data to put items with treatmentDone: false at the top
                 onsiteData = onsiteData.sort((a, b) => {
                     return a.treatmentDone === b.treatmentDone ? 0 : a.treatmentDone ? 1 : -1;
@@ -119,27 +119,7 @@ const OnSiteTreatement = () => {
 
             handleError(error);
 
-            return false;
-
-        }
-
-    }
-
-    const nextPage = async () => {
-
-        if ( !isLastPage ) {
-
-            const hasPage = await fetchOnSiteData(page + 1);
-
-            if ( hasPage ){
-
-                setPage((prevPage) => prevPage + 1);
-
-            }
-
-        } else {
-
-            toast.error("No Page Available", {
+            toast.error("Something went wrong", {
                 autoClose: 1000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
@@ -151,7 +131,25 @@ const OnSiteTreatement = () => {
                 }
             });
 
+            return false;
+
         }
+
+    }
+
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchOnSiteData();
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        } 
 
     }
 
@@ -250,7 +248,7 @@ const OnSiteTreatement = () => {
                                                 className='text-left leading-10 text-base border-b-[.5px] border-gray-800 text-gray-400'
                                             >
 
-                                                <th>{index + 1}</th>
+                                                <th>{(page * pageSize) + (index + 1)}</th>
 
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>

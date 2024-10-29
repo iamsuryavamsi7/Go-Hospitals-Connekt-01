@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SurgeryCare = () => {
 
@@ -18,10 +20,15 @@ const SurgeryCare = () => {
 
     const [medicalPlusFollowUpData, setMedicalPlusFollowUpData] = useState([]);
 
+    const [page, setPage] = useState(0); // Track the current page
+    
+    const pageSize = 25; 
+
+    const [isLastPage, setIsLastPage] = useState(false); // 
+
     const roles = {
         medicalSupport: 'MEDICALSUPPORT'
     }
-
 
     // Functions
     const handleError = (error) => {
@@ -64,25 +71,21 @@ const SurgeryCare = () => {
 
                 setUserObject(userObject);
 
-                fetchSurgeryCareData(userObject);
-
             }
 
         }catch(error){
 
-            handleError(error);
+            handleError(error); 
 
         }
 
     }
 
-    const fetchSurgeryCareData = async (userObject) => {
-
-        const userObjectId = userObject.id;
+    const fetchSurgeryCareData = async () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchSurgeryCareData/${userObjectId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchSurgeryCareDataPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -92,6 +95,14 @@ const SurgeryCare = () => {
 
                 let onsiteData = response.data;
 
+                if( onsiteData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(onsiteData.length < pageSize);
+
                 // Sort data to put items with treatmentDone: false at the top
                 onsiteData = onsiteData.sort((a, b) => {
                     return a.treatmentDone === b.treatmentDone ? 0 : a.treatmentDone ? 1 : -1;
@@ -99,13 +110,57 @@ const SurgeryCare = () => {
 
                 setMedicalPlusFollowUpData(onsiteData);
 
+                return true;
+
             }
 
         }catch(error){
 
             handleError(error);
 
+            toast.error("Something went wrong", {
+                autoClose: 1000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                }
+            });
+
+            return false;
+
         }
+
+    }
+
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchSurgeryCareData();
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
 
     }
 
@@ -115,6 +170,8 @@ const SurgeryCare = () => {
 
             fetchUserObject();
 
+            fetchSurgeryCareData();
+
         } else {
 
             console.log("Jwt Token is not avaiable");
@@ -123,9 +180,17 @@ const SurgeryCare = () => {
 
     }, []);
 
+    useEffect(() => {
+
+        fetchSurgeryCareData();
+
+    }, [page]);
+
     return (
 
         <>
+
+            <ToastContainer />
         
             {role === roles.medicalSupport && (
 
@@ -213,6 +278,23 @@ const SurgeryCare = () => {
 
                             </table>
 
+                        </div>
+
+                        <div className="space-x-5 text-center mx-10 mt-5">
+                            
+                            <button 
+                                onClick={prevPage} 
+                                disabled={page === 0}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Previous</button>
+                            
+                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                            
+                            <button 
+                                onClick={nextPage}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Next</button>
+                        
                         </div>
 
                     </div>

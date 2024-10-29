@@ -222,11 +222,11 @@ const access_token = Cookies.get('access_token');
 
         <>
 
+            <ToastContainer />
+
             {role === admin && (
 
                 <div className="">
-
-                    <ToastContainer />
 
                 <div className="text-lg mb-5 mx-20">
 
@@ -234,7 +234,7 @@ const access_token = Cookies.get('access_token');
 
                 </div>
 
-                <div className="mt-10 flex relative">
+                <div className="mt-10 block relative z-10">
 
                     <FiRefreshCw 
                         className={`text-xl opacity-60 absolute right-36 top-[-20px] cursor-pointer ${refreshButtonStyle}`}
@@ -242,7 +242,7 @@ const access_token = Cookies.get('access_token');
                     />
 
                     <table
-                        className='mx-10 w-full text-left'
+                        className='mx-10 w-full text-left z-10'
                     >
 
                         <thead>
@@ -273,7 +273,7 @@ const access_token = Cookies.get('access_token');
                                     return (
 
                                         <tr
-                                        className='leading-10 border-b-[.5px] border-gray-800 text-gray-400'
+                                        className='leading-10 border-b-[.5px] border-gray-800 text-gray-400 z-10'
                                         key={lockedUser.id}
                                         >
 

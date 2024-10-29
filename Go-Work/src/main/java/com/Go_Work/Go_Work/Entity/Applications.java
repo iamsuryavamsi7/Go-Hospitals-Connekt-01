@@ -65,6 +65,8 @@ public class Applications {
 
     private Date medicalSupportUserAssignedTime;
 
+    private Date consultationAssignedTime;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(

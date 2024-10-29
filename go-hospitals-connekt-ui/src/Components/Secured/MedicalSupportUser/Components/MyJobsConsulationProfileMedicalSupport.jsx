@@ -139,6 +139,8 @@ const access_token = Cookies.get('access_token');
 
                 setPatientData(appointmentData);
 
+                console.log(appointmentData);
+
             }
 
         }catch(error){

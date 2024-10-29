@@ -66,6 +66,8 @@ public class AuthService {
 
         savingUserObject.setUnLocked(false);
 
+        savingUserObject.setNotificationCount(0);
+
         userRepo.save(savingUserObject);
 
         sendRegistrationEmail(savingUserObject.getEmail());

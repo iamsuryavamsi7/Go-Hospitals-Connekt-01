@@ -188,7 +188,7 @@ public class PharmacyService {
 
         return applicationsPage
                 .stream()
-                .filter(applications -> !applications.getConsultationType().equals(ConsultationType.WAITING) && !applications.getConsultationType().equals(ConsultationType.COMPLETED) && applications.getMedicalSupportUser() != null )
+                .filter(Applications::isTreatmentDone )
                 .map(application1 -> {
 
                     ApplicationsResponseModel application = new ApplicationsResponseModel();

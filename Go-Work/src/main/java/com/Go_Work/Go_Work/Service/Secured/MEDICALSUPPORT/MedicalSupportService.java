@@ -160,13 +160,15 @@ public class MedicalSupportService {
 
     }
 
-    public List<Notification> fetchNotificationByUserId(Long userId) {
+    public List<Notification> fetchNotificationByUserId(String jwtToken) {
 
-        User fetchedUser =  userRepo.findById(userId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User user = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        return fetchedUser.getNotifications();
+        return user.getNotifications();
 
     }
 
@@ -197,6 +199,7 @@ public class MedicalSupportService {
         List<ApplicationsResponseModel> fetchedApplicationModels =  fetchedData
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.ONSITETREATMENT))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -311,17 +314,18 @@ public class MedicalSupportService {
 
     }
 
-    public List<ApplicationsResponseModel> fetchAllCrossConsultation(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchAllCrossConsultation(String jwtToken, int page, int pageSize) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
-
-        return fetchedData
+        List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -337,21 +341,28 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+
+        int end = Math.min(start + pageSize, fetchedData.size());
+
+        return fetchedData.subList(start, end);
 
     }
 
-    public List<ApplicationsResponseModel> fetchAllPatientAdmit(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchAllPatientAdmit(String jwtToken, int page, int pageSize) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
-
-        return fetchedData
+        List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -367,7 +378,12 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, fetchedData.size());
+
+        return fetchedData.subList(start, end);
 
     }
 
@@ -381,6 +397,7 @@ public class MedicalSupportService {
 
             fetchedApplication.setConsultationType(consultationType);
             fetchedApplication.setMedicationPlusFollowUp(true);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
 
             applicationsRepo.save(fetchedApplication);
 
@@ -395,6 +412,7 @@ public class MedicalSupportService {
             );
 
             fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
 
             applicationsRepo.save(fetchedApplication);
 
@@ -408,6 +426,7 @@ public class MedicalSupportService {
 
             fetchedApplication.setConsultationType(consultationType);
             fetchedApplication.setPatientGotApproved(false);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
 
             applicationsRepo.save(fetchedApplication);
 
@@ -523,17 +542,20 @@ public class MedicalSupportService {
     }
 
 
-    public List<ApplicationsResponseModel> fetchMedicalPlusFollowUpData(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchMedicalPlusFollowUpData(String jwtToken, int page, int pageSize) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
         List<Applications> fetchedData = fetchedMedicalUser.getApplications();
 
-        return fetchedData
+        List<ApplicationsResponseModel> filteredData = fetchedData
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -549,21 +571,32 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+
+        int end = Math.min(start + pageSize, filteredData.size());
+
+        return filteredData.subList(start, end);
 
     }
 
-    public List<ApplicationsResponseModel> fetchSurgeryCareData(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchSurgeryCareData(
+            String jwtToken,
+            int page,
+            int pageSize
+    ) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
-
-        return fetchedData
+        List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -579,21 +612,28 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+
+        int end = Math.min(start + pageSize, fetchedData.size());
+
+        return fetchedData.subList(start, end);
 
     }
 
-    public List<ApplicationsResponseModel> fetchPharmacyData(Long userObjectId) {
+    public List<ApplicationsResponseModel> fetchPharmacyData(String jwtToken, int page, int pageSize) {
 
-        User fetchedMedicalUser = userRepo.findById(userObjectId).orElseThrow(
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        List<Applications> fetchedData = fetchedMedicalUser.getApplications();
-
-        return fetchedData
+        List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
                 .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY))
+                .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -609,7 +649,13 @@ public class MedicalSupportService {
                     return applicationNew;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = page * pageSize;
+
+        int end = Math.min(start + pageSize, fetchedData.size());
+
+        return fetchedData.subList(start, end);
 
     }
 

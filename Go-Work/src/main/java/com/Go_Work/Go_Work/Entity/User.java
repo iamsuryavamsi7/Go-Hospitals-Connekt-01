@@ -77,6 +77,8 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<Notification> notifications = new ArrayList<>();
 
+    private int notificationCount;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

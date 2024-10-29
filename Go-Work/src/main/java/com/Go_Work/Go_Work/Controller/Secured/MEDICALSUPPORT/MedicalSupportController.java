@@ -71,12 +71,14 @@ public class MedicalSupportController {
 
     }
 
-    @GetMapping("/fetchNotificationByUserId/{userId}")
+    @GetMapping("/fetchNotificationByUserId")
     public ResponseEntity<List<Notification>> fetchNotificationByUserId(
-            @PathVariable("userId") Long userId
+            HttpServletRequest request
     ){
 
-        List<Notification> fetchedNotifications = medicalSupportService.fetchNotificationByUserId(userId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<Notification> fetchedNotifications = medicalSupportService.fetchNotificationByUserId(jwtToken);
 
         return ResponseEntity.ok(fetchedNotifications);
 
@@ -120,34 +122,46 @@ public class MedicalSupportController {
 
     }
 
-    @GetMapping("/fetchMedicalPlusFollowUpData/{userObjectId}")
+    @GetMapping("/fetchMedicalPlusFollowUpDataPaging/{page}/{pageSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchMedicalPlusFollowUpData(
-            @PathVariable("userObjectId") Long userObjectId
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchMedicalPlusFollowUpData(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchMedicalPlusFollowUpData(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 
     }
 
-    @GetMapping("/fetchSurgeryCareData/{userObjectId}")
+    @GetMapping("/fetchSurgeryCareDataPaging/{page}/{pageSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchSurgeryCareData(
-            @PathVariable("userObjectId") Long userObjectId
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchSurgeryCareData(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchSurgeryCareData(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 
     }
 
-    @GetMapping("/fetchPharmacyData/{userObjectId}")
+    @GetMapping("/fetchPharmacyDataPaging/{page}/{pageSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchPharmacyData(
-            @PathVariable("userObjectId") Long userObjectId
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchPharmacyData(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchPharmacyData(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 
@@ -197,23 +211,31 @@ public class MedicalSupportController {
 
     }
 
-    @GetMapping("/fetchAllCrossConsultation/{userObjectId}")
+    @GetMapping("/fetchAllCrossConsultationPaging/{page}/{pageSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchAllCrossConsultation(
-            @PathVariable("userObjectId") Long userObjectId
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllCrossConsultation(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllCrossConsultation(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 
     }
 
-    @GetMapping("/fetchAllPatientAdmit/{userObjectId}")
+    @GetMapping("/fetchAllPatientAdmitPaging/{page}/{pageSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPatientAdmit(
-            @PathVariable("userObjectId") Long userObjectId
+            @PathVariable("page") int page,
+            @PathVariable("pageSize") int pageSize,
+            HttpServletRequest request
     ){
 
-        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllPatientAdmit(userObjectId);
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<ApplicationsResponseModel> fetchedData = medicalSupportService.fetchAllPatientAdmit(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedData);
 

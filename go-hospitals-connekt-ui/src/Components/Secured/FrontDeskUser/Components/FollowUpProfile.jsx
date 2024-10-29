@@ -106,8 +106,6 @@ const FollowUpProfile = () => {
 
                 setPatientData(appointmentData);
 
-                console.log(response.data);
-
             }
 
         }catch(error){

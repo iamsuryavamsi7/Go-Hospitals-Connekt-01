@@ -2,10 +2,12 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PatientAdmit = () => {
 
-// JWT Token
+// JWT Token 
     const access_token = Cookies.get('access_token');
 
 // Use Navigate Hook
@@ -17,6 +19,12 @@ const PatientAdmit = () => {
     const [userObject, setUserObject] = useState(null);
 
     const [onPatientAdmit, setOnPatientAdmit] = useState([]);
+
+    const [page, setPage] = useState(0); // Track the current page
+    
+    const pageSize = 25; 
+
+    const [isLastPage, setIsLastPage] = useState(false); // 
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT'
@@ -64,8 +72,6 @@ const PatientAdmit = () => {
 
                 setUserObject(userObject);
 
-                fetchOnSiteData(userObject);
-
             }
 
         }catch(error){
@@ -76,13 +82,11 @@ const PatientAdmit = () => {
 
     }
 
-    const fetchOnSiteData = async (userObject) => {
-
-        const userObjectId = userObject.id;
+    const fetchAllPatientAdmit = async () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllPatientAdmit/${userObjectId}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllPatientAdmitPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -92,7 +96,17 @@ const PatientAdmit = () => {
 
                 const userObject = response.data;
 
+                if ( userObject.length === 0 ){
+
+                    setIsLastPage(true);
+
+                    return false;
+
+                }
+
                 setOnPatientAdmit(userObject);
+
+                return true;
 
             }
 
@@ -100,7 +114,37 @@ const PatientAdmit = () => {
 
             handleError(error);
 
+            return false;
+
         }
+
+    }
+
+    const nextPage = async () => {
+
+        if ( !isLastPage ) {
+
+            const hasPage = await fetchAllPatientAdmit();
+
+            if ( hasPage ){
+
+                setPage((prevPage) => prevPage + 1);
+
+            }
+
+        }
+
+    }
+
+    const prevPage = () => {
+
+        if ( page > 0 ) {
+
+            setPage((prevPage) => prevPage - 1);
+
+            setIsLastPage(false);
+
+        } 
 
     }
 
@@ -110,6 +154,8 @@ const PatientAdmit = () => {
 
             fetchUserObject();
 
+            fetchAllPatientAdmit();
+
         } else {
 
             console.log("Jwt Token is not avaiable");
@@ -118,9 +164,17 @@ const PatientAdmit = () => {
 
     }, []);
 
+    useEffect(() => {
+
+        fetchAllPatientAdmit();
+
+    }, [page]);
+
     return (
 
         <>
+
+            <ToastContainer />
         
             {role === roles.medicalSupport && (
 
@@ -197,6 +251,23 @@ const PatientAdmit = () => {
 
                             </table>
 
+                        </div>
+
+                        <div className="space-x-5 text-center mx-10 mt-5">
+                            
+                            <button 
+                                onClick={prevPage} 
+                                disabled={page === 0}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Previous</button>
+                            
+                            <span className='bg-gray-800 px-2 py-2 text-sm rounded-md cursor-pointer'>Page {page + 1}</span>
+                            
+                            <button 
+                                onClick={nextPage}
+                                className='bg-gray-800 cursor-pointer px-2 py-2 text-xs rounded-md hover:opacity-60 active:opacity-40'
+                            >Next</button>
+                        
                         </div>
 
                     </div>

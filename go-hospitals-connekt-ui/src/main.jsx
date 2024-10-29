@@ -3,6 +3,7 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import { getApp } from '../Utils/helpers';
 import GoWorkRouter from './GoWorkRouter';
+import { StrictMode } from 'react';
 
 const App = () => {
 
@@ -25,7 +26,6 @@ createRoot(document.getElementById('root')).render(
 	// <BrowserRouter>
 	// 	<GoWorkRouter />
 	// </BrowserRouter>
-
-	<App />
+		<App />
 
 )

@@ -210,7 +210,7 @@ const CompletedMedications = () => {
 
                                 </thead>
 
-                                {CompleteApplications && CompleteApplications === 0 ? (
+                                {CompleteApplications && CompleteApplications.length === 0 ? (
 
                                     <tbody>
 

@@ -44,6 +44,7 @@ public class MedicalSupportResponseModel {
 
     private Date medicalSupportUserAssignedTime;
 
+    private Date consultationAssignedTime;
 
     private List<ImageUrls> prescriptionsUrls;
 
