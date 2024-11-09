@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const MyJobsConsulationProfileMedicalSupport = () => {
 
@@ -168,7 +167,7 @@ const access_token = Cookies.get('access_token');
             if ( response.status === 200 ){
 
                 toast.success("Job Taken", {
-                    autoClose: 1000,
+                    duration: 1000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -177,9 +176,7 @@ const access_token = Cookies.get('access_token');
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
+                    position: 'top-right'
                 });
 
                 setTimeout(() => {
@@ -219,7 +216,7 @@ const access_token = Cookies.get('access_token');
             if ( response.status === 200 ){
 
                 toast.success("Consultation Status Updated", {
-                    autoClose: 1000,
+                    duration: 1000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -228,9 +225,7 @@ const access_token = Cookies.get('access_token');
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
+                    position: 'top-right'
                 });
 
                 setTimeout(() => {
@@ -303,7 +298,7 @@ const access_token = Cookies.get('access_token');
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.medicalSupport && (
 

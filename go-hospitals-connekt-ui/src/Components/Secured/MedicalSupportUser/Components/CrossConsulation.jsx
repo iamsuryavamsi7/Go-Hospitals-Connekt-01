@@ -2,8 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const CrossConsulation = () => {
 
@@ -135,7 +134,7 @@ const CrossConsulation = () => {
         } else {
 
             toast.error("No Page Available", {
-                autoClose: 1000,
+                duration: 1000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -143,7 +142,8 @@ const CrossConsulation = () => {
                     borderRadius: '0.5rem', // Tailwind rounded-lg
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                     marginTop: '2.5rem' // Tailwind mt-10,
-                }
+                },
+                position: 'top-right'
             });
 
         }
@@ -187,7 +187,7 @@ const CrossConsulation = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
         
             {role === roles.medicalSupport && (
 

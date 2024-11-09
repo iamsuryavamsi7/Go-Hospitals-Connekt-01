@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../../../../Style/secured/navbar/navbaruser.css'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { IoCloseCircle } from 'react-icons/io5';
-import { data } from 'autoprefixer';
 import { CgLoadbar } from 'react-icons/cg';
+import { Toaster, toast } from 'react-hot-toast';
 
 const PharmacyProfiles = () => {
 
@@ -173,7 +171,7 @@ const PharmacyProfiles = () => {
                     console.log(response.data);
 
                     toast.success("Application Completed", {
-                        autoClose: 1000,
+                        duration: 1000,
                         style: {
                             backgroundColor: '#1f2937', // Tailwind bg-gray-800
                             color: '#fff', // Tailwind text-white
@@ -198,7 +196,7 @@ const PharmacyProfiles = () => {
         } else {
 
             toast.error("Checkbox is not checked", {
-                autoClose: 2000,
+                duration: 2000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -281,19 +279,6 @@ const PharmacyProfiles = () => {
 
                 if ( response.status === 200 ){
 
-                    toast.success("Download Started ...", {
-                        autoClose: 1000,
-                        style: {
-                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                            color: '#fff', // Tailwind text-white
-                            fontWeight: '600', // Tailwind font-semibold
-                            borderRadius: '0.5rem', // Tailwind rounded-lg
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                            marginTop: '2.5rem' // Tailwind mt-10,
-                        },
-                        position: 'top-center'
-                    });
-
                     fetchAppointmentData();
 
                     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -318,7 +303,7 @@ const PharmacyProfiles = () => {
                 handleError(error);
 
                 toast.error("Download Error", {
-                    autoClose: 2000,
+                    duration: 2000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -358,7 +343,7 @@ const PharmacyProfiles = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.pharmacy && (
 

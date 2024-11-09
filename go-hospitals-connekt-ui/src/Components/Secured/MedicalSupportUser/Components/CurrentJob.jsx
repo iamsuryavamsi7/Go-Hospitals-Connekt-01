@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const CurrentJob = () => {
 
@@ -196,7 +195,7 @@ const CurrentJob = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
         
             {role === roles.medicalSupport && (
 

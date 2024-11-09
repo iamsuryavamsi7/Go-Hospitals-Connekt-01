@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { IoCloseCircleSharp } from 'react-icons/io5';
+import { Toaster, toast } from 'react-hot-toast';
 
 const OnSiteTreatmentProfile = () => {
 
@@ -182,7 +181,7 @@ const OnSiteTreatmentProfile = () => {
           if ( response.status === 200 ){
 
             toast.success("Treatment Completed", {
-                autoClose: 1000,
+                duration: 1000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -191,9 +190,7 @@ const OnSiteTreatmentProfile = () => {
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                     marginTop: '2.5rem' // Tailwind mt-10,
                 },
-                progressStyle: {
-                    backgroundColor: '#22c55e' // Tailwind bg-green-400
-                },
+                position: 'top-right'
             });
 
             steTreatmentDone(``);
@@ -211,7 +208,7 @@ const OnSiteTreatmentProfile = () => {
             handleError(error);
 
             toast.error("File size exceeded", {
-                autoClose: 2000,
+                duration: 2000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -249,7 +246,7 @@ const OnSiteTreatmentProfile = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.medicalSupport && (
 

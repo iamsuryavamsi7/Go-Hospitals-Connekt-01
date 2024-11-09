@@ -403,6 +403,7 @@ public class MedicalSupportService {
 
             fetchedApplication.setConsultationType(consultationType);
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
 
             applicationsRepo.save(fetchedApplication);
 

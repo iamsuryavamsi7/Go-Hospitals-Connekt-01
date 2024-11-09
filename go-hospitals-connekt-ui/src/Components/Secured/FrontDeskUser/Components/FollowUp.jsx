@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import { toast, Toaster } from 'react-hot-toast';
 
 const FollowUp = () => {
 
@@ -179,7 +178,7 @@ const FollowUp = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.frontDesk && (
 

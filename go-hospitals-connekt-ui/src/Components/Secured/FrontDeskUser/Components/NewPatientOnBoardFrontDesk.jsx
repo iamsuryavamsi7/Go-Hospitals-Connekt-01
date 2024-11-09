@@ -135,7 +135,7 @@ const NewPatientOnBoardFrontDesk = () => {
                     setFormSubmitButton(`pointer-events-none`);
 
                     toast.success("Patient Onboard Success", {
-                        autoClose: 1000,
+                        duration: 1000,
                         style: {
                             backgroundColor: '#1f2937', // Tailwind bg-gray-800
                             color: '#fff', // Tailwind text-white
@@ -143,9 +143,6 @@ const NewPatientOnBoardFrontDesk = () => {
                             borderRadius: '0.5rem', // Tailwind rounded-lg
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                             marginTop: '2.5rem' // Tailwind mt-10,
-                        },
-                        progressStyle: {
-                            backgroundColor: '#22c55e' // Tailwind bg-green-400
                         }
                     });
                     
@@ -338,10 +335,10 @@ const NewPatientOnBoardFrontDesk = () => {
                             </div>
 
                             <div className="">
+                            {/* <span className='text-red-400'>*</span> */}
 
-                                <label>Age <span className='text-red-400'>*</span></label><br />
+                                <label>Age </label><br />
                                 <input 
-                                    required
                                     type='number'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     name='age'
@@ -353,9 +350,9 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             <div className="">
 
-                                <label>Contact <span className='text-red-400'>*</span></label><br />
+                            {/* <span className='text-red-400'>*</span> */}
+                                <label>Contact </label><br />
                                 <input 
-                                    required
                                     type='text'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     name='contact'
@@ -367,9 +364,9 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             <div className="">
 
-                                <label>Address <span className='text-red-400'>*</span></label><br />
+                            {/* <span className='text-red-400'>*</span> */}
+                                <label>Address</label><br />
                                 <input 
-                                    required
                                     type='text'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     name='address'
@@ -497,8 +494,6 @@ const NewPatientOnBoardFrontDesk = () => {
                     </form>
 
                 </div>
-
-                {/* <ToastContainer /> */}
 
             </>
 

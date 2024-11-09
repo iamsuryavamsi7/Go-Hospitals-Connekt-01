@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { IoCloseCircleSharp } from 'react-icons/io5';
+import { Toaster, toast } from 'react-hot-toast';
 
 const CrossConsultationProfile = () => {
 
@@ -157,7 +155,7 @@ const CrossConsultationProfile = () => {
                 console.log(responseData);
 
                 toast.success("Request Sent", {
-                    autoClose: 1000,
+                    duration: 1000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -166,9 +164,7 @@ const CrossConsultationProfile = () => {
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    },
+                    position: 'top-right'
                 })
 
                 fetchAppointmentData();;
@@ -180,7 +176,7 @@ const CrossConsultationProfile = () => {
             handleError(error);
 
             toast.error("Someting Went Wrong", {
-                autoClose: 2000,
+                duration: 2000,
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -188,8 +184,7 @@ const CrossConsultationProfile = () => {
                     borderRadius: '0.5rem', // Tailwind rounded-lg
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                     marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
+                }
             });
 
         }
@@ -216,7 +211,7 @@ const CrossConsultationProfile = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.medicalSupport && (
 

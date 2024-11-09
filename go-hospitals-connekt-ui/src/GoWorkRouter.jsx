@@ -53,8 +53,9 @@ import InCompletePatients from './Components/Secured/TeleSupport/Components/InCo
 import TeleSupportLayout from './Components/Secured/TeleSupport/TeleSupportLayout'
 import TeleSupportForgetPassword from './Components/ForgetPassword/TeleSupportForgetPassword'
 import TeleSupportProfiles from './Components/Secured/TeleSupport/Components/TeleSupportProfiles'
-import PatientPublicForm from './Components/Secured/TeleSupport/Components/PatientPublicForm'
 import MyJobs from './Components/Secured/TeleSupport/Components/MyJobs'
+import MyJobsProfile from './Components/Secured/TeleSupport/Components/MyJobsProfile'
+import FillTheSurgeryForm from './Components/Public/FillTheSurgeryForm'
 
 function GoWorkRouter() {
 
@@ -67,6 +68,10 @@ function GoWorkRouter() {
 					{/* BASE ROUTING */}
 					<Route index element={<HomePage />} />
 					<Route path='/' element={<HomePage />} />
+
+					{/* Public Links */}
+
+					<Route path='/public/fill-the-surgery-form/:teleSupportUserId/:applicationId' element={<FillTheSurgeryForm />}/>
 
 					{/* REGISTER ROUTING */}
 					<Route path='/front-desk-register' element={<FrontDeskRegister />} />
@@ -139,8 +144,8 @@ function GoWorkRouter() {
 					<Route element={<TeleSupportLayout />}>
 						<Route path='/telesupport-incomplete-patients' element={<InCompletePatients />}/>
 						<Route path='/telesupport-profile/:id' element={<TeleSupportProfiles />}/>
-						<Route path='/telesupport-patient-public-page' element={<PatientPublicForm />}/>
 						<Route path='/telesupport-MyJobs' element={<MyJobs />}/>
+						<Route path='/telesupport-MyJobs-profile/:id' element={<MyJobsProfile />}/>
 					</Route>
 
 				</Routes>

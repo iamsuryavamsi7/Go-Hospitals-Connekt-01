@@ -83,4 +83,13 @@ public class Applications {
 
     private Date teleSupportUserAssignedTime;
 
+    private boolean teleSupportConsellingDone;
+
+    @OneToMany(
+            mappedBy = "application",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference("surgeryDocuments")
+    private List<SurgeryDocumentsUrls> surgeryDocumentsUrls = new ArrayList<>();
+
 }

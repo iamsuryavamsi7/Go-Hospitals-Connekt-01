@@ -4,9 +4,8 @@ import { HiOutlineLogout, HiOutlineSpeakerphone } from 'react-icons/hi';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import '../../../Style/secured/navbar/navbaruser.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const NavBarUser = () => {
 
@@ -103,7 +102,7 @@ const NavBarUser = () => {
                 Cookies.remove('access_token', { path: '/', domain: '.gohospitals.in' });
 
                 toast.success("Logout Succesfull", {
-                    autoClose: 1000,
+                    duration: 1000,
                     style: {
                         backgroundColor: '#1f2937', // Tailwind bg-gray-800
                         color: '#fff', // Tailwind text-white
@@ -111,9 +110,6 @@ const NavBarUser = () => {
                         borderRadius: '0.5rem', // Tailwind rounded-lg
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
                     },
                     position: 'top-center'
                 });
@@ -440,15 +436,15 @@ const NavBarUser = () => {
 
     useEffect(() => {
 
-        // setTimeout(() => {
+        setTimeout(() => {
 
-            // setInterval(() => {
+            setInterval(() => {
 
                 fetchNotifications();
 
-        //     }, 4000);
+            }, 4000);
 
-        // }, 2000);
+        }, 2000);
 
     }, [])
 
@@ -456,7 +452,7 @@ const NavBarUser = () => {
 
         <>
         
-            <ToastContainer />
+            <Toaster />
 
             <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 absolute top-0 left-0 right-0 bg-[#0F172A]">
 

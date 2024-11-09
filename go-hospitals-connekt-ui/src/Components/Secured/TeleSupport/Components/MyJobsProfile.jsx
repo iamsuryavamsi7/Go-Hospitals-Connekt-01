@@ -8,7 +8,7 @@ import axios from 'axios';
 import { CgLoadbar } from 'react-icons/cg';
 import { IoCloseCircle } from 'react-icons/io5';
 
-const TeleSupportProfiles = () => {
+const MyJobsProfile = () => {
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -124,7 +124,7 @@ const TeleSupportProfiles = () => {
                 }
             })
 
-            if ( response.status === 200 ){ 
+            if ( response.status === 200 ){
 
                 const userObject = response.data;
 
@@ -196,6 +196,68 @@ const TeleSupportProfiles = () => {
         }
 
     }
+
+    const sendLinkFunction = () => {
+
+        window.open(`https://wa.me/${patientData.contact}?text=Click%20on%20this%20link%20to%20go%20further%20with%20our%20surgery%20process%3A%20http%3A%2F%2Fgowork.gohospitals.in%3A7778%2Fpublic%2Ffill-the-surgery-form%2F${userObject.id}%2F${id}`, '_blank');
+
+    }
+
+    const copyLinkFunction = () => {
+
+        const teleSupportUserId = userObject.id;
+
+        const applicationId = id;
+
+        const textToCopy = `http://gowork.gohospitals.in:7778/public/fill-the-surgery-form/${teleSupportUserId}/${applicationId}`;
+
+        // Check if `navigator.clipboard` is supported
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    showToast("Copied to clipboard!");
+                })
+                .catch((error) => {
+                    console.error("Failed to copy text:", error);
+                    showToast("Failed to copy link. Please try again.", true);
+                });
+        } else {
+            // Fallback for older browsers or insecure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed"; // Avoid scrolling to bottom
+            textArea.style.opacity = 0; // Make it invisible
+            document.body.appendChild(textArea);
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand("copy");
+                showToast("Copied to clipboard!");
+            } catch (error) {
+                console.error("Failed to copy text:", error);
+                showToast("Failed to copy link. Please try again.", true);
+            }
+
+            // Remove the temporary text area
+            document.body.removeChild(textArea);
+        }
+    };
+
+    // Helper function for toast notifications
+    const showToast = (message, isError = false) => {
+        toast[isError ? 'error' : 'success'](message, {
+            autoClose: 1000,
+            style: {
+                backgroundColor: '#1f2937',
+                color: '#fff',
+                fontWeight: '600',
+                borderRadius: '0.5rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                marginTop: '2.5rem'
+            }
+        });
+    };
 
     const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
 
@@ -332,24 +394,24 @@ const TeleSupportProfiles = () => {
 
                 <>
 
-                    {patientData && patientData.length === 0 ? (
+                {patientData &&  patientData.length === 0 ? (
 
-                        <div className="relative h-[500px]">
+                    <div className="relative h-[500px]">
 
-                            <div className="absolute left-0 right-0 bottom-0 top-0 flex items-center justify-center">
+                        <div className="absolute left-0 right-0 bottom-0 top-0 flex items-center justify-center">
 
-                                No Data Available
-
-                            </div>
+                            No Data Available
 
                         </div>
 
-                    ): (
+                    </div>
 
-                        <>
+                ): (
+
+                    <>
 
                         <div 
-                            className="mb-10"
+                            className="mb-7"
                         >
 
                             <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
@@ -652,7 +714,31 @@ const TeleSupportProfiles = () => {
 
                                 )}
 
-                            </div>
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Counselling Status
+
+                                    </div>
+
+                                    <div className="text-lg">
+
+                                        {patientData.teleSupportConsellingDone ? (
+
+                                            <span>Done</span>
+
+                                        ) : (
+
+                                            <span>Not Done</span>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div> 
 
                             {!patientData.teleSupportUserName && (
 
@@ -664,6 +750,44 @@ const TeleSupportProfiles = () => {
                             )}
 
                         </div>
+
+                        {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length === 0 && (
+
+                            <>
+
+                                <div 
+                                    className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer mx-10"
+                                    onClick={sendLinkFunction}
+                                >
+
+                                    <div 
+                                        className="text-base text-gray-300"
+                                    >
+
+                                        Send Link
+
+                                    </div>
+
+                                </div>
+
+                                <div 
+                                    className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer "
+                                    onClick={copyLinkFunction}    
+                                >
+
+                                    <div 
+                                        className="text-base text-gray-300"
+                                    >
+
+                                        Copy Link
+
+                                    </div>
+
+                                </div>
+
+                            </>
+
+                        )}
 
                         {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length > 0 && (
 
@@ -775,7 +899,7 @@ const TeleSupportProfiles = () => {
 
                     </>
 
-                    )}
+                )}
 
                 </>
 
@@ -787,4 +911,4 @@ const TeleSupportProfiles = () => {
 
 }
 
-export default TeleSupportProfiles
+export default MyJobsProfile

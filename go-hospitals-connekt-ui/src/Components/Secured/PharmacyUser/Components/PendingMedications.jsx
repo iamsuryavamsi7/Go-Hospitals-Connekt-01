@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const PendingMedications = () => {
 
@@ -183,7 +182,7 @@ const PendingMedications = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === roles.pharmacy && (
 

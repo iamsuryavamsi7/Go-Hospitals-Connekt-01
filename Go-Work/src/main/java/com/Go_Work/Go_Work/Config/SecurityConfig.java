@@ -55,6 +55,8 @@ public class SecurityConfig {
                         request -> request
                                 .requestMatchers("/api/v1/auth/**")
                                 .permitAll()
+                                .requestMatchers("/api/v1/public/**")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -134,11 +136,6 @@ public class SecurityConfig {
 
         return mailSender;
     }
-
-//    @Bean
-//    public CacheManager cacheManager() {
-//        return new CaffeineCacheManager("cacheName");
-//    }
 
     @Bean
     public CacheManager cacheManager() {

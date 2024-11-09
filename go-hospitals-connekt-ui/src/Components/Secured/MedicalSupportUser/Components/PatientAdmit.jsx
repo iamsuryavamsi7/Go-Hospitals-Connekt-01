@@ -2,8 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
 
 const PatientAdmit = () => {
 
@@ -174,7 +173,7 @@ const PatientAdmit = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
         
             {role === roles.medicalSupport && (
 

@@ -2,8 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { FiRefreshCw } from 'react-icons/fi';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import { toast, Toaster } from 'react-hot-toast';
 
 const NewApprovals = () => {
 
@@ -147,7 +146,8 @@ const access_token = Cookies.get('access_token');
                     },
                     progressStyle: {
                         backgroundColor: 'red' // Tailwind bg-green-400
-                    }
+                    },
+                    position: 'top-right'
                 }); 
 
                 lockedUsersFunction();
@@ -187,7 +187,8 @@ const access_token = Cookies.get('access_token');
                     },
                     progressStyle: {
                         backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    },
+                    position: 'top-right'
                 });
 
                 lockedUsersFunction();
@@ -222,7 +223,7 @@ const access_token = Cookies.get('access_token');
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === admin && (
 

@@ -5,8 +5,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { ImCancelCircle } from 'react-icons/im';
 import { FaUserDoctor } from 'react-icons/fa6';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, Toaster } from 'react-hot-toast';
 
 const AdminManagement02 = () => {
 
@@ -123,7 +122,8 @@ const AdminManagement02 = () => {
                     },
                     progressStyle: {
                         backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    },
+                    position: 'top-right'
                 });
 
                 const departmentData = response.data;
@@ -170,7 +170,8 @@ const AdminManagement02 = () => {
                     },
                     progressStyle: {
                         backgroundColor: 'red' // Tailwind bg-green-400
-                    }
+                    },
+                    position: 'top-right'
                 });
 
                 const departmentData = response.data;
@@ -288,7 +289,8 @@ const AdminManagement02 = () => {
                     },
                     progressStyle: {
                         backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    },
+                    position: 'top-right'
                 });
 
 
@@ -324,7 +326,7 @@ const AdminManagement02 = () => {
 
         <div className="my-10 w-[70%]">
 
-            <ToastContainer />
+            <Toaster />
 
             {editDoctorVisible && (
 

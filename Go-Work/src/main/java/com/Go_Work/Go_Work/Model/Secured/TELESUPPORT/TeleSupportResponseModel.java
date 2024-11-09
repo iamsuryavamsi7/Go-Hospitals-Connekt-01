@@ -2,11 +2,13 @@ package com.Go_Work.Go_Work.Model.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.ImageUrls;
+import com.Go_Work.Go_Work.Entity.SurgeryDocumentsUrls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -56,5 +58,8 @@ public class TeleSupportResponseModel {
 
     private Date teleSupportUserAssignedTime;
 
+    private boolean teleSupportConsellingDone;
+
+    private List<SurgeryDocumentsUrls> surgeryDocumentsUrls = new ArrayList<>();
 
 }

@@ -6,8 +6,7 @@ import { RiDeleteBin5Line } from 'react-icons/ri';
 import { ImCancelCircle } from 'react-icons/im';
 import AdminManagement02 from './MinorComponents/AdminManagement02';
 import { FcDepartment } from 'react-icons/fc';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {toast, Toaster} from 'react-hot-toast';
 
 const AdminManagement = () => {
 
@@ -139,20 +138,14 @@ const AdminManagement = () => {
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    position: 'top-right'
                 });
 
-                setTimeout(() => {
+                fetchDepartmentName();       
+                
+                setAddDepartmentIsVisible(false);
 
-                    fetchDepartmentName();       
-                    
-                    setAddDepartmentIsVisible(false);
-
-                    setDepartmentName('');
-
-                }, 2500);
+                setDepartmentName('');
 
             }
 
@@ -186,17 +179,11 @@ const AdminManagement = () => {
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: 'red' // Tailwind bg-green-400
-                    }
+                    position: 'top-right'
                 });
 
-                setTimeout(() => {
+                fetchDepartmentName();  
 
-                    fetchDepartmentName();  
-
-                }, 2500);     
-                
             }
 
         }catch(error){
@@ -249,23 +236,17 @@ const AdminManagement = () => {
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                         marginTop: '2.5rem' // Tailwind mt-10,
                     },
-                    progressStyle: {
-                        backgroundColor: '#22c55e' // Tailwind bg-green-400
-                    }
+                    position: 'top-right'
                 });
 
-                setTimeout(() => {
+                setEditDepartmentData({
+                    departmentId: '',
+                    departmentName: '',
+                });
 
-                    setEditDepartmentData({
-                        departmentId: '',
-                        departmentName: '',
-                    });
-    
-                    setEditDepartmentVisible(false);
-    
-                    fetchDepartmentName();
+                setEditDepartmentVisible(false);
 
-                }, 2500);
+                fetchDepartmentName();
 
             }
 
@@ -344,7 +325,7 @@ const AdminManagement = () => {
 
         <>
 
-            <ToastContainer />
+            <Toaster />
 
             {role === admin && (
 

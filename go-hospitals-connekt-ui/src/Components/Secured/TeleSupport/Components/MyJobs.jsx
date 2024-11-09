@@ -273,7 +273,7 @@ const MyJobs = () => {
                                             <th>{job.billNo}</th>
                                             <th
                                                 className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                // onClick={(id) => navigate(`/medical-support-consultation-queue-current-job/${job.id}`)}
+                                                onClick={(id) => navigate(`/telesupport-MyJobs-profile/${job.id}`)}
                                             >View Full Profile</th>
 
                                         </tr>

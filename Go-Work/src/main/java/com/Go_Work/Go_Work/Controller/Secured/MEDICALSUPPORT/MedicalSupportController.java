@@ -244,11 +244,11 @@ public class MedicalSupportController {
     @PostMapping("/uploadPrescription/{applicationId}")
     public ResponseEntity<String> uploadPrescription(
             @PathVariable("applicationId") Long applicationId,
-            @RequestParam("imageFile") List<MultipartFile> imageFile,
+            @RequestParam("imageFile") List<MultipartFile> imageFiles,
             @RequestParam("prescriptionMessage") String prescriptionMessage
     ) throws ApplicationNotFoundException, IOException {
 
-        String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFile, prescriptionMessage);
+        String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage);
 
         return ResponseEntity.ok(successMessage);
 

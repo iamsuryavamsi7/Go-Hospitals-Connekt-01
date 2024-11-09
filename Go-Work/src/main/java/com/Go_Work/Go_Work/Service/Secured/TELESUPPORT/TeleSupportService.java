@@ -1,19 +1,29 @@
 package com.Go_Work.Go_Work.Service.Secured.TELESUPPORT;
 
-import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
-import com.Go_Work.Go_Work.Entity.User;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.TELESUPPORT.TeleSupportResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
+import com.Go_Work.Go_Work.Repo.NotificationRepo;
+import com.Go_Work.Go_Work.Repo.SurgeryDocumentsUrlsRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -28,11 +38,20 @@ public class TeleSupportService {
 
     private final UserRepo userRepo;
 
+    private final S3Client s3;
+
+    private final SurgeryDocumentsUrlsRepo surgeryDocumentsUrlsRepo;
+
+    private final NotificationRepo notificationRepo;
+
+    @Value("${cloud.aws.bucket-name}")
+    private String bucketName;
+
     public List<TeleSupportResponseModel> fetchAllIncompleteSurgeryCarePatientsPaging(int page, int pageSize) {
 
         List<TeleSupportResponseModel> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && !applications.isTreatmentDone() )
+                .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && !applications.isTeleSupportConsellingDone() )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application -> {
 
