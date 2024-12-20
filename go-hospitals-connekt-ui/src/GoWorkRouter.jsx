@@ -30,7 +30,6 @@ import MyJobsConsulationProfileMedicalSupport from './Components/Secured/Medical
 import OnSiteTreatement from './Components/Secured/MedicalSupportUser/Components/OnSiteTreatement'
 import MedicationPlusFollowUp from './Components/Secured/MedicalSupportUser/Components/MedicationPlusFollowUp'
 import SurgeryCare from './Components/Secured/MedicalSupportUser/Components/SurgeryCare'
-import Pharmacy from './Components/Secured/MedicalSupportUser/Components/Pharmacy'
 import CrossConsulation from './Components/Secured/MedicalSupportUser/Components/CrossConsulation'
 import PatientAdmit from './Components/Secured/MedicalSupportUser/Components/PatientAdmit'
 import OnSiteTreatmentProfile from './Components/Secured/MedicalSupportUser/Components/OnSiteTreatmentProfile'
@@ -56,6 +55,7 @@ import TeleSupportProfiles from './Components/Secured/TeleSupport/Components/Tel
 import MyJobs from './Components/Secured/TeleSupport/Components/MyJobs'
 import MyJobsProfile from './Components/Secured/TeleSupport/Components/MyJobsProfile'
 import FillTheSurgeryForm from './Components/Public/FillTheSurgeryForm'
+import NewPatientOnBoardFronDeskFillingPage from './Components/Public/NewPatientOnBoardFronDeskFillingPage'
 
 function GoWorkRouter() {
 
@@ -68,10 +68,6 @@ function GoWorkRouter() {
 					{/* BASE ROUTING */}
 					<Route index element={<HomePage />} />
 					<Route path='/' element={<HomePage />} />
-
-					{/* Public Links */}
-
-					<Route path='/public/fill-the-surgery-form/:teleSupportUserId/:applicationId' element={<FillTheSurgeryForm />}/>
 
 					{/* REGISTER ROUTING */}
 					<Route path='/front-desk-register' element={<FrontDeskRegister />} />
@@ -113,6 +109,9 @@ function GoWorkRouter() {
 						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
 					</Route>
 
+					{/* FRONTDESK ROUTING */} 
+					<Route path="/public/front-desk-new-patient-on-board-filling-page/:frontDeskUserId" element={<NewPatientOnBoardFronDeskFillingPage />} />
+
 					{/* MEDICALSUPPORT ROUTING */}
 					<Route element={<MedicalSupportLayout />}>
 						<Route path='/medical-support-consulation-queue' element={<ConsultationQueueMedicalSupport />}/>
@@ -122,7 +121,6 @@ function GoWorkRouter() {
 						<Route path='/medical-support-on-site-treatement' element={<OnSiteTreatement />}/>
 						<Route path='/medical-support-medication-plus-follow-up' element={<MedicationPlusFollowUp />}/>
 						<Route path='/medical-support-surgery-care' element={<SurgeryCare />}/>
-						<Route path='/medical-support-pharmacy' element={<Pharmacy />}/>
 						<Route path='/medical-support-cross-consultation' element={<CrossConsulation />}/>
 						<Route path='/medical-support-patient-admit' element={<PatientAdmit />}/>
 						<Route path='/medical-support-onsite-treatment-profile/:id' element={<OnSiteTreatmentProfile />}/>
@@ -133,20 +131,24 @@ function GoWorkRouter() {
 						<Route path='/medical-support-cross-consultation-profile/:id' element={<CrossConsultationProfile />}/>
 					</Route>
 
-					{/* PHARMACYPAGE LAYOUT */}
+					{/* PHARMACYPAGE ROUTING */}
 					<Route element={<PharmacyPageLayout />}>
 						<Route path='/pharmacy-pending-medications' element={<PendingMedications />}/>
 						<Route path='/pharmacy-completed-medications' element={<CompletedMedications />}/>
 						<Route path='/pharmacy-profiles/:id' element={<PharmacyProfiles />}/>
 					</Route>
 
-					{/* TELESUPPORT LAYOUT */}
+					{/* TELESUPPORT ROUTING */}
 					<Route element={<TeleSupportLayout />}>
 						<Route path='/telesupport-incomplete-patients' element={<InCompletePatients />}/>
 						<Route path='/telesupport-profile/:id' element={<TeleSupportProfiles />}/>
 						<Route path='/telesupport-MyJobs' element={<MyJobs />}/>
 						<Route path='/telesupport-MyJobs-profile/:id' element={<MyJobsProfile />}/>
 					</Route>
+
+					{/* TELESUPPORT Public ROUTING */}
+					<Route path='/public/fill-the-surgery-form/:teleSupportUserId/:applicationId' element={<FillTheSurgeryForm />}/>
+
 
 				</Routes>
 			

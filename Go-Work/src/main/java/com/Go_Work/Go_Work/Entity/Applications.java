@@ -15,7 +15,12 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "applications_table"
+        name = "applications_table",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {
+                        "patientId"
+                }
+        )
 )
 @Data
 @NoArgsConstructor
@@ -24,19 +29,19 @@ import java.util.List;
 public class Applications {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int age;
     private String contact;
-    private String address;
     private String gender;
-    private String medicalHistory;
     private String reasonForVisit;
     private String preferredDoctorName;
     private String billNo;
     private Date appointmentCreatedOn;
     private String bookedBy;
+
+    private String patientId;
 
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType;

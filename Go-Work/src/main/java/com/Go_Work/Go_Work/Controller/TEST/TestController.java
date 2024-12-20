@@ -9,13 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -46,6 +46,17 @@ public class TestController {
                 .toList();
 
         return ResponseEntity.ok(convertedList);
+
+    }
+
+    @GetMapping("/fetchApplicationById/{applicationId}")
+    public ResponseEntity<Applications> fetchApplicationById(
+            @PathVariable("applicationId") Long applicationId
+    ){
+
+        return ResponseEntity.ok(applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        ));
 
     }
 

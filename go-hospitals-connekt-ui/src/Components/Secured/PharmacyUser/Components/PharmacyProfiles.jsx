@@ -639,6 +639,25 @@ const PharmacyProfiles = () => {
 
                             </div>
 
+                            <div className="mt-10">
+
+                                <button
+                                    onClick={ () => {
+
+                                        window.print();
+
+                                        console.log(`Printer feature activated`);
+
+                                    }}
+                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                >
+
+                                    Print Bill
+
+                                </button>
+
+                            </div>
+
                         </div>
 
                         {patientData.consultationType != 'COMPLETED' && (

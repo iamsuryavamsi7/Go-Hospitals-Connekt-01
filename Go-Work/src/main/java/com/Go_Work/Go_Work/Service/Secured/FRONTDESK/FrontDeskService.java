@@ -7,6 +7,7 @@ import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.DepartmentRepo;
@@ -17,8 +18,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +56,15 @@ public class FrontDeskService {
 
         Long applicationId = savedApplication.getId();
 
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
+
+        String formatedDate = currentDate.format(formatter);
+
+        String patientID = formatedDate + applicationId;
+
+        applications.setPatientId(patientID);
+
         userRepo.findAll()
                 .stream()
                 .filter( user -> user.getRole().equals(Role.MEDICALSUPPORT) )
@@ -72,10 +86,9 @@ public class FrontDeskService {
 
                 });
 
-        return "Appointment Booked and Slot Created";
+        return patientID;
 
     }
-
 
     public List<ApplicationsResponseModel> getAllBookingsByNotComplete() {
 
@@ -175,13 +188,12 @@ public class FrontDeskService {
 
     public List<ApplicationsResponseModel> getAllBookingsByNotCompletePaging(int pageNumber, int size) {
 
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
 
-        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
-
-        return applicationsPage
+        List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
                 .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+                .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
                 .map(user01 -> {
 
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();
@@ -205,7 +217,12 @@ public class FrontDeskService {
                     return user1;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        int start = pageNumber * size;
+        int end = Math.min(start + size, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
 
     }
 
@@ -346,6 +363,23 @@ public class FrontDeskService {
                 });
 
         return "Accepted";
+
+    }
+
+    public FetchPatientDataResponseModel fetchPatientData(Long frontDeskUserId) {
+
+        User fetchedUser = userRepo.findById(frontDeskUserId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        FetchPatientDataResponseModel requiredData = new FetchPatientDataResponseModel();
+
+        requiredData.setNewPatientOnBoardName(fetchedUser.getNewPatientOnBoardName());
+        requiredData.setNewPatientOnBoardAge(fetchedUser.getNewPatientOnBoardAge());
+        requiredData.setNewPatientOnBoardContact(fetchedUser.getNewPatientOnBoardContact());
+        requiredData.setNewPatientOnBoardAadharNumber(fetchedUser.getNewPatientOnBoardAadharNumber());
+
+        return requiredData;
 
     }
 

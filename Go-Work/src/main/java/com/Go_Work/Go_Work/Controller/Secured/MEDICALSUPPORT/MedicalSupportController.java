@@ -245,7 +245,7 @@ public class MedicalSupportController {
     public ResponseEntity<String> uploadPrescription(
             @PathVariable("applicationId") Long applicationId,
             @RequestParam("imageFile") List<MultipartFile> imageFiles,
-            @RequestParam("prescriptionMessage") String prescriptionMessage
+            @RequestParam(value = "prescriptionMessage", required = false) String prescriptionMessage
     ) throws ApplicationNotFoundException, IOException {
 
         String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage);

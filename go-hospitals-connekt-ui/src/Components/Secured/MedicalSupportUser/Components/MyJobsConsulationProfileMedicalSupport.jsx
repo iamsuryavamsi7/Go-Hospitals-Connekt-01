@@ -332,6 +332,22 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
+
+                                <div className="text-base text-gray-300">
+
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg w-auto break-words">
+                                    
+                                    {patientData.patientId}
+
+                                </div>
+
+                            </div>
+
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
@@ -368,22 +384,6 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-base text-gray-300">
 
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Gender
 
                                 </div>
@@ -391,22 +391,6 @@ const access_token = Cookies.get('access_token');
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -464,7 +448,7 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 
@@ -597,7 +581,7 @@ const access_token = Cookies.get('access_token');
                                         onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
                                     >
 
-                                        <button>On site treatment</button>
+                                        <button>On Site Treatment</button>
 
                                     </div>
 
@@ -616,15 +600,6 @@ const access_token = Cookies.get('access_token');
                                     >
 
                                         <button>Surgery Care</button>
-
-                                    </div>
-
-                                    <div 
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.pharmacy)}    
-                                    >
-
-                                        <button>Pharmacy</button>
 
                                     </div>
 

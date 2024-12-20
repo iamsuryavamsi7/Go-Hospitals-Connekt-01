@@ -7,6 +7,7 @@ import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class FrontDeskController {
 
     }
 
-    @GetMapping("/getAllBookingsByNotCompletePaging/{pageNumber}/{defaultSize}")
+    @GetMapping("/getAllBookingsByWaitingPaging/{pageNumber}/{defaultSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(
             @PathVariable("pageNumber") int pageNumber,
             @PathVariable("defaultSize") int size
@@ -153,6 +154,17 @@ public class FrontDeskController {
         String message = frontDeskService.acceptCrossConsultation(applicationId, reasonForVisit, doctorName);
 
         return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/fetchPatientData/{frontDeskUserId}")
+    public ResponseEntity<FetchPatientDataResponseModel> fetchPatientData(
+            @PathVariable("frontDeskUserId") Long frontDeskUserId
+    ){
+
+        FetchPatientDataResponseModel fetchedData = frontDeskService.fetchPatientData(frontDeskUserId);
+
+        return ResponseEntity.ok(fetchedData);
 
     }
 

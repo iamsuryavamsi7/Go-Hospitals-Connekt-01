@@ -229,7 +229,7 @@ const ConsultationQueueMedicalSupport = () => {
 
                 <>
 
-                    <div className="">
+                    <div className="mb-40">
 
                         <div className="mx-10">
 

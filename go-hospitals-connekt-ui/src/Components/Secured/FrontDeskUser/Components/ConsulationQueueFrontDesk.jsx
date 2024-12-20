@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { BiSolidInjection } from 'react-icons/bi'
+import toast from 'react-hot-toast'
 
 const ConsulationQueueFrontDesk = () => {
 
@@ -59,13 +60,19 @@ const ConsulationQueueFrontDesk = () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchcompleteApplications(page + 1);
+            const hasPage = await fetchIncompleteAppointments(page + 1);
 
             if ( hasPage ){
 
                 setPage((prevPage) => prevPage + 1);
 
             }
+
+        } else {
+
+            toast.error('No Page Available', {
+                duration: 2000
+            });
 
         }
 
@@ -86,7 +93,7 @@ const ConsulationQueueFrontDesk = () => {
     const fetchIncompleteAppointments = async () => {
         
         try {
-            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/getAllBookingsByNotCompletePaging/${pageNumber}/${defaultSize}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/getAllBookingsByWaitingPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -94,7 +101,9 @@ const ConsulationQueueFrontDesk = () => {
     
             if (response.status === 200) {
 
-                let appointmentsData = response.data;
+                const appointmentsData = response.data;
+
+                console.log(appointmentsData);
 
                 if ( appointmentsData.length === 0 ){
 
@@ -103,13 +112,6 @@ const ConsulationQueueFrontDesk = () => {
                 }
 
                 setIsLastPage(appointmentsData.length < pageSize);
-
-                appointmentsData = appointmentsData.sort((a, b) => {
-                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
-                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
-
-                    return aHasSupportUser - bHasSupportUser;
-                });
 
                 setInCompleteAppointments(appointmentsData);
 
@@ -220,9 +222,10 @@ const ConsulationQueueFrontDesk = () => {
 
                                         <th>S.No</th>
                                         <th>Patient Name</th>
-                                        <th>Doctors Name</th>
+                                        <th>Doctor</th>
                                         <th>Bill No</th>
-                                        <th>Medical Support User</th>
+                                        <th>Patient ID</th>
+                                        <th>Nurse</th>
 
                                     </tr>
 
@@ -236,6 +239,7 @@ const ConsulationQueueFrontDesk = () => {
                                         className='text-left'
                                     >
 
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -261,6 +265,7 @@ const ConsulationQueueFrontDesk = () => {
                                                 <th>{appointment.name}</th>
                                                 <th>{appointment.preferredDoctorName}</th>
                                                 <th>{appointment.billNo}</th>
+                                                <th>{appointment.patientId}</th>
                                                 <th>{appointment.medicalSupportUserName ? (
 
                                                     <>
@@ -295,7 +300,7 @@ const ConsulationQueueFrontDesk = () => {
 
                         </div>
 
-                        {inCompleteAppointments && inCompleteAppointments.length < 0 && (
+                        {inCompleteAppointments && inCompleteAppointments.length > 0 && (
 
                             <div className="space-x-5 text-center mx-10 mt-5">
                                 

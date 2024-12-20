@@ -5,10 +5,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdFollowTheSigns, MdManageAccounts } from 'react-icons/md';
 import { FaBriefcaseMedical, FaHospitalUser, FaStethoscope, FaTasks } from 'react-icons/fa';
-import { GiMedicines } from 'react-icons/gi';
-import { LiaExchangeAltSolid } from 'react-icons/lia';
 import { TbExchange } from 'react-icons/tb';
 import { SiTicktick } from 'react-icons/si';
+import { CgDetailsMore } from 'react-icons/cg';
+import { Toaster, toast } from 'react-hot-toast';
 
 const LeftNavBar = () => {
 
@@ -33,6 +33,8 @@ const LeftNavBar = () => {
         diagnosticsCenter: 'DIAGNOSTICSCENTER',
         transportTeam: 'TRANSPORTTEAM'
     }
+
+    const [moreButtonActivated, setMoreButtonActivated] = useState(false);
 
     const [consulationQueueMedical1, setConsulationQueueMedical1] = useState(`text-gray-400`);
 
@@ -106,6 +108,10 @@ const LeftNavBar = () => {
 
     const [myJobs2, setMyJobs2] = useState(`text-gray-400`);
 
+    const [moreButtonStyle1, setMoreButtonStyle1] = useState(`text-gray-400`);
+
+    const [moreButtonStyle2, setMoreButtonStyle2] = useState(`text-gray-400`);
+
     const pathName = window.location.pathname;
 
 // Functions
@@ -158,6 +164,60 @@ const LeftNavBar = () => {
         }
 
     }
+
+    // Helper function for toast notifications
+    const showToast = (message, isError = false) => {
+        toast[isError ? 'error' : 'success'](message, {
+            autoClose: 1000,
+            style: {
+                backgroundColor: '#1f2937',
+                color: '#fff',
+                fontWeight: '600',
+                borderRadius: '0.5rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                marginTop: '2.5rem'
+            }
+        });
+    };
+
+    const copyMyLinkFunction = () => {
+
+        const teleSupportUserId = userObject.id;
+
+        const textToCopy = `http://gowork.gohospitals.in:7778/public/front-desk-new-patient-on-board-filling-page/${teleSupportUserId}`;
+
+        // Check if `navigator.clipboard` is supported
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    showToast("Copied to clipboard!");
+                })
+                .catch((error) => {
+                    console.error("Failed to copy text:", error);
+                    showToast("Failed to copy link. Please try again.", true);
+                });
+        } else {
+            // Fallback for older browsers or insecure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed"; // Avoid scrolling to bottom
+            textArea.style.opacity = 0; // Make it invisible
+            document.body.appendChild(textArea);
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand("copy");
+                showToast("Copied to clipboard!");
+            } catch (error) {
+                console.error("Failed to copy text:", error);
+                showToast("Failed to copy link. Please try again.", true);
+            }
+
+            // Remove the temporary text area
+            document.body.removeChild(textArea);
+        }
+    };
 
     useEffect(() => {
 
@@ -430,9 +490,29 @@ const LeftNavBar = () => {
 
     }, [pathName]);
 
+    useEffect(() => {
+
+        if ( moreButtonActivated ){
+
+            setMoreButtonStyle1(`text-sky-500`);
+
+            setMoreButtonStyle2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setMoreButtonStyle1(`text-gray-400`);
+
+            setMoreButtonStyle2(`text-gray-400`);
+
+        }
+
+    }, [moreButtonActivated]);
+
     return (
 
         <>
+
+            <Toaster />
 
             {role === roles.admin && (
 
@@ -492,7 +572,7 @@ const LeftNavBar = () => {
 
                 <>
 
-                    <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
+                    <div className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                         <div 
                             className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
@@ -577,6 +657,56 @@ const LeftNavBar = () => {
                                 Follow-up Patients
 
                             </div>
+
+                        </div>
+
+                        <div 
+                            className={`${moreButtonStyle1} font-sans text-base transition-all cursor-pointer mt-auto mb-5 flex items-center space-x-2 relative`}
+                            onClick={() => {
+
+                                if ( moreButtonActivated ){
+
+                                    setMoreButtonActivated(false);
+
+                                }else {
+
+                                    setMoreButtonActivated(true);
+
+                                }
+
+                            }}
+                        >
+
+                            <div className="">
+
+                                <CgDetailsMore 
+                                    className={`${moreButtonStyle2} text-2xl  leading-8 p-[2px] rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                More
+
+                            </div>
+
+                            {moreButtonActivated && (
+
+                                <div className="absolute w-full top-[-50px] left-[-7px]">
+
+                                    <div 
+                                        className="bg-[#334155] text-white text-sm inline-block px-2 py-2 rounded-lg hover:opacity-60 active:opacity-80"
+                                        onClick={copyMyLinkFunction}    
+                                    >
+
+                                        Duplicate Onboard Link
+
+                                    </div>
+
+                                </div>
+                                
+                            )}
 
                         </div>
 
@@ -692,27 +822,6 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Surgery Care
-
-                            </div>
-
-                        </div>
-
-                        <div 
-                            className={`${pharmacy1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/medical-support-pharmacy')}
-                        >
-
-                            <div className="">
-
-                                <GiMedicines 
-                                    className={`${pharmacy2} text-2xl  leading-8 p-1 rounded-md`}
-                                />
-
-                            </div>
-
-                            <div className="">
-
-                                Pharmacy
 
                             </div>
 

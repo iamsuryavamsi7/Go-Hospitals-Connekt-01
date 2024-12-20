@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../../../Style/NavBarUser.css'
 import { HiOutlineLogout, HiOutlineSpeakerphone } from 'react-icons/hi';
 import axios from 'axios';
@@ -412,6 +412,8 @@ const NavBarUser = () => {
 
     const pathName = window.location.pathname;
 
+    const [prevNotificationCount, setPrevNotificationCount] = useState(0);
+
     useEffect(() => {
 
         const unreadNotifications = notificationArray.filter(notification => {
@@ -419,6 +421,12 @@ const NavBarUser = () => {
         });
 
         setNotificationCount(unreadNotifications.length);
+
+        if ( prevNotificationCount !== notificationCount ){
+
+            setPrevNotificationCount(unreadNotifications.length);
+
+        }
 
         const notificationCountNumber = document.querySelector(".notificationCount");
 
@@ -429,6 +437,24 @@ const NavBarUser = () => {
         } else {
 
             notificationCountNumber.style.right = '-7px';
+
+        }
+
+        if ( prevNotificationCount < notificationCount ){
+
+            for(let i = 0; i < unreadNotifications.length; i++){
+
+                setTimeout(() => {
+
+                    const audio = new Audio(`/go_works_notification_sound_file.aac`);
+    
+                    audio.play().catch((error) => {
+                        console.log("Audio play failed", error);
+                    });
+    
+                }, i * 800);    
+
+            }
 
         }
 
@@ -448,13 +474,25 @@ const NavBarUser = () => {
 
     }, [])
 
+    const notificationDivRef = useRef(null);
+
+    useEffect(() => {
+
+        if ( notificationDivRef.current ){
+
+            notificationDivRef.current.click();
+
+        }
+
+    }, []);
+
     return (
 
         <>
         
             <Toaster />
 
-            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 absolute top-0 left-0 right-0 bg-[#0F172A]">
+            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0 bg-[#0F172A]">
 
                 <div className="ml-56 flex items-center">
 
@@ -487,8 +525,6 @@ const NavBarUser = () => {
 
                         <div className="absolute top-[-10px] notificationCount right-[-7px]">
 
-                            {/* {notif} */}
-
                             {notificationCount > 0 && notificationCount <= 9 && (
                             
                                 <>
@@ -515,7 +551,10 @@ const NavBarUser = () => {
 
                             <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-gray-900 z-50">
 
-                                <div className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800">
+                                <div 
+                                    className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800"
+                                    ref={notificationDivRef}        
+                                >
 
                                     Notifications
 

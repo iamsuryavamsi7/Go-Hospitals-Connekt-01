@@ -15,12 +15,11 @@ import java.util.Date;
 public class ApplicationsResponseModel {
 
     private Long id;
+    private String patientId;
     private String name;
     private int age;
     private String contact;
-    private String address;
     private String gender;
-    private String medicalHistory;
     private String reasonForVisit;
     private String preferredDoctorName;
     private String billNo;

@@ -128,4 +128,21 @@ public class PublicService {
 
     }
 
+    public String frontDeskUserId(String name, Long age, String contact, String aadharNumber, Long frontDeskUserId) {
+
+        User fetchedUser = userRepo.findById(frontDeskUserId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        fetchedUser.setNewPatientOnBoardName(name);
+        fetchedUser.setNewPatientOnBoardAge(age);
+        fetchedUser.setNewPatientOnBoardContact(contact);
+        fetchedUser.setNewPatientOnBoardAadharNumber(aadharNumber);
+
+        userRepo.save(fetchedUser);
+
+        return "User successfully saved";
+
+    }
+
 }

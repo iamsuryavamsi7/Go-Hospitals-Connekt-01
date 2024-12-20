@@ -67,7 +67,7 @@ const HomePage = () => {
 
                             <div className="text-[40px] max-lg:text-[30px]">
 
-                                Medical Support
+                                Nursing
 
                             </div>
 
@@ -90,7 +90,7 @@ const HomePage = () => {
 
                             <div className="text-[40px] max-lg:text-[30px]">
 
-                                Tele Support
+                                Counselling
 
                             </div>
 
@@ -113,7 +113,7 @@ const HomePage = () => {
 
                             <div className="text-[40px] max-lg:text-[30px]">
 
-                                Pharmacy care
+                                Pharmacy
 
                             </div>
 
@@ -159,7 +159,7 @@ const HomePage = () => {
 
                             <div className="text-[40px] max-lg:text-[30px] max-sm:max-w-[200px]">
 
-                                Diagnostics Center
+                                Diagnostics
 
                             </div>
 
@@ -182,7 +182,7 @@ const HomePage = () => {
 
                             <div className="text-[40px] max-lg:text-[30px]">
 
-                                Transport Team
+                                Transport
 
                             </div>
 
