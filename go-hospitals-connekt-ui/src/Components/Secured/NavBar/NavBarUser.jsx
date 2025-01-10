@@ -440,39 +440,39 @@ const NavBarUser = () => {
 
         }
 
-        if ( prevNotificationCount < notificationCount ){
+        // if ( prevNotificationCount < notificationCount ){
 
-            for(let i = 0; i < unreadNotifications.length; i++){
+        //     for(let i = 0; i < unreadNotifications.length; i++){
 
-                setTimeout(() => {
+        //         setTimeout(() => {
 
-                    const audio = new Audio(`/go_works_notification_sound_file.aac`);
+        //             const audio = new Audio(`/go_works_notification_sound_file.aac`);
     
-                    audio.play().catch((error) => {
-                        console.log("Audio play failed", error);
-                    });
+        //             audio.play().catch((error) => {
+        //                 console.log("Audio play failed", error);
+        //             });
     
-                }, i * 800);    
+        //         }, i * 800);    
 
-            }
+        //     }
 
-        }
+        // }
 
     }, [notificationArray, pathName]);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        setTimeout(() => {
+    //     setTimeout(() => {
 
-            setInterval(() => {
+    //         setInterval(() => {
 
-                fetchNotifications();
+    //             fetchNotifications();
 
-            }, 4000);
+    //         }, 4000);
 
-        }, 2000);
+    //     }, 2000);
 
-    }, [])
+    // }, [])
 
     const notificationDivRef = useRef(null);
 
@@ -492,7 +492,7 @@ const NavBarUser = () => {
         
             <Toaster />
 
-            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed top-0 left-0 right-0 bg-[#0F172A]">
+            <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
 
                 <div className="ml-56 flex items-center">
 

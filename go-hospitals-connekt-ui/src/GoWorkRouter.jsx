@@ -7,14 +7,12 @@ import TeleSupport from './Components/Login/TeleSupport'
 import PharmacyCare from './Components/Login/PharmacyCare'
 import OtCoordination from './Components/Login/OtCoordination'
 import DiagnosticsCenter from './Components/Login/DiagnosticsCenter'
-import TransportTeam from './Components/Login/TransportTeam'
 import FrontDeskRegister from './Components/Register/FrontDeskRegister'
 import MedicalSupportRegister from './Components/Register/MedicalSupportRegister'
 import TeleSupportRegister from './Components/Register/TeleSupportRegister'
 import PharmacyCareRegister from './Components/Register/PharmacyCareRegister'
 import OtCoordinationRegister from './Components/Register/OtCoordinationRegister'
 import DiagnosticsCenterRegister from './Components/Register/DiagnosticsCenterRegister'
-import TransportTeamRegister from './Components/Register/TransportTeamRegister'
 import NewPatientOnBoardFrontDesk from './Components/Secured/FrontDeskUser/Components/NewPatientOnBoardFrontDesk'
 import ConsulationQueueFrontDesk from './Components/Secured/FrontDeskUser/Components/ConsulationQueueFrontDesk'
 import NewApprovals from './Components/Secured/AdminUser/Components/NewApprovals'
@@ -76,7 +74,6 @@ function GoWorkRouter() {
 					<Route path='/pharmacy-care-register' element={<PharmacyCareRegister />} />
 					<Route path='/ot-coordination-register' element={<OtCoordinationRegister />} />
 					<Route path='/diagnostics-center-register' element={<DiagnosticsCenterRegister />} />
-					<Route path='/transport-team-register' element={<TransportTeamRegister />} />
 
 					{/* LOGIN ROUTING */}
 					<Route path='/front-desk-login' element={<FrontDesk />} />
@@ -85,7 +82,6 @@ function GoWorkRouter() {
 					<Route path='/pharmacy-care-login' element={<PharmacyCare />} />
 					<Route path='/ot-coordination-login' element={<OtCoordination />} />
 					<Route path='/diagnostics-center-login' element={<DiagnosticsCenter />} />
-					<Route path='/transport-team-login' element={<TransportTeam />} />
 
 					{/* FORGET PASSWORD ROUTING */}
 					<Route path='/front-desk-forget' element={<FrontDeskForgetPassword />}/>
@@ -110,7 +106,7 @@ function GoWorkRouter() {
 					</Route>
 
 					{/* FRONTDESK ROUTING */} 
-					<Route path="/public/front-desk-new-patient-on-board-filling-page/:frontDeskUserId" element={<NewPatientOnBoardFronDeskFillingPage />} />
+					<Route path="/patient-self-filling-page" element={<NewPatientOnBoardFronDeskFillingPage />} />
 
 					{/* MEDICALSUPPORT ROUTING */}
 					<Route element={<MedicalSupportLayout />}>

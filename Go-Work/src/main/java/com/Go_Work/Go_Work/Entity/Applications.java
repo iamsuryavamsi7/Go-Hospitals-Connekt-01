@@ -34,6 +34,7 @@ public class Applications {
     private String name;
     private int age;
     private String contact;
+    private String location;
     private String gender;
     private String reasonForVisit;
     private String preferredDoctorName;

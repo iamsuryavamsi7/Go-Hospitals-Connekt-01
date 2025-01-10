@@ -57,6 +57,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/api/v1/public/**")
                                 .permitAll()
+                                .requestMatchers("/go-hospitals-websocket/**")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -112,6 +114,7 @@ public class SecurityConfig {
 
         // Add dynamic origins or IPs, you can use patterns or add multiple specific origins
         configuration.addAllowedOriginPattern("http://gowork.gohospitals.in:*");
+//        configuration.addAllowedOriginPattern("*");
 
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.addAllowedMethod("*"); // Allow all methods (GET, POST, etc.)

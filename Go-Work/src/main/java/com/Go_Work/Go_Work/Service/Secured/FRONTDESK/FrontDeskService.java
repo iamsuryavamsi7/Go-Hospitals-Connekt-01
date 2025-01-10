@@ -3,16 +3,13 @@ package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
-import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
-import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
+import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
-import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
-import com.Go_Work.Go_Work.Repo.DepartmentRepo;
-import com.Go_Work.Go_Work.Repo.NotificationRepo;
-import com.Go_Work.Go_Work.Repo.UserRepo;
+import com.Go_Work.Go_Work.Repo.*;
+import com.Go_Work.Go_Work.Service.Config.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -40,7 +37,35 @@ public class FrontDeskService {
 
     private final NotificationRepo notificationRepo;
 
-    public String bookAppointment(Applications applications) {
+    private final JwtService jwtService;
+
+    private final TemporaryAppointmentDataRepo temporaryAppointmentDataRepo;
+
+    public String fetchUserRole(HttpServletRequest request) throws FrontDeskUserNotFoundException {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new FrontDeskUserNotFoundException("Front Desk User Not Found")
+        );
+
+        return fetchedFrontDeskUser.getRole().name();
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+    public String bookAppointment(Applications applications, Long temporaryAppointmentID) {
 
         // Set appointment details
         applications.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
@@ -50,6 +75,8 @@ public class FrontDeskService {
         applications.setPatientGotApproved(true);
         applications.setMedicationPlusFollowUp(false);
         applications.setForCrossConsultation(false);
+
+        temporaryAppointmentDataRepo.deleteById(temporaryAppointmentID);
 
         // Save the appointment
         Applications savedApplication = applicationsRepo.save(applications);
@@ -366,20 +393,27 @@ public class FrontDeskService {
 
     }
 
-    public FetchPatientDataResponseModel fetchPatientData(Long frontDeskUserId) {
+    public List<TemporaryAppointmentDataEntity> fetchPatientOnBoardData(HttpServletRequest request) throws FrontDeskUserNotFoundException, RoleMismatchException {
 
-        User fetchedUser = userRepo.findById(frontDeskUserId).orElseThrow(
-                () -> new UsernameNotFoundException("User Not Found")
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new FrontDeskUserNotFoundException("User Not Found")
         );
 
-        FetchPatientDataResponseModel requiredData = new FetchPatientDataResponseModel();
+        if ( fetchedFrontDeskUser.getRole().equals(Role.FRONTDESK) ){
 
-        requiredData.setNewPatientOnBoardName(fetchedUser.getNewPatientOnBoardName());
-        requiredData.setNewPatientOnBoardAge(fetchedUser.getNewPatientOnBoardAge());
-        requiredData.setNewPatientOnBoardContact(fetchedUser.getNewPatientOnBoardContact());
-        requiredData.setNewPatientOnBoardAadharNumber(fetchedUser.getNewPatientOnBoardAadharNumber());
+            return temporaryAppointmentDataRepo.findAll()
+                    .stream()
+                    .sorted(Comparator.comparing(TemporaryAppointmentDataEntity::getTimeStamp))
+                    .limit(50)
+                    .toList();
 
-        return requiredData;
+        }
+
+        throw new RoleMismatchException("Role Mismatch");
 
     }
 

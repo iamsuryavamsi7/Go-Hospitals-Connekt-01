@@ -3,13 +3,13 @@ package com.Go_Work.Go_Work.Controller.Secured.FRONTDESK;
 import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
-import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
-import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
+import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
+import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +23,48 @@ public class FrontDeskController {
 
     private final FrontDeskService frontDeskService;
 
-    @PostMapping("/bookApplication")
+    // API to fetch user role
+    @GetMapping("/fetchUserRole")
+    public ResponseEntity<String> fetchUserRole(
+            HttpServletRequest request
+    ) throws FrontDeskUserNotFoundException {
+
+        String fetchedRole = frontDeskService.fetchUserRole(request);
+
+        return ResponseEntity.ok(fetchedRole);
+
+    }
+
+    @GetMapping("/fetchPatientOnBoardData")
+    public ResponseEntity<List<TemporaryAppointmentDataEntity>> fetchPatientOnBoardData(
+            HttpServletRequest request
+    ) throws FrontDeskUserNotFoundException, RoleMismatchException {
+
+        List<TemporaryAppointmentDataEntity> fetchedData = frontDeskService.fetchPatientOnBoardData(request);
+
+        return ResponseEntity.ok(fetchedData);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @PostMapping("/bookApplication/{temporaryAppointmentID}")
     public ResponseEntity<String> bookAppointment(
-        @RequestBody Applications applications
+        @RequestBody Applications applications,
+        @PathVariable("temporaryAppointmentID") Long temporaryAppointmentID
     ){
 
-        String message = frontDeskService.bookAppointment(applications);
+        String message = frontDeskService.bookAppointment(applications, temporaryAppointmentID);
 
         return ResponseEntity.ok(message);
 
@@ -154,17 +190,6 @@ public class FrontDeskController {
         String message = frontDeskService.acceptCrossConsultation(applicationId, reasonForVisit, doctorName);
 
         return ResponseEntity.ok(message);
-
-    }
-
-    @GetMapping("/fetchPatientData/{frontDeskUserId}")
-    public ResponseEntity<FetchPatientDataResponseModel> fetchPatientData(
-            @PathVariable("frontDeskUserId") Long frontDeskUserId
-    ){
-
-        FetchPatientDataResponseModel fetchedData = frontDeskService.fetchPatientData(frontDeskUserId);
-
-        return ResponseEntity.ok(fetchedData);
 
     }
 

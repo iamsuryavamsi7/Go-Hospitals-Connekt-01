@@ -2,17 +2,20 @@ import React, { useEffect, useRef, useState } from 'react'
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { LuNewspaper } from 'react-icons/lu';
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
 import toast, { Toaster } from 'react-hot-toast';
 import { AiOutlineFileSync } from 'react-icons/ai';
+import { Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const NewPatientOnBoardFrontDesk = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState('');
@@ -27,7 +30,7 @@ const NewPatientOnBoardFrontDesk = () => {
         frontDesk: 'FRONTDESK',
     }
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -81,11 +84,12 @@ const NewPatientOnBoardFrontDesk = () => {
     const bookedByName = userObject.firstName + " " + userObject.lastName;
 
     const [patientOnBoardData, setPatientOnBoardData] = useState({
+        id: ``,
         name: '',
         age: '',
         aadharNumber: '',
         contact: '',
-        address: '',
+        location: '',
         gender: '',
         medicalHistory: '',
         reason: '',
@@ -98,7 +102,7 @@ const NewPatientOnBoardFrontDesk = () => {
         age: '',
         aadharNumber: '',
         contact: '',
-        address: '',
+        location: '',
         gender: '',
         medicalHistory: '',
         reason: '',
@@ -172,12 +176,13 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.post('http://localhost:7777/api/v1/front-desk/bookApplication', {
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/bookApplication/${patientOnBoardData.id}`, {
                     name: patientOnBoardData.name,
                     age: patientOnBoardData.age,
                     contact: patientOnBoardData.contact,
                     gender: patientOnBoardData.gender,
                     reasonForVisit: patientOnBoardData.reason,
+                    location: patientOnBoardData.location,
                     billNo: patientOnBoardData.billNo,
                     preferredDoctorName: patientOnBoardData.preferredDoctor,
                     bookedBy: bookedByName
@@ -205,11 +210,18 @@ const NewPatientOnBoardFrontDesk = () => {
                         }
                     });
 
+                    setPatientOnBoardDataPrint((prevElement) => ({
+                        ...prevElement,
+                        patientID : responseData,
+                        name: patientOnBoardData.name,
+                        age: patientOnBoardData.age
+                    }));
+
                     setPatientOnBoardData({
                         name: '',
                         age: '',
                         contact: '',
-                        address: '',
+                        location: '',
                         gender: '',
                         medicalHistory: '',
                         reason: '',
@@ -218,10 +230,12 @@ const NewPatientOnBoardFrontDesk = () => {
                         aadharNumber: ''
                     });
 
-                    setPatientOnBoardDataPrint((prevElement) => ({
+                    setPatientDetailsOnBoard((prevElement) => ({
                         ...prevElement,
-                        patientID : responseData
+                        newPatientOnBoardActivated: false
                     }));
+
+                    fetchPatientTemporaryData();
 
                     setTimeout(() => {
 
@@ -355,15 +369,39 @@ const NewPatientOnBoardFrontDesk = () => {
 
     }
 
-    const fetchDataFunction = async () => {
+    useEffect(() => {
 
-        const frontDeskUserId = userObject.id;
+        if ( access_token ){
+
+            fetchUserObject();
+
+            fetchDepartments();
+
+            fetchPatientTemporaryData();
+
+        } else {
+
+            console.log("Jwt Token is not avaiable");
+
+        }
+
+    }, []);
+
+    // toggle new OP procedure screen with useState hook
+    const [patientDetialsOnBoard , setPatientDetailsOnBoard] = useState({
+        newPatientOnBoardActivated: false
+    });
+
+    // State to store the data of patients in queue
+    const [fetchedPatientOnBoardData, setFetchedPatientOnBoardData] = useState([]);
+
+    const fetchPatientTemporaryData = async () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchPatientData/${frontDeskUserId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchPatientOnBoardData`, {
                 headers: {
-                    Authorization: `Bearer ${access_token}`
+                    'Authorization': `Bearer ${access_token}`
                 }
             })
 
@@ -371,21 +409,9 @@ const NewPatientOnBoardFrontDesk = () => {
 
                 const responseData = response.data;
 
-                setPatientOnBoardData((prevElement) => ({
-                    ...prevElement, 
-                    name: responseData.newPatientOnBoardName,
-                    age: responseData.newPatientOnBoardAge,
-                    aadharNumber: responseData.newPatientOnBoardAadharNumber,
-                    contact: responseData.newPatientOnBoardContact
-                }));
-                
-                setPatientOnBoardDataPrint((prevElement) => ({
-                    ...prevElement, 
-                    name: responseData.newPatientOnBoardName,
-                    age: responseData.newPatientOnBoardAge,
-                    aadharNumber: responseData.newPatientOnBoardAadharNumber,
-                    contact: responseData.newPatientOnBoardContact
-                }));
+                console.log(responseData);
+
+                setFetchedPatientOnBoardData(responseData);
 
             }
 
@@ -397,17 +423,55 @@ const NewPatientOnBoardFrontDesk = () => {
 
     }
 
+    // Function to run when patient onbaord data received through websockets
+    const patientOnBoardDataReceived = (message) => {
+
+        const messageBody = JSON.parse(message.body);
+
+        setFetchedPatientOnBoardData((prevElement) => {
+
+            const updatedFetchedPatiendOnBoardData = [...prevElement];
+
+            updatedFetchedPatiendOnBoardData.push(messageBody);
+
+            return updatedFetchedPatiendOnBoardData;
+
+        });
+
+    }
+
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
     useEffect(() => {
 
-        if ( access_token ){
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
 
-            fetchUserObject();
+        setStompClient(client);
 
-            fetchDepartments();
+        client.connect(
+            {},
+            () => {
 
-        } else {
+                client.subscribe(`/frontDeskOnBoardPublicPage/public-page-frontDesk-onboard`, (message) => patientOnBoardDataReceived(message));
+        
+            },
+            () => {
 
-            console.log("Jwt Token is not avaiable");
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
 
         }
 
@@ -423,7 +487,114 @@ const NewPatientOnBoardFrontDesk = () => {
 
             <>
 
-                <div className="inline-block">
+                {!patientDetialsOnBoard.newPatientOnBoardActivated && <div
+                className='h-[800px] mx-10 mr-56 max-h-[800px] overflow-y-scroll scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'>
+
+                    <table
+                        className='w-[100%]'
+                    >
+
+                        <thead>
+
+                            <tr
+                                className='text-left leading-10'
+                            >
+
+                                <th>S.No</th>
+                                <th>Patient Name</th>
+                                <th className='pl-20'>Age</th>
+                                <th>Phone Number</th>
+
+                            </tr>
+
+                        </thead>
+
+                        {fetchedPatientOnBoardData && fetchedPatientOnBoardData.length === 0 ? (
+
+                            <tbody>
+
+                            <tr
+                                className='text-left'
+                            >
+
+                                <th>No Data</th>
+                                <th>No Data</th>
+                                <th className='pl-20'>No Data</th>
+                                <th>No Data</th>
+
+                            </tr>
+
+                            </tbody>
+
+                        ) : (
+
+                            <tbody
+                                
+                            >
+
+                                {fetchedPatientOnBoardData.map((appointment, index) => (
+
+                                    <tr
+                                        key={index}
+                                        className='text-left text-gray-500 leading-10 text-base'
+                                    >
+
+                                        <th>{index + 1}</th>
+                                        <th className='whitespace-nowrap w-[250px] max-w-[250px] overflow-hidden text-ellipsis'>{appointment.newPatientOnBoardName}</th>
+                                        <th className='pl-20'>{appointment.newPatientOnBoardAge}</th>
+                                        <th>{appointment.newPatientOnBoardContact}</th>
+                                        <th
+                                            className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
+                                            onClick={() => {
+
+                                                setPatientOnBoardData((prevElement) => {
+
+                                                    const updatedPatientOnBoarddata = {...prevElement};
+
+                                                    updatedPatientOnBoarddata.id = appointment.id;
+                                                    updatedPatientOnBoarddata.name = appointment.newPatientOnBoardName;
+                                                    updatedPatientOnBoarddata.age = appointment.newPatientOnBoardAge;
+                                                    updatedPatientOnBoarddata.contact = appointment.newPatientOnBoardContact;
+                                                    updatedPatientOnBoarddata.aadharNumber = appointment.newPatientOnBoardAadharNumber;
+                                                    updatedPatientOnBoarddata.location = appointment.newPatientOnBoardLocation;
+
+                                                    return updatedPatientOnBoarddata;
+
+                                                });
+
+                                                setPatientDetailsOnBoard((prevElement) => {
+
+                                                    const updatedData = {...prevElement};
+
+                                                    updatedData.newPatientOnBoardActivated = true;
+
+                                                    return updatedData;
+
+                                                });
+
+                                            }}
+                                        >
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                            </svg>
+
+
+                                        </th>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        )}
+
+                    </table>
+
+                </div>}
+
+                {patientDetialsOnBoard.newPatientOnBoardActivated && <div className="inline-block">
 
                     <div className="text-lg mx-20 mb-7 flex items-center space-x-2">
 
@@ -509,7 +680,6 @@ const NewPatientOnBoardFrontDesk = () => {
                                 }}
                             >
 
-                            {/* <span className='text-red-400'>*</span> */}
                                 <label>Contact <span className='text-red-400'>*</span> </label><br />
                                 <input 
                                     type='text'
@@ -526,9 +696,31 @@ const NewPatientOnBoardFrontDesk = () => {
 
                             </div>
 
+                            <div 
+                                className=""
+                                onClick={() => {
+
+                                    console.log(patientOnBoardDataPrint);
+
+                                }}
+                            >
+
+                                <label>Location <span className='text-red-400'>*</span> </label><br />
+                                <input 
+                                    type='text'
+                                    required
+                                    className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                    name='location'
+                                    value={patientOnBoardData.location}
+                                    onChange={(e) => handlePatientFunction(e)}
+                                />  
+
+                            </div>
+
                             <div className="">
 
-                            <label>Gender <span className='text-red-400'>*</span></label><br />
+                                <label>Gender <span className='text-red-400'>*</span></label><br />
+                                
                                 <select
                                         className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg h-[35px] px-3 w-[300px] max-sm:w-full mt-2'
                                         value={patientOnBoardData.gender}
@@ -631,72 +823,71 @@ const NewPatientOnBoardFrontDesk = () => {
 
                         </div>
 
-                        <div className="">
-
-                            <div 
-                                className="bg-[#334155] inline-flex items-center space-x-1 px-2 py-2 leading-8 rounded-xl cursor-pointer hover:opacity-60 active:opacity-80 my-7"
-                                onClick={fetchDataFunction}
-                            >
-
-                                <div className="">
-
-                                    <AiOutlineFileSync 
-                                        className='text-xl'
-                                    />
-
-                                </div>
-
-                                <div className="text-sm">
-
-                                    Sync
-
-                                </div>
-
-                            </div><br />
+                        <div className="mt-10 flex items-center">
 
                             <button
-                            className={`bg-[#238636] ${formSubmitButton} hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
-                            type='submit'
+                                className={`bg-[#238636] ${formSubmitButton} hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                type='submit'
                             > Onboard Patient </button>
+
+                            <button
+                                className={`bg-red-500 ${formSubmitButton} hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-10`}
+                                onClick={(e) => {
+
+                                    e.preventDefault();
+
+                                    setPatientDetailsOnBoard((prevElement) => {
+
+                                        const updatedElement = {...prevElement};
+
+                                        updatedElement.newPatientOnBoardActivated = false;
+
+                                        return updatedElement;
+
+                                    });
+
+                                }}
+                            > Cancel </button>
 
                         </div>
 
                     </form>
 
-                </div>
+                </div>}
 
-            <div
-                className="text-center mx-[400px] border-[1px] border-gray-200 hidden"
-                ref={printRef}
-            >
+                {/* Hidden page for printing patient details */}
+                <div
+                    className="text-center mx-[400px] border-[1px] border-gray-200 hidden"
+                    ref={printRef}
+                >
 
-                <div className="text-left mx-10 space-y-5 py-10">
-
-                    <div className="">
-
-                        <div className="text-black">Patient ID : {patientOnBoardDataPrint.patientID}</div>
-
-                    </div>
-
-                    <div className="block">
+                    <div className="text-left mx-10 space-y-5 py-10">
 
                         <div className="">
 
-                            <div className="text-black">Patient Name : {patientOnBoardDataPrint.name}</div>
-                            <div className="text-black">Patient Age : {patientOnBoardDataPrint.age}</div>
+                            <div className="text-black">Patient ID : {patientOnBoardDataPrint.patientID}</div>
 
                         </div>
-                        
-                        <div className="text-left">
-                            <div className="text-black">Consulting Doctor : {patientOnBoardDataPrint.preferredDoctor}</div>
-                            <div className="text-black">Patient Gender : {patientOnBoardDataPrint.gender} </div>
+
+                        <div className="block">
+
+                            <div className="">
+
+                                <div className="text-black">Patient Name : {patientOnBoardDataPrint.name}</div>
+                                <div className="text-black">Patient Age : {patientOnBoardDataPrint.age}</div>
+
+                            </div>
+                            
+                            <div className="text-left">
+                                <div className="text-black">Consulting Doctor : {patientOnBoardDataPrint.preferredDoctor}</div>
+                                <div className="text-black">Patient Gender : {patientOnBoardDataPrint.gender} </div>
+                            </div>
+
                         </div>
 
                     </div>
 
                 </div>
-
-            </div>
 
             </>
 

@@ -30,19 +30,4 @@ public class PublicController {
 
     }
 
-    @PostMapping("/updateNewPatientOnBoardData/{frontDeskUserId}")
-    public ResponseEntity<String> updateNewPatientOnBoardData(
-            @RequestParam("name") String name,
-            @RequestParam("age") Long age,
-            @RequestParam("contact") String contact,
-            @RequestParam("aadharNumber") String aadharNumber,
-            @PathVariable("frontDeskUserId") Long frontDeskUserId
-    ){
-
-        String successMessage = publicService.frontDeskUserId(name, age, contact, aadharNumber, frontDeskUserId);
-
-        return ResponseEntity.ok(successMessage);
-
-    }
-
 }

@@ -57,15 +57,6 @@ public class User implements UserDetails {
 
     private int otpCode;
 
-
-    private String newPatientOnBoardName;
-
-    private Long newPatientOnBoardAge;
-
-    private String newPatientOnBoardContact;
-
-    private String newPatientOnBoardAadharNumber;
-
     @OneToMany(
             mappedBy = "goWorkUser",
             cascade = CascadeType.ALL)

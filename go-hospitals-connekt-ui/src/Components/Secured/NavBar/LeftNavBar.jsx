@@ -197,7 +197,7 @@ const LeftNavBar = () => {
                     showToast("Failed to copy link. Please try again.", true);
                 });
         } else {
-            // Fallback for older browsers or insecure contexts
+            // Fallback for older browsers or insecure contexts 
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
             textArea.style.position = "fixed"; // Avoid scrolling to bottom
