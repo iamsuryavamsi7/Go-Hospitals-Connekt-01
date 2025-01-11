@@ -11,11 +11,14 @@ import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.ConsultationQueueMedicalSupportModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.ImageUrlsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -35,6 +39,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,15 +61,15 @@ public class MedicalSupportService {
     @Value("${cloud.aws.bucket-name}")
     private String bucketName;
 
-    public List<ApplicationsResponseModel> getAllBookingsByNotCompletePaging(int page, int pageSize) {
+    public List<ConsultationQueueMedicalSupportModel> getAllBookingsByNotCompletePaging(int page, int pageSize) {
 
-        List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
+        List<ConsultationQueueMedicalSupportModel> fetchedApplications = applicationsRepo.findAll()
             .stream()
-            .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+            .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.WAITING))
             .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
             .map(user01 -> {
 
-                ApplicationsResponseModel user1 = new ApplicationsResponseModel();
+                ConsultationQueueMedicalSupportModel user1 = new ConsultationQueueMedicalSupportModel();
 
                 BeanUtils.copyProperties(user01, user1);
 
@@ -72,12 +77,10 @@ public class MedicalSupportService {
 
                 if ( fetchedMedicalSupportUserDetails != null ){
 
-                    user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
                     user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
 
                 } else {
 
-                    user1.setMedicalSupportUserId(null);
                     user1.setMedicalSupportUserName(null);
 
                 }
@@ -186,7 +189,7 @@ public class MedicalSupportService {
 
         notificationRepo.save(fetchedNotification);
 
-        return "Notification Reading Successfull";
+        return "Notification Read Updated Successfully";
 
     }
 
@@ -796,7 +799,7 @@ public class MedicalSupportService {
         List<Applications> fetchedApplications = fetchedUser.getApplications()
                 .stream()
                 .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED)
-                .sorted(Comparator.comparing(applications -> applications.getConsultationType() == ConsultationType.WAITING ? 0 : 1))
+                .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
                 .toList();
 
         // Calculate pagination
@@ -805,6 +808,83 @@ public class MedicalSupportService {
 
         // Return a sublist for the requested page
         return fetchedApplications.subList(start, end);
+
+    }
+
+    public Boolean changeStatusToDMOCHECKCOMPLETED(Long applicationID) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        if ( fetchedApplication != null ){
+
+            fetchedApplication.setConsultationType(ConsultationType.DMOCARECOMPLETED);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public String fetchUserRole(HttpServletRequest request) throws MedicalSupportUserNotFound {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new MedicalSupportUserNotFound("Medical User Not Found")
+        );
+
+        return fetchedMedicalUser.getRole().name();
+
+    }
+
+    public UserObject fetchUserObject(String jwtToken) {
+
+        String extractedUserName = jwtService.extractUserName(jwtToken);
+
+        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            UserObject newUser = new UserObject();
+
+            BeanUtils.copyProperties(user, newUser);
+
+            return newUser;
+
+        }else{
+
+            throw new UsernameNotFoundException("User Not Found");
+
+        }
+
+    }
+
+    @Transactional
+    public Boolean notificationSoundPlayed(Long notificationID) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(notificationID).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found Exception")
+        );
+
+        if ( fetchedNotification != null ){
+
+            fetchedNotification.setNotificationSoundPlayed(true);
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

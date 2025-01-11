@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { BiSolidInjection } from 'react-icons/bi'
 import toast from 'react-hot-toast'
+import { GiSandsOfTime } from 'react-icons/gi'
 
 const ConsulationQueueFrontDesk = () => {
 
@@ -22,7 +23,7 @@ const ConsulationQueueFrontDesk = () => {
 
     const [page, setPage] = useState(0); // Track the current page
     
-    const pageSize = 10; 
+    const pageSize = 5; 
 
     const [isLastPage, setIsLastPage] = useState(false); // 
 
@@ -196,13 +197,13 @@ const ConsulationQueueFrontDesk = () => {
 
                             <div className="">
 
-                                <BiSolidInjection />
+                                <GiSandsOfTime />
 
                             </div>
                             
                             <div className="">
 
-                                Consultations
+                                Patient Waiting for Consultation
 
                             </div>
 

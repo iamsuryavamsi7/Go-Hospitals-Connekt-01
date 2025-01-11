@@ -737,7 +737,7 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                Consulation Queue
+                                Waiting Patients
 
                             </div>
 
@@ -758,7 +758,7 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                My Jobs
+                                My Patients
 
                             </div>
 
@@ -821,7 +821,7 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                Surgery Care
+                                Surgery
 
                             </div>
 

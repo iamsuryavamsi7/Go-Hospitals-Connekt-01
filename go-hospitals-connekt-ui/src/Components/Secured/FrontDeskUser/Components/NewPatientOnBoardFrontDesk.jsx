@@ -190,28 +190,23 @@ const NewPatientOnBoardFrontDesk = () => {
 
                     if ( responseData ){
 
-                        const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/bookApplication/${patientOnBoardData.id}`, {
-                            name: patientOnBoardData.name,
-                            age: patientOnBoardData.age,
-                            contact: patientOnBoardData.contact,
-                            gender: patientOnBoardData.gender,
-                            reasonForVisit: patientOnBoardData.reason,
-                            location: patientOnBoardData.location,
-                            billNo: patientOnBoardData.billNo,
-                            preferredDoctorName: patientOnBoardData.preferredDoctor,
-                            bookedBy: bookedByName
-                        }, {
-                            headers: {
-                                'Authorization': `Bearer ${access_token}`
+                        if ( stompClient !== null ){
+
+                            const bookAppointmentWebSocketModel = {
+                                deleteAppointmentID: patientOnBoardData.id,
+                                name: patientOnBoardData.name,
+                                age: patientOnBoardData.age,
+                                contact: patientOnBoardData.contact,
+                                gender: patientOnBoardData.gender,
+                                reasonForVisit: patientOnBoardData.reason,
+                                location: patientOnBoardData.location,
+                                billNo: patientOnBoardData.billNo,
+                                preferredDoctorName: patientOnBoardData.preferredDoctor,
+                                bookedBy: bookedByName
                             }
-                        })
-        
-                        if ( response.status === 200 ){
-        
-                            const responseData = response.data;
-        
-                            console.log(responseData);
-        
+
+                            stompClient.send(`/app/book-appointment-send-to-medical-support-user`, {}, JSON.stringify(bookAppointmentWebSocketModel));
+            
                             toast.success("Patient Onboard Success", {
                                 duration: 1000,
                                 style: {
@@ -248,17 +243,17 @@ const NewPatientOnBoardFrontDesk = () => {
                                 ...prevElement,
                                 newPatientOnBoardActivated: false
                             }));
-        
-                            fetchPatientTemporaryData();
-        
+                
                             setTimeout(() => {
+
+                                fetchPatientTemporaryData();
         
                                 handlePrint();
         
                             }, 1500);
-        
-                        }
 
+                        }
+    
                     }else {
 
                         toast.error(`Already Filled or Not Found`, {

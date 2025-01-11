@@ -1,5 +1,6 @@
 package com.Go_Work.Go_Work.Entity;
 
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,5 +38,10 @@ public class Notification {
     )
     @JsonBackReference
     private User user;
+
+    private boolean notificationSoundPlayed;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus notificationStatus;
 
 }

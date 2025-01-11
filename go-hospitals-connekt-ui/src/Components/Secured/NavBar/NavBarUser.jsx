@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../../Style/secured/navbar/navbaruser.css';
 import { Toaster, toast } from 'react-hot-toast';
 
-const NavBarUser = () => {
+const NavBarUser = () => { 
 
 // Jwt Token
     const access_token = Cookies.get('access_token');

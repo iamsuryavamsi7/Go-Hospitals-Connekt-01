@@ -13,7 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-        registry.addEndpoint("/go-hospitals-websocket").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/go-hospitals-websocket").setAllowedOriginPatterns("http://gowork.gohospitals.in:7778/").withSockJS();
 
     }
 
@@ -21,7 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/frontDeskOnBoardPublicPage", "/user");
+        registry.enableSimpleBroker("/frontDeskOnBoardPublicPage",
+                "/medicalSupportUserNotification",
+                "/user");
         registry.setUserDestinationPrefix("/user");
 
     }

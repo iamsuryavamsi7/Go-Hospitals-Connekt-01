@@ -90,7 +90,7 @@ const NewPatientOnBoardFronDeskFillingPage = () => {
 
     }
 
-    // Connect to websockets when the component mounts with useEffect hook
+    // Connect to websockets when the component mounts with useEffect hook 
     useEffect(() => {
 
         const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);

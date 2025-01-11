@@ -417,6 +417,16 @@ public class FrontDeskService {
 
     }
 
+    public Boolean checkTheAppointmentIsAvailable(Long applicationID) throws TemporaryAppointmentNotFounException {
+
+        TemporaryAppointmentDataEntity fetchedAppointment = temporaryAppointmentDataRepo.findById(applicationID).orElseThrow(
+                () -> new TemporaryAppointmentNotFounException("Temporary Appointment Not Found")
+        );
+
+        return fetchedAppointment != null;
+
+    }
+
 }
 
 

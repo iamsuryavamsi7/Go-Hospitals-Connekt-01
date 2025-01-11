@@ -43,7 +43,7 @@ application:
   security:
     secret-key: 1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM
     access_token:
-      expiration: 86400000
+      expiration: 43200000
 
 # Configuration for Spring Email
 

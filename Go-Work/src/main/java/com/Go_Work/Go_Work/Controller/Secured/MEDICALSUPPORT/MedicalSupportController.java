@@ -8,6 +8,8 @@ import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.ConsultationQueueMedicalSupportModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT.MedicalSupportService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +27,56 @@ public class MedicalSupportController {
 
     private final MedicalSupportService medicalSupportService;
 
+    @GetMapping("/fetchUserRole")
+    public ResponseEntity<String> fetchUserRole(
+            HttpServletRequest request
+    ) throws MedicalSupportUserNotFound {
+
+        String userRole = medicalSupportService.fetchUserRole(request);
+
+        return ResponseEntity.ok(userRole);
+
+    }
+
+    @PostMapping("/fetchUserObject")
+    public ResponseEntity<UserObject> fetchUserObject(
+            @RequestParam("jwtToken") String jwtToken
+    ){
+
+        UserObject fetchedUserObject = medicalSupportService.fetchUserObject(jwtToken);
+
+        return ResponseEntity.ok(fetchedUserObject);
+
+    }
+
+
+    @GetMapping("/notificationSoundPlayed/{notificationID}")
+    public ResponseEntity<Boolean> notificationSoundPlayed(
+            @PathVariable("notificationID") Long notificationID
+    ) throws NotificationNotFoundException {
+
+        Boolean notificationPlayed = medicalSupportService.notificationSoundPlayed(notificationID);
+
+        return ResponseEntity.ok(notificationPlayed);
+
+    }
+
+
+
+
+
+
+
+
+
+
     @GetMapping("/getAllBookingsByNotCompletePaging/{page}/{pageSize}")
-    public ResponseEntity<List<ApplicationsResponseModel>> getAllBookingsByNotComplete(
+    public ResponseEntity<List<ConsultationQueueMedicalSupportModel>> getAllBookingsByNotComplete(
             @PathVariable("page") int page,
             @PathVariable("pageSize") int pageSize
     ){
 
-        List<ApplicationsResponseModel> message = medicalSupportService.getAllBookingsByNotCompletePaging(page, pageSize);
+        List<ConsultationQueueMedicalSupportModel> message = medicalSupportService.getAllBookingsByNotCompletePaging(page, pageSize);
 
         return ResponseEntity.ok(message);
 
@@ -277,6 +322,17 @@ public class MedicalSupportController {
         List<Applications> fetchedApplications = medicalSupportService.fetchMedicalSupportJobsByIdPaging2(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @GetMapping("/changeStatusToDMOCHECKCOMPLETED/{applicationID}")
+    public ResponseEntity<Boolean> changeStatusToDMOCHECKCOMPLETED(
+            @PathVariable("applicationID") Long applicationID
+    ) throws ApplicationNotFoundException {
+
+        Boolean status = medicalSupportService.changeStatusToDMOCHECKCOMPLETED(applicationID);
+
+        return ResponseEntity.ok(status);
 
     }
 

@@ -64,6 +64,8 @@ const CurrentJob = () => {
                 
                 let myJobsData = response.data;
 
+                console.log(myJobsData);
+
                 if ( myJobsData.length === 0 ){ 
 
                     return false;
@@ -71,25 +73,6 @@ const CurrentJob = () => {
                 }
 
                 setIsLastPage(myJobsData.length < pageSize);
-
-                // Sort to place items with consultationType "WAITING" first
-                myJobsData = myJobsData.sort((a, b) => {
-                    
-                    if (a.consultationType === "WAITING" && b.consultationType !== "WAITING") {
-                    
-                        return -1;
-                    
-                    } else if (a.consultationType !== "WAITING" && b.consultationType === "WAITING") {
-                    
-                        return 1;
-                    
-                    } else {
-                    
-                        return 0;
-                    
-                    }
-                
-                });
 
                 setMyJobs(myJobsData);
 
@@ -262,15 +245,13 @@ const CurrentJob = () => {
 
                                             <th>{job.name}</th>
                                             <th>{job.preferredDoctorName}</th>
-                                            <th>{job.consultationType === null ? (
+                                            <th>
 
-                                                <span>Not Decided</span>
+                                                {job.consultationType === 'WAITING' && 'Waiting for DMO'}
 
-                                            ) : (
+                                                {job.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                                <span>{job.consultationType}</span>
-
-                                            )}</th>
+                                            </th>
                                             <th>{job.billNo}</th>
                                             <th
                                                 className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'

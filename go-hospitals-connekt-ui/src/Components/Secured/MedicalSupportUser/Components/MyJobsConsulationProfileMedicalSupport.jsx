@@ -9,6 +9,9 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 // JWT Token
 const access_token = Cookies.get('access_token');
 
+// GoHospitals BackEnd API environment variable
+const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
 // Use Navigate Hook
     const navigate = useNavigate();
 
@@ -98,7 +101,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -126,7 +129,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -158,7 +161,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -207,7 +210,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.post(`http://localhost:7777/api/v1/medical-support/makeConsultationType/${applicationId}`, formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/makeConsultationType/${applicationId}`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -294,6 +297,52 @@ const access_token = Cookies.get('access_token');
 
     }, [id]);
 
+    const dmoCareCompletedFunction = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/changeStatusToDMOCHECKCOMPLETED/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                if ( responseData ){
+
+                    fetchAppointmentData();
+
+                }else {
+
+                    toast.error(`Someting Went Wrong`, {
+                        duration: 2000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        }
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
     return (
 
         <>
@@ -364,7 +413,7 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {/* <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -378,7 +427,7 @@ const access_token = Cookies.get('access_token');
 
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -476,7 +525,7 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {/* <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -490,7 +539,7 @@ const access_token = Cookies.get('access_token');
 
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -518,7 +567,10 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType}
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
+
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
 
                                 </div>
 
@@ -545,89 +597,91 @@ const access_token = Cookies.get('access_token');
 
                     </div>
 
-                    {patientData.consultationType === 'WAITING' && (
+                    {patientData.consultationType === 'WAITING' && <button
+                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
+                        type='submit'
+                        onClick={dmoCareCompletedFunction}
+                    >
 
-                        <>
+                        DMO Care Completed
 
-                        <button
-                            className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
-                            type='submit'
+                    </button>}
+
+                    {patientData.consultationType === 'DMOCARECOMPLETED' && <button
+                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
+                        type='submit'
+                        onClick={() => {
+
+                                setConsulationDoneisVisible(true);
+
+                        }}
+                    >
+
+                        Consultation Done
+
+                    </button>}
+
+                    {consulationDoneisVisible && (
+
+                        <div 
+                            className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
                             onClick={() => {
 
-                                    setConsulationDoneisVisible(true);
+                                setConsulationDoneisVisible(false);
 
                             }}
                         >
 
-                            Consultation Done
+                            <div className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800">
+                            
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
+                                >
 
-                        </button>
+                                    <button>On Site Treatment</button>
 
-                        {consulationDoneisVisible && (
+                                </div>
 
-                            <div 
-                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
-                                onClick={() => {
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.medication)}
+                                >
 
-                                    setConsulationDoneisVisible(false);
+                                    <button>Medication + Follow Up</button>
 
-                                }}
-                            >
+                                </div>
 
-                                <div className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800">
-                                
-                                    <div 
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
-                                    >
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.surgery)}
+                                >
 
-                                        <button>On Site Treatment</button>
+                                    <button>Counselling for Surgery</button>
 
-                                    </div>
+                                </div>
 
-                                    <div 
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.medication)}
-                                    >
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.crossConsultation)}    
+                                >
 
-                                        <button>Medication + Follow Up</button>
+                                    <button>Cross Consultation</button>
 
-                                    </div>
+                                </div>
 
-                                    <div 
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.surgery)}
-                                    >
+                                <div    
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.patientAdmit)}    
+                                >
 
-                                        <button>Surgery Care</button>
-
-                                    </div>
-
-                                    <div 
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.crossConsultation)}    
-                                    >
-
-                                        <button>Cross Consultation</button>
-
-                                    </div>
-
-                                    <div    
-                                        className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
-                                        onClick={(consultation) => consulationTypeUpdateFunction(consultationType.patientAdmit)}    
-                                    >
-
-                                        <button>Patient Admit</button>
-
-                                    </div>
+                                    <button>Patient Admit</button>
 
                                 </div>
 
                             </div>
 
-                        )}
-
-                        </>
+                        </div>
 
                     )}
 

@@ -3,16 +3,24 @@ import Cookies from 'js-cookie'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { Toaster, toast } from 'react-hot-toast'
+import SockJS from 'sockjs-client'
+import { Stomp } from '@stomp/stompjs'
 
 const ConsultationQueueMedicalSupport = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -29,7 +37,7 @@ const ConsultationQueueMedicalSupport = () => {
         medicalSupport: 'MEDICALSUPPORT'
     }
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -52,7 +60,7 @@ const ConsultationQueueMedicalSupport = () => {
         
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/getAllBookingsByNotCompletePaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/getAllBookingsByNotCompletePaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -62,22 +70,11 @@ const ConsultationQueueMedicalSupport = () => {
 
                 let appointmentsData = response.data;
 
-                console.log(appointmentsData);
-
                 if ( appointmentsData.length === 0 ){
 
                     return false;
 
                 }
-
-                setIsLastPage(appointmentsData.length < pageSize);
-
-                appointmentsData = appointmentsData.sort((a, b) => {
-                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
-                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
-
-                    return aHasSupportUser - bHasSupportUser;
-                });
 
                 setInCompleteApplications(appointmentsData);
 
@@ -95,8 +92,6 @@ const ConsultationQueueMedicalSupport = () => {
     };
 
     const nextPage = async () => {
-
-        console.log(userObject.id);
 
         if ( !isLastPage ) {
 
@@ -124,6 +119,7 @@ const ConsultationQueueMedicalSupport = () => {
 
     }
     
+    // Function to fetch user object
     const fetchUserObject = async () => {
 
         const formData = new FormData();
@@ -132,7 +128,7 @@ const ConsultationQueueMedicalSupport = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -164,7 +160,7 @@ const ConsultationQueueMedicalSupport = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -207,7 +203,7 @@ const ConsultationQueueMedicalSupport = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(`${goHospitalsFRONTENDBASEURL}`, '_self');
 
         }
 
@@ -215,9 +211,62 @@ const ConsultationQueueMedicalSupport = () => {
 
     useEffect(() => {
 
-        fetchIncompleteApplications(userObject);
+        fetchIncompleteApplications();
 
     }, [page]);
+
+    // Function to run when the new notification received
+    const newNotificationReceived = (message) => {
+
+        const messageObject = JSON.parse(message.body);
+
+        console.log(messageObject);
+
+        if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT' ){
+
+            fetchIncompleteApplications();
+
+        }
+
+    }
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 

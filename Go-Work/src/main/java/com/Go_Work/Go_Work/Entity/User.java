@@ -79,7 +79,8 @@ public class User implements UserDetails {
 
     @OneToMany(
             mappedBy = "user",
-            cascade = CascadeType.ALL
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
     )
     @JsonManagedReference
     private List<Notification> notifications = new ArrayList<>();

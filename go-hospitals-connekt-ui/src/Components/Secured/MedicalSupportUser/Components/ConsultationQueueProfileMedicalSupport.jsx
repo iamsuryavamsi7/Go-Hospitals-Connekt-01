@@ -270,7 +270,7 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {/* <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -284,7 +284,7 @@ const access_token = Cookies.get('access_token');
 
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -382,7 +382,7 @@ const access_token = Cookies.get('access_token');
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {/* <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -396,7 +396,7 @@ const access_token = Cookies.get('access_token');
 
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -424,7 +424,11 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType}
+                                    {patientData.consultationType === 'WAITING' && (
+
+                                        <span>Waiting for nurse</span>
+
+                                    )}
 
                                 </div>
 

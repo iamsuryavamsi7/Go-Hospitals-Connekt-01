@@ -6,7 +6,6 @@ import com.Go_Work.Go_Work.Entity.Doctor;
 import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
 import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
-import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +44,20 @@ public class FrontDeskController {
         return ResponseEntity.ok(fetchedData);
 
     }
+
+
+    @GetMapping("/checkTheAppointmentIsAvailable/{applicationID}")
+    public ResponseEntity<Boolean> checkTheAppointmentIsAvailable(
+            @PathVariable("applicationID") Long applicationID
+    ) throws TemporaryAppointmentNotFounException {
+
+        Boolean status = frontDeskService.checkTheAppointmentIsAvailable(applicationID);
+
+        return ResponseEntity.ok(status);
+
+    }
+
+
 
 
 
