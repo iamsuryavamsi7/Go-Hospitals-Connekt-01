@@ -7,11 +7,14 @@ import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
+import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
+import com.Go_Work.Go_Work.Service.Config.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,8 @@ public class PharmacyService {
     private final UserRepo userRepo;
 
     private final NotificationRepo notificationRepo;
+
+    private final JwtService jwtService;
 
     public MedicalSupportResponseModel fetchApplicationById(Long id) throws AppointmentNotFoundException {
 
@@ -204,6 +209,20 @@ public class PharmacyService {
 
                 })
                 .collect(Collectors.toList());
+
+    }
+
+    public String fetchUserRole(HttpServletRequest request) throws FrontDeskUserNotFoundException {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new FrontDeskUserNotFoundException("Front Desk User Not Found")
+        );
+
+        return fetchedFrontDeskUser.getRole().name();
 
     }
 

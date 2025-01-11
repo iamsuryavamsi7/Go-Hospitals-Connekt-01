@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const MyJobsConsulationProfileMedicalSupport = () => {
 
@@ -259,7 +261,17 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                     if ( consultationType1 === consultationType.crossConsultation ) {
 
-                        navigate('/medical-support-cross-consultation');
+                        if ( stompClient !== null ){
+
+                            const sendToFrontDeskObjectModel = {
+                                applicationId
+                            }
+                        
+                            stompClient.send(`/app/sendRequestToFrontDeskCrossConsultation`, {}, JSON.stringify(sendToFrontDeskObjectModel));
+                
+                            navigate('/medical-support-cross-consultation');
+
+                        }
 
                     }
 
@@ -342,6 +354,44 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
         }
 
     }
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connection Successfull`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 

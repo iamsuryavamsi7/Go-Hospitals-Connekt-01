@@ -7,7 +7,7 @@ import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
-const MedicalSupportUserNavBar = () => {
+const FrontDeskNavBar = () => {
 
     // JWT Token
     const access_token = Cookies.get('access_token');
@@ -16,7 +16,7 @@ const MedicalSupportUserNavBar = () => {
     const navigate = useNavigate();
 
     // State to store the medical support user role
-    const medicalSupportUser = 'MEDICALSUPPORT';
+    const fronDesk = 'FRONTDESK';
 
     // GoHospitals BackEnd API environment variable
     const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
@@ -59,7 +59,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/logout',{}, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/logout`,{}, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -101,13 +101,9 @@ const MedicalSupportUserNavBar = () => {
     // Function to fetch user object
     const fetchUserObject = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
-            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchUserObject`, formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -136,7 +132,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -144,17 +140,17 @@ const MedicalSupportUserNavBar = () => {
 
             if ( response.status === 200 ){
 
-                let notificationData = response.data;
-
-                console.log(notificationData);
+                const notificationData = response.data;
 
                 setNotificationArray(notificationData);
+
+                console.log(`Notification Fetched`);
 
             }
 
         }catch(error){
 
-            handleError(error);
+            console.error(error);
 
         }
 
@@ -186,15 +182,15 @@ const MedicalSupportUserNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        if ( notificationStatus === 'BOOKAPPOINTMENT' ){
+        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
 
-            navigate(`/medical-support-consultation-queue/${applicationID}`);
+            navigate(`/front-desk-follow-up-profile/${applicationID}`);
 
             setNotificationsVisible(false);
 
             try{
 
-                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationID}`, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/setNotificationReadByNotificationId/${notificationID}`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     }
@@ -241,7 +237,7 @@ const MedicalSupportUserNavBar = () => {
 
                 try{
 
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/notificationSoundPlayed/${currentNotificationID}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/notificationSoundPlayed/${currentNotificationID}`, {
                         headers: {
                             Authorization: `Bearer ${access_token}`
                         }
@@ -286,9 +282,7 @@ const MedicalSupportUserNavBar = () => {
 
         console.log(messageObject);
 
-        if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT' ){
-
-            console.log(`\n\n\nFetchingNotifications\n\n\n`);
+        if ( messageObject.notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
 
             fetchNotifications();
 
@@ -311,8 +305,8 @@ const MedicalSupportUserNavBar = () => {
             {},
             () => {
 
-                client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
-        
+                client.subscribe(`/frontDeskUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+
             },
             () => {
 
@@ -338,7 +332,7 @@ const MedicalSupportUserNavBar = () => {
 
         <>
 
-            { role === medicalSupportUser && <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
+            { role === fronDesk && <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
             
                 <Toaster />
 
@@ -429,7 +423,7 @@ const MedicalSupportUserNavBar = () => {
                                                         key={notification.id}
                                                     >
 
-                                                        {role === medicalSupportUser && (
+                                                        {role === fronDesk && (
 
                                                             <div 
                                                                 className={`py-3 mx-2 px-2 text-base rounded-lg ${notification.read ? '' : 'bg-sky-900'} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
@@ -496,4 +490,4 @@ const MedicalSupportUserNavBar = () => {
 
 }
 
-export default MedicalSupportUserNavBar
+export default FrontDeskNavBar

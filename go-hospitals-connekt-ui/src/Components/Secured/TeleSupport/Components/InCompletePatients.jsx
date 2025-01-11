@@ -62,8 +62,6 @@ const InCompletePatients = () => {
 
                 let appointmentsData = response.data;
 
-                console.log(appointmentsData);
-
                 if ( appointmentsData.length === 0 ){
 
                     return false;
@@ -80,8 +78,6 @@ const InCompletePatients = () => {
                 });
 
                 setInCompleteApplications(appointmentsData);
-
-                console.log("Finished")
 
                 return true;
     

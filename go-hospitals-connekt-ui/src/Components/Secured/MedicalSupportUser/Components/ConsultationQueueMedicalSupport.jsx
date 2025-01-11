@@ -87,6 +87,43 @@ const ConsultationQueueMedicalSupport = () => {
             handleError(error);
 
             return false;
+        
+        }
+
+    };
+
+    const fetchIncompleteApplicationsTEST = async (pageNumber) => {
+        
+        try {
+            
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/getAllBookingsByNotCompletePaging/${pageNumber}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                let appointmentsData = response.data;
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setInCompleteApplications(appointmentsData);
+
+                return true;
+    
+            }
+
+        } catch (error) {
+        
+            handleError(error);
+
+            return false;
+        
         }
 
     };
@@ -95,7 +132,9 @@ const ConsultationQueueMedicalSupport = () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchIncompleteApplications(page + 1);
+            const pageNumber = page + 1;
+
+            const hasPage = await fetchIncompleteApplicationsTEST(pageNumber);
 
             if ( hasPage ){
 

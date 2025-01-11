@@ -3,10 +3,7 @@ package com.Go_Work.Go_Work.Controller.Secured.MEDICALSUPPORT;
 import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Notification;
-import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
-import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
-import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
+import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.ConsultationQueueMedicalSupportModel;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
@@ -48,7 +45,6 @@ public class MedicalSupportController {
         return ResponseEntity.ok(fetchedUserObject);
 
     }
-
 
     @GetMapping("/notificationSoundPlayed/{notificationID}")
     public ResponseEntity<Boolean> notificationSoundPlayed(
@@ -144,9 +140,9 @@ public class MedicalSupportController {
     public ResponseEntity<String> makeConsultationType(
             @PathVariable("applicationId") Long applicationId,
             @RequestParam("consultationType") ConsultationType consultationType
-    ) throws ApplicationNotFoundException {
+    ) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
-        String message = medicalSupportService.makeConsultationType(applicationId, consultationType);
+        String message = medicalSupportService.makeConsultationType2(applicationId, consultationType);
 
         return ResponseEntity.ok(message);
 
@@ -311,7 +307,7 @@ public class MedicalSupportController {
     }
 
     @GetMapping("/fetchMedicalSupportJobsByIdPaging/{page}/{pageSize}")
-    public ResponseEntity<List<Applications>> fetchMedicalSupportJobsByIdPaging(
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchMedicalSupportJobsByIdPaging(
             @PathVariable("page") int page,
             @PathVariable("pageSize") int pageSize,
             HttpServletRequest request
@@ -319,7 +315,7 @@ public class MedicalSupportController {
 
         String jwtToken = request.getHeader("Authorization").substring(7);
 
-        List<Applications> fetchedApplications = medicalSupportService.fetchMedicalSupportJobsByIdPaging2(jwtToken, page, pageSize);
+        List<ApplicationsResponseModel> fetchedApplications = medicalSupportService.fetchMedicalSupportJobsByIdPaging2(jwtToken, page, pageSize);
 
         return ResponseEntity.ok(fetchedApplications);
 

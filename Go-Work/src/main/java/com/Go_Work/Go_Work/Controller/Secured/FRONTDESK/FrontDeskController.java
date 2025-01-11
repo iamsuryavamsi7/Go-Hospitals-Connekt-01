@@ -1,12 +1,10 @@
 package com.Go_Work.Go_Work.Controller.Secured.FRONTDESK;
 
-import com.Go_Work.Go_Work.Entity.Applications;
-import com.Go_Work.Go_Work.Entity.Department;
-import com.Go_Work.Go_Work.Entity.Doctor;
-import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
+import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Service.Secured.FRONTDESK.FrontDeskService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -57,19 +55,29 @@ public class FrontDeskController {
 
     }
 
+    @GetMapping("/fetchUserObject")
+    public ResponseEntity<UserObject> fetchUserObject(
+            HttpServletRequest request
+    ){
 
+        UserObject fetchedUserObject = frontDeskService.fetchUserObject(request);
 
+        return ResponseEntity.ok(fetchedUserObject);
 
+    }
 
+    @GetMapping("/fetchNotificationByUserId")
+    public ResponseEntity<List<Notification>> fetchNotificationByUserId(
+            HttpServletRequest request
+    ){
 
+        String jwtToken = request.getHeader("Authorization").substring(7);
 
+        List<Notification> fetchedNotifications = frontDeskService.fetchNotificationByUserId(jwtToken);
 
+        return ResponseEntity.ok(fetchedNotifications);
 
-
-
-
-
-
+    }
 
     @PostMapping("/bookApplication/{temporaryAppointmentID}")
     public ResponseEntity<String> bookAppointment(
@@ -99,6 +107,18 @@ public class FrontDeskController {
     ){
 
         List<ApplicationsResponseModel> message = frontDeskService.getAllBookingsByNotCompletePaging(pageNumber, size);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/getAllCrossConsultationDetails/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> getAllCrossConsultationDetails(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> message = frontDeskService.getAllCrossConsultationDetails(pageNumber, size);
 
         return ResponseEntity.ok(message);
 
@@ -203,6 +223,28 @@ public class FrontDeskController {
         String message = frontDeskService.acceptCrossConsultation(applicationId, reasonForVisit, doctorName);
 
         return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/setNotificationReadByNotificationId/{notificationId}")
+    public ResponseEntity<String> setNotificationReadByNotificationId(
+            @PathVariable("notificationId") Long id
+    ) throws NotificationNotFoundException {
+
+        String message = frontDeskService.setNotificationReadByNotificationId(id);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/notificationSoundPlayed/{notificationID}")
+    public ResponseEntity<Boolean> notificationSoundPlayed(
+            @PathVariable("notificationID") Long notificationID
+    ) throws NotificationNotFoundException {
+
+        Boolean notificationPlayed = frontDeskService.notificationSoundPlayed(notificationID);
+
+        return ResponseEntity.ok(notificationPlayed);
 
     }
 

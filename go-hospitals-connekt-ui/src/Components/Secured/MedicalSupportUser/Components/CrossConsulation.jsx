@@ -81,7 +81,7 @@ const CrossConsulation = () => {
 
     }
 
-    const fetchCrossConnection = async () => {
+    const fetchCrossConsultation = async () => {
 
         try{
 
@@ -94,6 +94,8 @@ const CrossConsulation = () => {
             if ( response.status === 200 ){
 
                 const userObject = response.data;
+
+                console.log(userObject);
 
                 if ( userObject.length === 0 ){
 
@@ -119,11 +121,47 @@ const CrossConsulation = () => {
 
     }
 
+    const fetchCrossConsultation2 = async (page) => {
+
+        try{
+
+            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const userObject = response.data;
+
+                if ( userObject.length === 0 ){
+
+                    setIsLastPage(true);
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+
+        }catch(error){
+
+            return false;
+
+        }
+
+    }
+
     const nextPage = async () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchCrossConnection();
+            const pageCount = page + 1;
+
+            const hasPage = await fetchCrossConsultation2(pageCount);
 
             if ( hasPage ){
 
@@ -179,7 +217,7 @@ const CrossConsulation = () => {
 
     useEffect(() => {
 
-        fetchCrossConnection();
+        fetchCrossConsultation();
 
     }, [page]);
 

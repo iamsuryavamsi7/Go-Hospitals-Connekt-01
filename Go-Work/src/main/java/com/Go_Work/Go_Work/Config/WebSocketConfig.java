@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/frontDeskOnBoardPublicPage",
                 "/medicalSupportUserNotification",
+                "/frontDeskUserNotification",
                 "/user");
         registry.setUserDestinationPrefix("/user");
 

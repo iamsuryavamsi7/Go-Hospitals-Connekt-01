@@ -7,7 +7,7 @@ import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
-const MedicalSupportUserNavBar = () => {
+const TeleSupportNavBar = () => {
 
     // JWT Token
     const access_token = Cookies.get('access_token');
@@ -16,7 +16,7 @@ const MedicalSupportUserNavBar = () => {
     const navigate = useNavigate();
 
     // State to store the medical support user role
-    const medicalSupportUser = 'MEDICALSUPPORT';
+    const teleSupport = 'TELESUPPORT';
 
     // GoHospitals BackEnd API environment variable
     const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
@@ -59,7 +59,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/logout',{}, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/logout`,{}, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -101,13 +101,9 @@ const MedicalSupportUserNavBar = () => {
     // Function to fetch user object
     const fetchUserObject = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
-            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchUserObject`, formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -136,7 +132,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -144,9 +140,7 @@ const MedicalSupportUserNavBar = () => {
 
             if ( response.status === 200 ){
 
-                let notificationData = response.data;
-
-                console.log(notificationData);
+                const notificationData = response.data;
 
                 setNotificationArray(notificationData);
 
@@ -154,7 +148,7 @@ const MedicalSupportUserNavBar = () => {
 
         }catch(error){
 
-            handleError(error);
+            console.error(error);
 
         }
 
@@ -186,35 +180,35 @@ const MedicalSupportUserNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        if ( notificationStatus === 'BOOKAPPOINTMENT' ){
+        // if ( notificationStatus === 'BOOKAPPOINTMENT' ){
 
-            navigate(`/medical-support-consultation-queue/${applicationID}`);
+        //     navigate(`/medical-support-consultation-queue/${applicationID}`);
 
-            setNotificationsVisible(false);
+        //     setNotificationsVisible(false);
 
-            try{
+        //     try{
 
-                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationID}`, {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`
-                    }
-                });
+        //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/setNotificationReadByNotificationId/${notificationID}`, {
+        //             headers: {
+        //                 Authorization: `Bearer ${access_token}`
+        //             }
+        //         });
 
-                if ( response.status === 200 ){
+        //         if ( response.status === 200 ){
 
-                    const responseData = response.data;
+        //             const responseData = response.data;
 
-                    fetchNotifications();                    
+        //             fetchNotifications();                    
 
-                }
+        //         }
 
-            }catch(error){
+        //     }catch(error){
 
-                console.error(error);
+        //         console.error(error);
 
-            }
+        //     }
 
-        }
+        // }
 
     }
 
@@ -241,7 +235,7 @@ const MedicalSupportUserNavBar = () => {
 
                 try{
 
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/notificationSoundPlayed/${currentNotificationID}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/notificationSoundPlayed/${currentNotificationID}`, {
                         headers: {
                             Authorization: `Bearer ${access_token}`
                         }
@@ -250,8 +244,6 @@ const MedicalSupportUserNavBar = () => {
                     if ( response.status === 200 ){
 
                         const responseData = response.data;
-
-                        console.log(responseData);
 
                         setTimeout(() => {
 
@@ -284,16 +276,6 @@ const MedicalSupportUserNavBar = () => {
 
         const messageObject = JSON.parse(message.body);
 
-        console.log(messageObject);
-
-        if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT' ){
-
-            console.log(`\n\n\nFetchingNotifications\n\n\n`);
-
-            fetchNotifications();
-
-        }
-
     }
 
     // State to store stompClient
@@ -311,8 +293,8 @@ const MedicalSupportUserNavBar = () => {
             {},
             () => {
 
-                client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
-        
+                // client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+
             },
             () => {
 
@@ -338,7 +320,7 @@ const MedicalSupportUserNavBar = () => {
 
         <>
 
-            { role === medicalSupportUser && <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
+            { role === teleSupport && <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
             
                 <Toaster />
 
@@ -496,4 +478,4 @@ const MedicalSupportUserNavBar = () => {
 
 }
 
-export default MedicalSupportUserNavBar
+export default TeleSupportNavBar

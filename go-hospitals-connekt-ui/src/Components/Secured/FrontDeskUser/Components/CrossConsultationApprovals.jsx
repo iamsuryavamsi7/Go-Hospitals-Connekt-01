@@ -2,21 +2,15 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import { GiSandsOfTime } from 'react-icons/gi';
 
-const PatientApprovals = () => {
+const CrossConsultationApprovals = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // Use Navigate Hook
     const navigate = useNavigate();
-
-// State Management
-    const [role, setRole] = useState(null);
-
-    const [userObject, setUserObject] = useState(null);
 
     // GoHospitals BackEnd API environment variable
     const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
@@ -24,19 +18,22 @@ const PatientApprovals = () => {
     // GoHospitals BASE URL environment variable
     const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
 
-    const [CompleteApplications, setCompleteApplications] = useState([]);
+    // State Management
+    const [role, setRole] = useState(null);
+
+    const [userObject, setUserObject] = useState(null);
+
+    const [inCompleteAppointments, setInCompleteAppointments] = useState([]);
 
     const [page, setPage] = useState(0); // Track the current page
     
-    const pageSize = 10; 
+    const pageSize = 5; 
 
     const [isLastPage, setIsLastPage] = useState(false); // 
 
-    const roles = {
-        frontDesk: 'FRONTDESK'
-    }
+    const frontDesk = 'FRONTDESK';
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -55,11 +52,10 @@ const PatientApprovals = () => {
 
     }
 
-    const fetchPatientApprovals = async () => {
-
+    const fetchUnApprovedCrossConsultationData2 = async (page) => {
+        
         try {
-            
-            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchPatientApprovals/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getAllBookingsByWaitingPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -67,7 +63,7 @@ const PatientApprovals = () => {
     
             if (response.status === 200) {
 
-                let appointmentsData = response.data;
+                const appointmentsData = response.data;
 
                 console.log(appointmentsData);
 
@@ -77,34 +73,36 @@ const PatientApprovals = () => {
 
                 }
 
-                setIsLastPage(appointmentsData.length < pageSize);
-
-                setCompleteApplications(appointmentsData);
-
                 return true;
-    
+
             }
-
         } catch (error) {
-        
-            handleError(error);
-
+            
             return false;
+        
         }
-
+    
     };
 
     const nextPage = async () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchcompleteApplications(page + 1);
+            const page = page + 1;
+
+            const hasPage = await fetchUnApprovedCrossConsultationData2(page);
 
             if ( hasPage ){
 
                 setPage((prevPage) => prevPage + 1);
 
             }
+
+        } else {
+
+            toast.error('No Page Available', {
+                duration: 2000
+            });
 
         }
 
@@ -122,15 +120,49 @@ const PatientApprovals = () => {
 
     }
 
+    const fetchUnApprovedCrossConsultationData = async () => {
+        
+        try {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getAllCrossConsultationDetails/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                const appointmentsData = response.data;
+
+                console.log(appointmentsData);
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(appointmentsData.length < pageSize);
+
+                setInCompleteAppointments(appointmentsData);
+
+                return true;
+
+            }
+        } catch (error) {
+            
+            handleError(error);
+
+            return false;
+        
+        }
+    
+    };
+    
     const fetchUserObject = async () => {
-
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -160,11 +192,11 @@ const PatientApprovals = () => {
 
             fetchUserObject();
 
-            fetchPatientApprovals();
+            fetchUnApprovedCrossConsultationData();
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
@@ -172,23 +204,37 @@ const PatientApprovals = () => {
 
     useEffect(() => {
 
-        fetchPatientApprovals();
+        fetchUnApprovedCrossConsultationData();
 
     }, [page]);
 
     return (
 
         <>
-
-            <ToastContainer />
-
-            {role === roles.frontDesk && (
-
+        
+            {role === frontDesk && (
+            
                 <>
 
                     <div className="">
 
-                        <div className="mx-10">
+                        <div className="mx-10 text-lg mb-5 flex items-center space-x-2">
+
+                            <div className="">
+
+                                <GiSandsOfTime />
+
+                            </div>
+                            
+                            <div className="">
+
+                                Cross Consultation Approvals
+
+                            </div>
+
+                        </div>
+
+                        <div className="mx-10 mr-56">
 
                             <table
                                 className='w-full'
@@ -197,25 +243,26 @@ const PatientApprovals = () => {
                                 <thead>
 
                                     <tr
-                                        className='text-left leading-10 border-b-[.5px] border-gray-800 px-10'
+                                        className='text-left leading-10'
                                     >
 
                                         <th>S.No</th>
                                         <th>Patient Name</th>
-                                        <th>Doctors Name</th>
+                                        <th>Doctor</th>
                                         <th>Bill No</th>
-                                        <th>Medical Support User</th>
+                                        <th>Patient ID</th>
+                                        <th>Nurse</th>
 
                                     </tr>
 
                                 </thead>
 
-                                {CompleteApplications && CompleteApplications.length === 0 ? (
+                                {inCompleteAppointments && inCompleteAppointments.length === 0 ? (
 
                                     <tbody>
 
                                     <tr
-                                        className='text-left border-b-[.5px] border-gray-800 text-gray-400'
+                                        className='text-left'
                                     >
 
                                         <th>No Data</th>
@@ -232,23 +279,24 @@ const PatientApprovals = () => {
 
                                     <tbody>
 
-                                        {CompleteApplications.map((application, index) => (
+                                        {inCompleteAppointments.map((appointment, index) => (
 
                                             <tr
-                                                key={application.id}
-                                                className='text-left leading-10 text-base border-b-[.5px] border-gray-800 text-gray-400'
+                                                key={appointment.id}
+                                                className='text-left text-gray-500 leading-10 text-base'
                                             >
 
                                                 <th>{(page * pageSize) + (index + 1)}</th>
 
-                                                <th>{application.name}</th>
-                                                <th>{application.preferredDoctorName}</th>
-                                                <th>{application.billNo}</th>
-                                                <th>{application.medicalSupportUserName ? (
+                                                <th>{appointment.name}</th>
+                                                <th>{appointment.preferredDoctorName}</th>
+                                                <th>{appointment.billNo}</th>
+                                                <th>{appointment.patientId}</th>
+                                                <th>{appointment.medicalSupportUserName ? (
 
                                                     <>
 
-                                                        {application.medicalSupportUserName}
+                                                        {appointment.medicalSupportUserName}
 
                                                     </>
 
@@ -256,16 +304,14 @@ const PatientApprovals = () => {
 
                                                     <>
                                                     
-                                                        <span 
-                                                            className='text-red-500 cursor-pointer'
-                                                        >Not Taken</span>
+                                                        <span className='text-red-500'>Not Taken</span>
 
                                                     </>
 
                                                 )}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                                    onClick={(id) => navigate(`/front-desk-follow-up-profile/${application.id}`)}
+                                                    onClick={(id) => navigate(`/front-desk-follow-up-profile/${appointment.id}`)}
                                                 >View Full Profile</th>
 
                                             </tr>
@@ -280,7 +326,7 @@ const PatientApprovals = () => {
 
                         </div>
 
-                        {CompleteApplications && CompleteApplications.length < 0 && (
+                        {inCompleteAppointments && inCompleteAppointments.length > 0 && (
 
                             <div className="space-x-5 text-center mx-10 mt-5">
                                 
@@ -306,11 +352,11 @@ const PatientApprovals = () => {
                 </>
 
             )}
-
+        
         </>
 
     )
 
 }
 
-export default PatientApprovals
+export default CrossConsultationApprovals

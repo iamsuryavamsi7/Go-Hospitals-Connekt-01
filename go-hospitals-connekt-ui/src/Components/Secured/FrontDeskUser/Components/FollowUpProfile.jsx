@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../../../../Style/secured/navbar/navbaruser.css'
 import axios from 'axios';
 import '../../../../Style/secured/navbar/navbaruser.css'
-import { IoCloseCircle } from 'react-icons/io5';
-import { CgLoadbar } from 'react-icons/cg';
 import { GiCancel } from 'react-icons/gi';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
-const FollowUpProfile = () => {
+const FollowUpProfile = () => { 
 
 // JWT Token
     const access_token = Cookies.get('access_token');
@@ -22,10 +22,17 @@ const FollowUpProfile = () => {
 
     const [userObject, setUserObject] = useState(null);
 
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
     const {id} = useParams();
 
     const [patientData, setPatientData] = useState({
         id: id,
+        patientId: ``,
         name: '',
         age: '',
         contact: '',
@@ -44,31 +51,31 @@ const FollowUpProfile = () => {
         frontDesk: 'FRONTDESK'
     }
 
-    const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
+    // const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
 
-    const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
+    // const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
 
-    const [checkedStatus, setCheckedStatus] = useState(false);
+    // const [checkedStatus, setCheckedStatus] = useState(false);
 
-    // Format the date and time (example: MM/DD/YYYY, HH:MM AM/PM)
-    const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric', 
-        hour: 'numeric', 
-        minute: 'numeric', 
-        hour12: true // for AM/PM format
-    };
+    // // Format the date and time (example: MM/DD/YYYY, HH:MM AM/PM)
+    // const options = { 
+    //     year: 'numeric', 
+    //     month: 'long', 
+    //     day: 'numeric', 
+    //     hour: 'numeric', 
+    //     minute: 'numeric', 
+    //     hour12: true // for AM/PM format
+    // };
       
     // Convert to Date object
     const appointmentDate = new Date(patientData.appointmentCreatedOn);
     
-    const formattedDate = appointmentDate.toLocaleString('en-US', options);
+    // const formattedDate = appointmentDate.toLocaleString('en-US', options);
 
     // Convert to Date object
     const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
 
-    const appointmentCompletedFormattedDate = appointmentCompletedDate.toLocaleString('en-US', options);
+    // const appointmentCompletedFormattedDate = appointmentCompletedDate.toLocaleString('en-US', options);
 
     // Functions
     const handleError = (error) => {
@@ -93,7 +100,7 @@ const FollowUpProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchApplicationById/${id}`, {
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -102,6 +109,8 @@ const FollowUpProfile = () => {
             if ( response.status === 200 ){
 
                 const appointmentData = response.data;
+
+                console.log(appointmentData);
 
                 setPatientData(appointmentData);
 
@@ -147,208 +156,206 @@ const FollowUpProfile = () => {
 
     }    
 
-    const [images, setImages] = useState([]);
+    // const [images, setImages] = useState([]);
 
-    const fetchImages = async () => {
+    // const fetchImages = async () => {
 
-        const imageSrc = patientData.prescriptionsUrls;
+    //     const imageSrc = patientData.prescriptionsUrls;
 
-        setFetchedImageVisible(true);
+    //     setFetchedImageVisible(true);
 
-        const imagePromises = imageSrc.map(async (imgSrc) => {
+    //     const imagePromises = imageSrc.map(async (imgSrc) => {
             
-            const imageSrc1 = imgSrc.prescriptionURL;
+    //         const imageSrc1 = imgSrc.prescriptionURL;
 
-            try{
+    //         try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
-                    responseType: 'blob',
-                    headers: {
-                        Authorization: `Bearer ${access_token}`
-                    }
-                })
+    //             const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+    //                 responseType: 'blob',
+    //                 headers: {
+    //                     Authorization: `Bearer ${access_token}`
+    //                 }
+    //             })
 
-                const value = response.data;
+    //             const value = response.data;
 
-                const imageBlob = URL.createObjectURL(value);
+    //             const imageBlob = URL.createObjectURL(value);
 
-                return imageBlob;
+    //             return imageBlob;
 
-            }catch(error){
+    //         }catch(error){
 
-                handleError(error);
+    //             handleError(error);
 
-            }
+    //         }
         
-        });
+    //     });
 
-        const blobs = await Promise.all(imagePromises);
+    //     const blobs = await Promise.all(imagePromises);
 
-        setImages(
-            (prevImages) => [...prevImages, ...blobs.filter((blob) => blob !== null)]
-        );
+    //     setImages(
+    //         (prevImages) => [...prevImages, ...blobs.filter((blob) => blob !== null)]
+    //     );
 
-    }
+    // }
 
-    const downloadImage = async () => {
+    // const downloadImage = async () => {
 
-        setPatientPrescriptionSrc(null);
+    //     setPatientPrescriptionSrc(null);
 
-        const fileName = patientData.prescriptionsUrls;
+    //     const fileName = patientData.prescriptionsUrls;
 
-        fileName.map( async (file1) => {
+    //     fileName.map( async (file1) => {
             
-            const fileName1 = file1.prescriptionURL;
+    //         const fileName1 = file1.prescriptionURL;
 
-            try{
+    //         try{
 
-                const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`
-                    },
-                    responseType: 'blob'
-                })
+    //             const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+    //                 headers: {
+    //                     Authorization: `Bearer ${access_token}`
+    //                 },
+    //                 responseType: 'blob'
+    //             })
 
-                if ( response.status === 200 ){
+    //             if ( response.status === 200 ){
 
-                    console.log("Download Started");
+    //                 const url = window.URL.createObjectURL(new Blob([response.data]));
 
-                    const url = window.URL.createObjectURL(new Blob([response.data]));
+    //                 const link = document.createElement('a');
 
-                    const link = document.createElement('a');
+    //                 link.href = url;
 
-                    link.href = url;
+    //                 link.setAttribute('download', fileName1);
+    //                 document.body.appendChild(link);
+    //                 link.click();
 
-                    link.setAttribute('download', fileName1);
-                    document.body.appendChild(link);
-                    link.click();
+    //                 document.body.removeChild(link);
+    //                 window.URL.revokeObjectURL(url);
 
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
+    //             }
 
-                }
+    //         }catch(error){
 
-            }catch(error){
+    //             handleError(error);
 
-                handleError(error);
+    //         }
 
-            }
+    //     });
 
-        });
+    // }
 
-    }
+    // const approveFunction = async () => {
 
-    const approveFunction = async () => {
+    //     const patientAdmitMessage = patientData.patientAdmitMessage;
 
-        const patientAdmitMessage = patientData.patientAdmitMessage;
+    //     const formData = new FormData();
 
-        const formData = new FormData();
+    //     formData.append("patientAdmitMessage", patientAdmitMessage);
 
-        formData.append("patientAdmitMessage", patientAdmitMessage);
+    //     try{
 
-        try{
+    //         const response = await axios.post(`http://localhost:7777/api/v1/front-desk/acceptApplicationById/${id}`, formData, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${access_token}`
+    //             }
+    //         });
 
-            const response = await axios.post(`http://localhost:7777/api/v1/front-desk/acceptApplicationById/${id}`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            });
+    //         if ( response.status === 200 ){
 
-            if ( response.status === 200 ){
-
-                toast.success("Patient Approved", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    }
-                });
+    //             toast.success("Patient Approved", {
+    //                 duration: 1000,
+    //                 style: {
+    //                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
+    //                     color: '#fff', // Tailwind text-white
+    //                     fontWeight: '600', // Tailwind font-semibold
+    //                     borderRadius: '0.5rem', // Tailwind rounded-lg
+    //                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+    //                     marginTop: '2.5rem' // Tailwind mt-10,
+    //                 }
+    //             });
                 
-                setTimeout(() => {
+    //             setTimeout(() => {
 
-                    navigate('/front-desk-new-patient-on-board');
+    //                 navigate('/front-desk-new-patient-on-board');
 
-                }, 1600);
+    //             }, 1600);
 
-            }
+    //         }
 
-        }catch(error){
+    //     }catch(error){
 
-            handleError(error);
+    //         handleError(error);
 
-            toast.success("Something Went Wrong", {
-                duration: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
+    //         toast.success("Something Went Wrong", {
+    //             duration: 2000,
+    //             style: {
+    //                 backgroundColor: '#1f2937', // Tailwind bg-gray-800
+    //                 color: '#fff', // Tailwind text-white
+    //                 fontWeight: '600', // Tailwind font-semibold
+    //                 borderRadius: '0.5rem', // Tailwind rounded-lg
+    //                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+    //                 marginTop: '2.5rem' // Tailwind mt-10,
+    //             },
+    //             position: 'top-center'
+    //         });
 
-        }
+    //     }
 
-    }
+    // }
 
-    const rejectFunction = async () => {
+    // const rejectFunction = async () => {
 
-        try{
+    //     try{
 
-            const response = await axios.delete(`http://localhost:7777/api/v1/front-desk/deleteApplicationById/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            });
+    //         const response = await axios.delete(`http://localhost:7777/api/v1/front-desk/deleteApplicationById/${id}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${access_token}`
+    //             }
+    //         });
 
-            if ( response.status === 200 ){
+    //         if ( response.status === 200 ){
 
-                toast.success("Patient Rejected", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    }
-                });
+    //             toast.success("Patient Rejected", {
+    //                 duration: 1000,
+    //                 style: {
+    //                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
+    //                     color: '#fff', // Tailwind text-white
+    //                     fontWeight: '600', // Tailwind font-semibold
+    //                     borderRadius: '0.5rem', // Tailwind rounded-lg
+    //                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+    //                     marginTop: '2.5rem' // Tailwind mt-10,
+    //                 }
+    //             });
                 
-                setTimeout(() => {
+    //             setTimeout(() => {
 
-                    navigate("/front-desk-new-patient-on-board");
+    //                 navigate("/front-desk-new-patient-on-board");
 
-                }, 1600);
+    //             }, 1600);
 
-            }
+    //         }
 
-        }catch(error){
+    //     }catch(error){
 
-            handleError(error);
+    //         handleError(error);
 
-            toast.error("Something Went Wrong", {
-                duration: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
+    //         toast.error("Something Went Wrong", {
+    //             duration: 2000,
+    //             style: {
+    //                 backgroundColor: '#1f2937', // Tailwind bg-gray-800
+    //                 color: '#fff', // Tailwind text-white
+    //                 fontWeight: '600', // Tailwind font-semibold
+    //                 borderRadius: '0.5rem', // Tailwind rounded-lg
+    //                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+    //                 marginTop: '2.5rem' // Tailwind mt-10,
+    //             },
+    //             position: 'top-center'
+    //         });
 
-        }
+    //     }
 
-    }
+    // }
 
     const [updateFormVisible, setUpdateFormVisible] = useState(false);
 
@@ -397,8 +404,6 @@ const FollowUpProfile = () => {
     const handleDepartmentChange = (e) => {
 
         const departmentId = e.target.value;
-
-        console.log(departmentId);
 
         const fetchDepartment = async () => {
 
@@ -458,8 +463,6 @@ const FollowUpProfile = () => {
 
         fetchDoctors();
 
-        console.log(patientOnBoardData.preferredDoctor);
-
     }
 
     const formSubmitFunction01 = async (e) => {
@@ -472,25 +475,21 @@ const FollowUpProfile = () => {
 
         const applicationId = id;
 
-        console.log(reason);
+        const billNo = patientOnBoardData.billNo;
 
-        console.log(doctorName);
+        if ( reason !== null && reason !== `` && doctorName !== null && doctorName !== `` && applicationId !== null && applicationId !== `` && billNo !== null && billNo !== ``){
 
-        const formData = new FormData();
-
-        formData.append("reasonForVisit", reason);
-        formData.append("doctorName", doctorName);
-
-        try{
-
-            const response = await axios.post(`http://localhost:7777/api/v1/front-desk/acceptCrossConsultation/${applicationId}`, formData, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
+            const acceptCrossConsultationModel = {
+                applicationId,
+                reasonForVisit: reason,
+                doctorName,
+                billNo
+            }
+    
+            if ( stompClient !== null ){
+    
+                stompClient.send(`/app/acceptCrossConsultation`, {}, JSON.stringify(acceptCrossConsultationModel));
+    
                 toast.success("Cross Consultation Approved", {
                     autoClose: 1000,
                     style: {
@@ -505,35 +504,58 @@ const FollowUpProfile = () => {
 
                 setTimeout(() => {
 
+                    handlePrint();
+
+                }, 1500);
+    
+                setTimeout(() => {
+    
                     navigate(`/front-desk-new-patient-on-board`);
-
-                }, 1600);
-
+    
+                }, 3000);
+    
             }
-
-        }catch(error){
-
-            handleError(error);
-
-            toast.error("Something Went Wrong", {
-                autoClose: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                progressStyle: {
-                    backgroundColor: 'red' // Tailwind bg-green-400
-                },
-                position: 'top-center'
-            });
 
         }
 
     }
+
+    const printRef = useRef();
+    
+    const handlePrint = () => {
+        const printContent = printRef.current;
+        
+        if (!printContent) return;
+
+        // Open a new window and write the content to it
+        const printWindow = window.open('', '');
+        
+        // Write the content to the print window
+        printWindow.document.write('<html><head><title>Onboard Conformation Slip</title>');
+
+        // Include Tailwind CSS (you need to provide the correct path to your Tailwind CSS file)
+        printWindow.document.write(`
+
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+        `);
+        
+        printWindow.document.write('</head><body>');
+        
+        // Clone the content and write it into the print window
+        printWindow.document.write(printContent.innerHTML);
+        
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        setTimeout(() => {
+
+            // Trigger print dialog
+            printWindow.print();
+
+        }, 2000);
+
+    };
 
     useEffect(() => {
 
@@ -547,11 +569,49 @@ const FollowUpProfile = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.location.pathname(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
     }, [id]);
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`WebSockets are connected`);
+
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 
@@ -611,38 +671,6 @@ const FollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Contact
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.contact}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Gender
 
                                 </div>
@@ -650,22 +678,6 @@ const FollowUpProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -739,22 +751,6 @@ const FollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Appointment Created On
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {formattedDate}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Booked By
 
                                 </div>
@@ -777,13 +773,13 @@ const FollowUpProfile = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType}
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
 
                                 </div>
 
                             </div>
 
-                            {patientData.consultationType === 'COMPLETED' && (
+                            {/* {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -799,11 +795,11 @@ const FollowUpProfile = () => {
 
                                     </div>
 
-                                </div>
+                                </div> */}
 
-                            )}
+                            {/* )} */}
 
-                            {patientData.consultationType === 'COMPLETED' && (
+                            {/* {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -821,9 +817,9 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            )}
+                            )} */}
 
-                            {patientData.consultationType === 'COMPLETED' && (
+                            {/* {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -849,11 +845,11 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            )}
+                            )} */}
 
                         </div>
 
-                        {patientData.patientGotApproved && !patientData.forCrossConsultation && (
+                        {/* {patientData.patientGotApproved && !patientData.forCrossConsultation && (
 
                             <div className="flex">
 
@@ -885,9 +881,9 @@ const FollowUpProfile = () => {
 
                             </div>
 
-                        )}
+                        )} */}
 
-                        {fetchedImageVisible && (
+                        {/* {fetchedImageVisible && (
                             
                             <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
 
@@ -901,8 +897,6 @@ const FollowUpProfile = () => {
                                     
                                     {images && images.length > 0 ? images.map((imageSrc, index) => {
                                         
-                                        console.log(imageSrc);
-
                                         return (
 
                                             <img 
@@ -993,9 +987,9 @@ const FollowUpProfile = () => {
 
                             </>
 
-                        )}
+                        )} */}
 
-                        {patientData.forCrossConsultation && (
+                        {patientData.consultationType === "CROSSCONSULTATION" && (
 
                             <>
 
@@ -1064,9 +1058,10 @@ const FollowUpProfile = () => {
 
                                                                 const value = e.target.value;
 
-                                                                setPatientOnBoardData(
-                                                                    {...patientOnBoardData, preferredDoctor: value}
-                                                                )
+                                                                setPatientOnBoardData((prevValue) => ({
+                                                                    ...prevValue, 
+                                                                    preferredDoctor: value}
+                                                                ));
 
                                                             }}
                                                     >
@@ -1082,6 +1077,30 @@ const FollowUpProfile = () => {
                                                         ))}
 
                                                     </select>   
+
+                                                </div>
+
+                                                <div className="mt-10">
+
+                                                    <label> Bill No <span className='text-red-400'>*</span></label><br />
+                                                
+                                                    <input 
+                                                        type='text'
+                                                        required
+                                                        className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                                        name='billNo'
+                                                        value={patientOnBoardData.billNo}
+                                                        onChange={(e) => {
+
+                                                            const value = e.target.value;
+
+                                                            setPatientOnBoardData((prevValue) => ({
+                                                                ...prevValue,
+                                                                billNo: value
+                                                            }));
+
+                                                        }}
+                                                    /> 
 
                                                 </div>
 
@@ -1104,6 +1123,40 @@ const FollowUpProfile = () => {
                             </>
 
                         )}
+
+                    </div>
+
+                    {/* Hidden page for printing patient details */}
+                    <div
+                        className="text-center mx-[400px] border-[1px] border-gray-200 hidden"
+                        ref={printRef}
+                    >
+
+                        <div className="text-left mx-10 space-y-5 py-10">
+
+                            <div className="">
+
+                                <div className="text-black">Patient ID : {patientData.patientId}</div>
+
+                            </div>
+
+                            <div className="block">
+
+                                <div className="">
+
+                                    <div className="text-black">Patient Name : {patientData.name}</div>
+                                    <div className="text-black">Patient Age : {patientData.age}</div>
+
+                                </div>
+                                
+                                <div className="text-left">
+                                    <div className="text-black">Consulting Doctor : {patientData.preferredDoctorName}</div>
+                                    <div className="text-black">Patient Gender : {patientData.gender} </div>
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 

@@ -54,7 +54,7 @@ const LeftNavBar = () => {
 
     const [followUpPatients, setFollowUpPatients] = useState(`text-gray-400`);
 
-    const [followUpPatients2, setFollowUpPatients2] = useState(`text-gray-400`);
+    const [followUpPatients2, setFollowUpPatients2] = useState(`text-gray-400`); 
 
     const [adminmanagement1, setAdminmanagement1] = useState(`text-gray-400`);
 

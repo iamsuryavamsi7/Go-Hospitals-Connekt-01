@@ -1,15 +1,9 @@
 package com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT;
 
-import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
-import com.Go_Work.Go_Work.Entity.ImageUrls;
-import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
-import com.Go_Work.Go_Work.Entity.User;
-import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
-import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
-import com.Go_Work.Go_Work.Error.MedicalSupportUserNotFound;
-import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
+import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.ConsultationQueueMedicalSupportModel;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
@@ -73,6 +67,20 @@ public class MedicalSupportService {
 
                 BeanUtils.copyProperties(user01, user1);
 
+                if ( !user01.getBills().isEmpty() ){
+
+                    Bills fetchedBills = user01.getBills()
+                            .stream()
+                            .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                            .findFirst()
+                            .orElseThrow(
+                                    () -> new UsernameNotFoundException("Application Not Found")
+                            );
+
+                    user1.setBillNo(fetchedBills.getBillNo());
+
+                }
+
                 User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
 
                 if ( fetchedMedicalSupportUserDetails != null ){
@@ -107,6 +115,20 @@ public class MedicalSupportService {
         ApplicationsResponseModel application1 = new ApplicationsResponseModel();
 
         BeanUtils.copyProperties(fetchedApplication, application1);
+
+        if ( !fetchedApplication.getBills().isEmpty() ){
+
+            Bills fetchedBills = fetchedApplication.getBills()
+                    .stream()
+                    .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                    .findFirst()
+                    .orElseThrow(
+                            () -> new UsernameNotFoundException("Application Not Found")
+                    );
+
+            application1.setBillNo(fetchedBills.getBillNo());
+
+        }
 
         User fetchedMedicalSupportUserDetails = fetchedApplication.getMedicalSupportUser();
 
@@ -341,6 +363,20 @@ public class MedicalSupportService {
 
                     BeanUtils.copyProperties(application1, applicationNew);
 
+                    if ( application1.getBills() != null ){
+
+                        Bills fetchedBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElseThrow(
+                                        () -> new UsernameNotFoundException("Application Not Found")
+                                );
+
+                        applicationNew.setBillNo(fetchedBill.getBillNo());
+
+                    }
+
                     applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
 
                     applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
@@ -498,7 +534,27 @@ public class MedicalSupportService {
 
     }
 
+    public String makeConsultationType2(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
+        // For Cross Consultation Type
+        if ( consultationType.equals(ConsultationType.CROSSCONSULTATION)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type updated";
+
+        }
+
+        throw new ConsultationTypeNotFoundException("Consultation Not Found");
+
+    }
 
     private void deleteS3Object(Applications application){
 
@@ -742,8 +798,6 @@ public class MedicalSupportService {
 
         fetchedApplication.setTreatmentDone(true);
 
-        fetchedApplication.setForCrossConsultation(true);
-
         applicationsRepo.save(fetchedApplication);
 
         userRepo.findAll()
@@ -760,10 +814,6 @@ public class MedicalSupportService {
                     notification.setRead(false);
 
                     notificationRepo.save(notification);
-
-//                    user1.getNotifications().add(notification);
-//
-//                    userRepo.save(user1);
 
                 });
 
@@ -788,7 +838,7 @@ public class MedicalSupportService {
 
     }
 
-    public List<Applications> fetchMedicalSupportJobsByIdPaging2(String jwtToken , int page, int pageSize) {
+    public List<ApplicationsResponseModel> fetchMedicalSupportJobsByIdPaging2(String jwtToken , int page, int pageSize) {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
@@ -796,10 +846,33 @@ public class MedicalSupportService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        List<Applications> fetchedApplications = fetchedUser.getApplications()
+        List<ApplicationsResponseModel> fetchedApplications = fetchedUser.getApplications()
                 .stream()
                 .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED)
                 .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
+                .map(fetchedApplication -> {
+
+                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(fetchedApplication, application);
+
+                    if ( !fetchedApplication.getBills().isEmpty() ){
+
+                        Bills fetchedBills = fetchedApplication.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElseThrow(
+                                        () -> new UsernameNotFoundException("Application Not Found")
+                                );
+
+                        application.setBillNo(fetchedBills.getBillNo());
+
+                    }
+
+                    return application;
+
+                })
                 .toList();
 
         // Calculate pagination

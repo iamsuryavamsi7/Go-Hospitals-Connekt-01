@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const CrossConsultationProfile = () => {
 
@@ -13,6 +15,12 @@ const CrossConsultationProfile = () => {
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
+
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
 
     const {id} = useParams();
 
@@ -34,12 +42,6 @@ const CrossConsultationProfile = () => {
     const roles = {
         medicalSupport: 'MEDICALSUPPORT',
     }
-
-    // Your patient data
-    const patientCreatedOn = {
-    appointmentCreatedOn: "2024-10-20T09:36:33.702+00:00",
-    // other data...
-    };
   
     // Convert to Date object
     const appointmentDate = new Date(patientData.appointmentCreatedOn);
@@ -122,6 +124,8 @@ const CrossConsultationProfile = () => {
 
                 const appointmentData = response.data;
 
+                console.log(appointmentData);
+
                 setPatientData(appointmentData);
 
             }
@@ -136,47 +140,18 @@ const CrossConsultationProfile = () => {
 
     const sendToFrontDesk = async () => {
 
-        console.log("Hi");
-
         const applicationId = id;
 
-        try{
+        const sendToFrontDeskObjectModel = {
+            applicationId
+        }
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/sendRequestToFrontDeskCrossConsultation/${applicationId}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`
-                }
-            })
+        if ( stompClient !== null ){
 
-            if ( response.status === 200 ){
+            stompClient.send(`/app/sendRequestToFrontDeskCrossConsultation`, {}, JSON.stringify(sendToFrontDeskObjectModel));
 
-                const responseData = response.data;
-
-                console.log(responseData);
-
-                toast.success("Request Sent", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-right'
-                })
-
-                fetchAppointmentData();;
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-            toast.error("Someting Went Wrong", {
-                duration: 2000,
+            toast.success("Request Sent", {
+                duration: 1000, 
                 style: {
                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
                     color: '#fff', // Tailwind text-white
@@ -184,8 +159,15 @@ const CrossConsultationProfile = () => {
                     borderRadius: '0.5rem', // Tailwind rounded-lg
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
                     marginTop: '2.5rem' // Tailwind mt-10,
-                }
-            });
+                },
+                position: 'top-right'
+            })
+
+            setTimeout(() => {
+
+                fetchAppointmentData();
+
+            }, 2000);
 
         }
 
@@ -201,11 +183,49 @@ const CrossConsultationProfile = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
     }, [id]);
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connection Successfull`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 
@@ -249,6 +269,22 @@ const CrossConsultationProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.patientId}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Age
 
                                 </div>
@@ -265,38 +301,6 @@ const CrossConsultationProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Contact
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.contact}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Gender
 
                                 </div>
@@ -304,22 +308,6 @@ const CrossConsultationProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -393,22 +381,6 @@ const CrossConsultationProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Appointment Created On
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {formattedDate}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Booked By
 
                                 </div>
@@ -431,7 +403,7 @@ const CrossConsultationProfile = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType}
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
 
                                 </div>
 
@@ -472,18 +444,7 @@ const CrossConsultationProfile = () => {
 
                         </div>
 
-                        {!patientData.treatmentDone ? (
-
-                            <div
-                                className='bg-red-800 mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
-                                onClick={sendToFrontDesk}
-                            >
-
-                                Send to Front Desk
-
-                            </div>
-
-                        ) : (
+                        {!patientData.treatmentDone && (
 
                             <div
                                 className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 inline-block'

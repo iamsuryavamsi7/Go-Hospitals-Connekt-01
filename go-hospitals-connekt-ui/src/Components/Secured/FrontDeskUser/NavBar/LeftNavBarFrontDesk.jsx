@@ -5,8 +5,9 @@ import { IoPeopleCircleOutline, IoPersonAddSharp } from 'react-icons/io5';
 import { SiTicktick } from 'react-icons/si';
 import { MdFollowTheSigns } from 'react-icons/md';
 import { CgDetailsMore } from 'react-icons/cg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 import { Toaster, toast } from 'react-hot-toast';
+import { FaUserDoctor } from 'react-icons/fa6';
 
 const LeftNavBarFrontDesk = () => {
 
@@ -55,7 +56,7 @@ const LeftNavBarFrontDesk = () => {
 
         }catch(error){
 
-            handleError(error);
+            console.error(error);
 
         }
 
@@ -156,6 +157,10 @@ const LeftNavBarFrontDesk = () => {
 
     const [moreButtonStyle2, setMoreButtonStyle2] = useState(`text-gray-400`);
 
+    const [crossConsultationApprovals, setCrossConsultationApprovals] = useState(`text-gray-400`);
+
+    const [crossConsultationApprovals2, setCrossConsultationApprovals2] = useState(`text-gray-400`);
+
     // PathName to have hold on page change with URL's
     const pathName = window.location.pathname;
 
@@ -215,6 +220,20 @@ const LeftNavBarFrontDesk = () => {
             setFollowUpPatients(`text-gray-400`);
 
             setFollowUpPatients2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-cross-consultation-approvals`){
+
+            setCrossConsultationApprovals(`text-sky-500`);
+
+            setCrossConsultationApprovals2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setCrossConsultationApprovals(`text-gray-400`);
+
+            setCrossConsultationApprovals2(`text-gray-400`);
 
         }
 
@@ -329,6 +348,28 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 Follow-up Patients
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${crossConsultationApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/front-desk-cross-consultation-approvals')}
+                        >
+
+
+                            <div className="">
+
+                                <FaUserDoctor 
+                                    className={`${crossConsultationApprovals2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Cross Consultation Approvals
 
                             </div>
 

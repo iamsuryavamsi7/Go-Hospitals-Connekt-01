@@ -54,6 +54,7 @@ import MyJobs from './Components/Secured/TeleSupport/Components/MyJobs'
 import MyJobsProfile from './Components/Secured/TeleSupport/Components/MyJobsProfile'
 import FillTheSurgeryForm from './Components/Public/FillTheSurgeryForm'
 import NewPatientOnBoardFronDeskFillingPage from './Components/Public/NewPatientOnBoardFronDeskFillingPage'
+import CrossConsultationApprovals from './Components/Secured/FrontDeskUser/Components/CrossConsultationApprovals'
 
 function GoWorkRouter() {
 
@@ -103,6 +104,7 @@ function GoWorkRouter() {
 						<Route path="/front-desk-follow-up" element={<FollowUp />} />
 						<Route path="/front-desk-follow-up-profile/:id" element={<FollowUpProfile />} />
 						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
+						<Route path='/front-desk-cross-consultation-approvals' element={<CrossConsultationApprovals />}/>
 					</Route>
 
 					{/* FRONTDESK ROUTING */} 

@@ -1,7 +1,7 @@
 import React from 'react'
-import NavBarUser from '../NavBar/NavBarUser'
-import LeftNavBar from '../NavBar/LeftNavBar'
 import { Outlet } from 'react-router-dom'
+import TeleSupportNavBar from './NavBar/TeleSupportNavBar'
+import TeleSupportLeftNavBar from './NavBar/TeleSupportLeftNavBar'
 
 const TeleSupportLayout = () => {
 
@@ -9,9 +9,8 @@ const TeleSupportLayout = () => {
 
         <>
 
-            <NavBarUser />
-            <LeftNavBar />
-
+            <TeleSupportNavBar /> 
+            <TeleSupportLeftNavBar />
             <div className="pt-16 pl-[457px] mt-10 mr-56">
 
                 <Outlet />

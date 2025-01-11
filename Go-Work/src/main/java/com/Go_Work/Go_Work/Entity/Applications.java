@@ -32,13 +32,13 @@ public class Applications {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String tempororyBillNo;
     private int age;
     private String contact;
     private String location;
     private String gender;
     private String reasonForVisit;
     private String preferredDoctorName;
-    private String billNo;
     private Date appointmentCreatedOn;
     private String bookedBy;
 
@@ -64,8 +64,6 @@ public class Applications {
     private Date applicationCompletedTime;
 
     private boolean isMedicationPlusFollowUp;
-
-    private boolean isForCrossConsultation;
 
     private String patientAdmitMessage;
 
@@ -97,5 +95,14 @@ public class Applications {
     )
     @JsonManagedReference("surgeryDocuments")
     private List<SurgeryDocumentsUrls> surgeryDocumentsUrls = new ArrayList<>();
+
+    // One Applications - Many Bills
+    @OneToMany(
+            mappedBy = "applications",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
+    @JsonManagedReference
+    private List<Bills> bills = new ArrayList<>();
 
 }

@@ -2,11 +2,13 @@ package com.Go_Work.Go_Work.Controller.Secured.PHARMACY;
 
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
+import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Service.Secured.PHARMACY.PharmacyService;
 import com.Go_Work.Go_Work.Service.Secured.S3.S3Service;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -87,6 +89,18 @@ public class PharmacyController {
         );
 
         return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    // API to fetch user role
+    @GetMapping("/fetchUserRole")
+    public ResponseEntity<String> fetchUserRole(
+            HttpServletRequest request
+    ) throws FrontDeskUserNotFoundException {
+
+        String fetchedRole = pharmacyService.fetchUserRole(request);
+
+        return ResponseEntity.ok(fetchedRole);
 
     }
 

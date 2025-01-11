@@ -29,10 +29,6 @@ const MedicalSupportUserLeftNavBar = () => {
     // Function to fetch user role
     const setUserRole = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
             const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchUserRole`, {

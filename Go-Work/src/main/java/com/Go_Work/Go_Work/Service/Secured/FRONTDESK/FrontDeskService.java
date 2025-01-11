@@ -2,11 +2,12 @@ package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
-import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Repo.*;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +18,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +44,8 @@ public class FrontDeskService {
 
     private final TemporaryAppointmentDataRepo temporaryAppointmentDataRepo;
 
+    private final BillsRepo billsRepo;
+
     public String fetchUserRole(HttpServletRequest request) throws FrontDeskUserNotFoundException {
 
         String jwtToken = request.getHeader("Authorization").substring(7);
@@ -55,16 +60,7 @@ public class FrontDeskService {
 
     }
 
-
-
-
-
-
-
-
-
-
-
+    @Transactional
     public String bookAppointment(Applications applications, Long temporaryAppointmentID) {
 
         // Set appointment details
@@ -74,48 +70,49 @@ public class FrontDeskService {
         applications.setPaymentDone(false);
         applications.setPatientGotApproved(true);
         applications.setMedicationPlusFollowUp(false);
-        applications.setForCrossConsultation(false);
 
+        // Create and associate the bill
+        Bills bill = new Bills();
+        bill.setBillNo(applications.getTempororyBillNo());
+        bill.setTimeStamp(new Date(System.currentTimeMillis()));
+        bill.setApplications(applications);  // Automatically links the bill to the application
+
+        // Add bill to the application (this is handled by CascadeType.ALL)
+        applications.getBills().add(bill);
+
+        // Delete temporary appointment
         temporaryAppointmentDataRepo.deleteById(temporaryAppointmentID);
 
-        // Save the appointment
+        // Save the application (bills will be saved automatically)
         Applications savedApplication = applicationsRepo.save(applications);
 
+        // Generate patient ID
         Long applicationId = savedApplication.getId();
-
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
-
-        String formatedDate = currentDate.format(formatter);
-
-        String patientID = formatedDate + applicationId;
-
+        String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("MMyy"));
+        String patientID = formattedDate + applicationId;
         applications.setPatientId(patientID);
 
+        // Save notifications for medical support users
         userRepo.findAll()
                 .stream()
-                .filter( user -> user.getRole().equals(Role.MEDICALSUPPORT) )
+                .filter(user -> user.getRole().equals(Role.MEDICALSUPPORT))
                 .forEach(medicalUser -> {
-
                     Notification newNotification = new Notification();
-
                     newNotification.setMessage("New Application Booked");
                     newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
                     newNotification.setApplicationId(applicationId);
                     newNotification.setRead(false);
                     newNotification.setUser(medicalUser);
+                    newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
 
                     notificationRepo.save(newNotification);
-
                     medicalUser.getNotifications().add(newNotification);
-
                     userRepo.save(medicalUser);
-
                 });
 
         return patientID;
-
     }
+
 
     public List<ApplicationsResponseModel> getAllBookingsByNotComplete() {
 
@@ -158,6 +155,18 @@ public class FrontDeskService {
         ApplicationsResponseModel application1 = new ApplicationsResponseModel();
 
         BeanUtils.copyProperties(fetchedApplication, application1);
+
+        if ( !fetchedApplication.getBills().isEmpty() ){
+
+            Bills latestBill = fetchedApplication.getBills()
+                    .stream()
+                    .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                    .findFirst()
+                    .orElse(null);
+
+            application1.setBillNo(latestBill.getBillNo());
+
+        }
 
         User fetchedMedicalSupportUserDetails = fetchedApplication.getMedicalSupportUser();
 
@@ -226,6 +235,18 @@ public class FrontDeskService {
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(user01, user1);
+
+                    if ( !user01.getBills().isEmpty() ){
+
+                        Bills latestBill = user01.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        user1.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
 
@@ -360,7 +381,6 @@ public class FrontDeskService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setForCrossConsultation(false);
         fetchedApplication.setConsultationType(ConsultationType.WAITING);
         fetchedApplication.setMedicalSupportUser(null);
         fetchedApplication.setTreatmentDone(false);
@@ -424,6 +444,133 @@ public class FrontDeskService {
         );
 
         return fetchedAppointment != null;
+
+    }
+
+    public UserObject fetchUserObject(HttpServletRequest request) {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String extractedUserName = jwtService.extractUserName(jwtToken);
+
+        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            UserObject newUser = new UserObject();
+
+            BeanUtils.copyProperties(user, newUser);
+
+            return newUser;
+
+        }else{
+
+            throw new UsernameNotFoundException("User Not Found");
+
+        }
+
+    }
+
+    public List<Notification> fetchNotificationByUserId(String jwtToken) {
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User user = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        return user.getNotifications()
+                .stream()
+                .sorted(Comparator.comparing(Notification::getTimeStamp).reversed())
+                .limit(50)
+                .toList();
+
+    }
+
+    public String setNotificationReadByNotificationId(Long id) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(id).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found")
+        );
+
+        fetchedNotification.setRead(true);
+
+        notificationRepo.save(fetchedNotification);
+
+        return "Notification Read Updated Successfully";
+
+    }
+
+    @Transactional
+    public Boolean notificationSoundPlayed(Long notificationID) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(notificationID).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found Exception")
+        );
+
+        if ( fetchedNotification != null ){
+
+            fetchedNotification.setNotificationSoundPlayed(true);
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public List<ApplicationsResponseModel> getAllCrossConsultationDetails(int pageNumber, int size) {
+
+        List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
+
+        List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
+                .stream()
+                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
+                .map(user01 -> {
+
+                    ApplicationsResponseModel user1 = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(user01, user1);
+
+                    if ( user01.getBills() != null && !user01.getBills().isEmpty() ){
+
+                        Bills latestBill = user01.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        user1.setBillNo(latestBill.getBillNo());
+
+                    }
+
+                    User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        user1.setMedicalSupportUserId(null);
+                        user1.setMedicalSupportUserName(null);
+
+                    }
+
+                    return user1;
+
+                })
+                .toList();
+
+        int start = pageNumber * size;
+        int end = Math.min(start + size, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
 
     }
 

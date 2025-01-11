@@ -1,10 +1,13 @@
 package com.Go_Work.Go_Work.Controller.WebSocket;
 
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
+import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.AcceptCrossConsultationModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.BookAppointmentWebSocketModel;
-import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.ConsultationQueueMedicalSupportModel;
+import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.CrossConsultationApplicationIDModel;
 import com.Go_Work.Go_Work.Service.WebSocket.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +23,7 @@ public class WebSocketController {
 
     private final WebSocketService webSocketService;
 
+    // FrontDesk WEBSOCKETS
     @MessageMapping("/public-page-frontDesk-onboard")
     @SendTo("/frontDeskOnBoardPublicPage/public-page-frontDesk-onboard")
     public TemporaryAppointmentDataEntity fetchPatientDataOnBoardFrontDeskModel(
@@ -32,15 +36,41 @@ public class WebSocketController {
 
     }
 
+    @MessageMapping("/sendRequestToFrontDeskCrossConsultation")
+    @SendTo("/frontDeskUserNotification/newNotifications")
+    public Notification sendRequestToFrontDeskCrossConsultation(
+            @Payload CrossConsultationApplicationIDModel crossConsultationApplicationIDModel
+    ) throws ApplicationNotFoundException {
+
+        return webSocketService.sendRequestToFrontDeskCrossConsultation(crossConsultationApplicationIDModel);
+
+    }
+
+
+
+
+    // Medical Support User WebSockets
     @MessageMapping("/book-appointment-send-to-medical-support-user")
     @SendTo("/medicalSupportUserNotification/newNotifications")
     public Notification bookAppointmentSendToMedicalSupportUser(
             @Payload BookAppointmentWebSocketModel bookAppointmentWebSocketModel
     ){
 
-        System.out.println("\n\n\nNew Notification Sent\n\n\n");
+        Notification newNotification = new Notification();
 
-        return webSocketService.bookAppointmentSendToMedicalSupportUser(bookAppointmentWebSocketModel);
+        newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+        return newNotification;
+
+    }
+
+    @MessageMapping("/acceptCrossConsultation")
+    @SendTo("/medicalSupportUserNotification/newNotifications")
+    public Notification acceptCrossConsultation(
+            @Payload AcceptCrossConsultationModel acceptCrossConsultationModel
+    ) throws ApplicationNotFoundException {
+
+        return webSocketService.acceptCrossConsultation(acceptCrossConsultationModel);
 
     }
 

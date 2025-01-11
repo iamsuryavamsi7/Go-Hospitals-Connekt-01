@@ -251,6 +251,10 @@ const CurrentJob = () => {
 
                                                 {job.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
+                                                {job.consultationType === 'ONSITETREATMENT' && 'On Site Treatment'}
+
+                                                {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+
                                             </th>
                                             <th>{job.billNo}</th>
                                             <th

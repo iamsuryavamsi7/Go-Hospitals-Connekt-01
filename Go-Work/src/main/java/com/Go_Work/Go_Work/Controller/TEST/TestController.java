@@ -60,4 +60,11 @@ public class TestController {
 
     }
 
+    @GetMapping("/fetchAllApplications")
+    public ResponseEntity<List<Applications>> fetchAllApplications(){
+
+        return ResponseEntity.ok(applicationsRepo.findAll());
+
+    }
+
 }

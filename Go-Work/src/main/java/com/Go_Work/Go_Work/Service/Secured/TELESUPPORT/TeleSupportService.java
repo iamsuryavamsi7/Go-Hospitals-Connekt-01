@@ -4,7 +4,10 @@ import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
+import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
+import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.TELESUPPORT.TeleSupportResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.SurgeryDocumentsUrlsRepo;
@@ -16,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -27,6 +31,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -192,6 +197,81 @@ public class TeleSupportService {
         int end = Math.min(start + pageSize, fetchedApplications.size());
 
         return fetchedApplications.subList(start, end);
+
+    }
+
+    public UserObject fetchUserObject(HttpServletRequest request) {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String extractedUserName = jwtService.extractUserName(jwtToken);
+
+        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+
+        if ( fetchedUser.isPresent() ){
+
+            User user = fetchedUser.get();
+
+            UserObject newUser = new UserObject();
+
+            BeanUtils.copyProperties(user, newUser);
+
+            return newUser;
+
+        }else{
+
+            throw new UsernameNotFoundException("User Not Found");
+
+        }
+
+    }
+
+    public List<Notification> fetchNotificationByUserId(String jwtToken) {
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User user = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        return user.getNotifications()
+                .stream()
+                .sorted(Comparator.comparing(Notification::getTimeStamp).reversed())
+                .limit(50)
+                .toList();
+
+    }
+
+    @Transactional
+    public Boolean notificationSoundPlayed(Long notificationID) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(notificationID).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found Exception")
+        );
+
+        if ( fetchedNotification != null ){
+
+            fetchedNotification.setNotificationSoundPlayed(true);
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public String fetchUserRole(HttpServletRequest request) throws FrontDeskUserNotFoundException {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new FrontDeskUserNotFoundException("Front Desk User Not Found")
+        );
+
+        return fetchedFrontDeskUser.getRole().name();
 
     }
 

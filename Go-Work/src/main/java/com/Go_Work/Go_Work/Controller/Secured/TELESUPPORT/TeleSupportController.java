@@ -1,13 +1,16 @@
 package com.Go_Work.Go_Work.Controller.Secured.TELESUPPORT;
 
+import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
+import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
+import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.TELESUPPORT.TeleSupportResponseModel;
+import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Service.Secured.TELESUPPORT.TeleSupportService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,6 +67,53 @@ public class TeleSupportController {
         List<TeleSupportResponseModel> fetchedApplications = teleSupportService.fetchMyJobsPaging(request, page, pageSize);
 
         return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @GetMapping("/fetchUserObject")
+    public ResponseEntity<UserObject> fetchUserObject(
+            HttpServletRequest request
+    ){
+
+        UserObject fetchedUserObject = teleSupportService.fetchUserObject(request);
+
+        return ResponseEntity.ok(fetchedUserObject);
+
+    }
+
+    @GetMapping("/fetchNotificationByUserId")
+    public ResponseEntity<List<Notification>> fetchNotificationByUserId(
+            HttpServletRequest request
+    ){
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<Notification> fetchedNotifications = teleSupportService.fetchNotificationByUserId(jwtToken);
+
+        return ResponseEntity.ok(fetchedNotifications);
+
+    }
+
+    @GetMapping("/notificationSoundPlayed/{notificationID}")
+    public ResponseEntity<Boolean> notificationSoundPlayed(
+            @PathVariable("notificationID") Long notificationID
+    ) throws NotificationNotFoundException {
+
+        Boolean notificationPlayed = teleSupportService.notificationSoundPlayed(notificationID);
+
+        return ResponseEntity.ok(notificationPlayed);
+
+    }
+
+    // API to fetch user role
+    @GetMapping("/fetchUserRole")
+    public ResponseEntity<String> fetchUserRole(
+            HttpServletRequest request
+    ) throws FrontDeskUserNotFoundException {
+
+        String fetchedRole = teleSupportService.fetchUserRole(request);
+
+        return ResponseEntity.ok(fetchedRole);
 
     }
 
