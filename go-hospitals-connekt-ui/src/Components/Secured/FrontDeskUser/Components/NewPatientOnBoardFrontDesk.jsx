@@ -176,21 +176,11 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/bookApplication/${patientOnBoardData.id}`, {
-                    name: patientOnBoardData.name,
-                    age: patientOnBoardData.age,
-                    contact: patientOnBoardData.contact,
-                    gender: patientOnBoardData.gender,
-                    reasonForVisit: patientOnBoardData.reason,
-                    location: patientOnBoardData.location,
-                    billNo: patientOnBoardData.billNo,
-                    preferredDoctorName: patientOnBoardData.preferredDoctor,
-                    bookedBy: bookedByName
-                }, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/checkTheAppointmentIsAvailable/${patientOnBoardData.id}`, {
                     headers: {
-                        'Authorization': `Bearer ${access_token}`
+                        Authorization: `Bearer ${access_token}`
                     }
-                })
+                }); 
 
                 if ( response.status === 200 ){
 
@@ -198,8 +188,97 @@ const NewPatientOnBoardFrontDesk = () => {
 
                     console.log(responseData);
 
-                    toast.success("Patient Onboard Success", {
-                        duration: 1000,
+                    if ( responseData ){
+
+                        const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/bookApplication/${patientOnBoardData.id}`, {
+                            name: patientOnBoardData.name,
+                            age: patientOnBoardData.age,
+                            contact: patientOnBoardData.contact,
+                            gender: patientOnBoardData.gender,
+                            reasonForVisit: patientOnBoardData.reason,
+                            location: patientOnBoardData.location,
+                            billNo: patientOnBoardData.billNo,
+                            preferredDoctorName: patientOnBoardData.preferredDoctor,
+                            bookedBy: bookedByName
+                        }, {
+                            headers: {
+                                'Authorization': `Bearer ${access_token}`
+                            }
+                        })
+        
+                        if ( response.status === 200 ){
+        
+                            const responseData = response.data;
+        
+                            console.log(responseData);
+        
+                            toast.success("Patient Onboard Success", {
+                                duration: 1000,
+                                style: {
+                                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                                    color: '#fff', // Tailwind text-white
+                                    fontWeight: '600', // Tailwind font-semibold
+                                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                                    marginTop: '2.5rem' // Tailwind mt-10,
+                                }
+                            });
+        
+                            setPatientOnBoardDataPrint((prevElement) => ({
+                                ...prevElement,
+                                patientID : responseData,
+                                name: patientOnBoardData.name,
+                                age: patientOnBoardData.age
+                            }));
+        
+                            setPatientOnBoardData({
+                                name: '',
+                                age: '',
+                                contact: '',
+                                location: '',
+                                gender: '',
+                                medicalHistory: '',
+                                reason: '',
+                                preferredDoctor: '',
+                                billNo: '',
+                                aadharNumber: ''
+                            });
+        
+                            setPatientDetailsOnBoard((prevElement) => ({
+                                ...prevElement,
+                                newPatientOnBoardActivated: false
+                            }));
+        
+                            fetchPatientTemporaryData();
+        
+                            setTimeout(() => {
+        
+                                handlePrint();
+        
+                            }, 1500);
+        
+                        }
+
+                    }else {
+
+                        toast.error(`Already Filled or Not Found`, {
+                            duration: 2000,
+                            style: {
+                                backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                                color: '#fff', // Tailwind text-white
+                                fontWeight: '600', // Tailwind font-semibold
+                                borderRadius: '0.5rem', // Tailwind rounded-lg
+                                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                                marginTop: '2.5rem' // Tailwind mt-10,
+                            }
+                        });
+
+                    }
+
+                }else {
+
+                    toast.error(`Already Filled or Not Found`, {
+                        duration: 2000,
                         style: {
                             backgroundColor: '#1f2937', // Tailwind bg-gray-800
                             color: '#fff', // Tailwind text-white
@@ -210,46 +289,90 @@ const NewPatientOnBoardFrontDesk = () => {
                         }
                     });
 
-                    setPatientOnBoardDataPrint((prevElement) => ({
-                        ...prevElement,
-                        patientID : responseData,
-                        name: patientOnBoardData.name,
-                        age: patientOnBoardData.age
-                    }));
-
-                    setPatientOnBoardData({
-                        name: '',
-                        age: '',
-                        contact: '',
-                        location: '',
-                        gender: '',
-                        medicalHistory: '',
-                        reason: '',
-                        preferredDoctor: '',
-                        billNo: '',
-                        aadharNumber: ''
-                    });
-
-                    setPatientDetailsOnBoard((prevElement) => ({
-                        ...prevElement,
-                        newPatientOnBoardActivated: false
-                    }));
-
-                    fetchPatientTemporaryData();
-
-                    setTimeout(() => {
-
-                        handlePrint();
-
-                    }, 1500);
-
                 }
 
             }catch(error){
 
-                handleError(error);
+                console.error(error);
 
             }
+
+        //     try{
+
+        //         const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/bookApplication/${patientOnBoardData.id}`, {
+        //             name: patientOnBoardData.name,
+        //             age: patientOnBoardData.age,
+        //             contact: patientOnBoardData.contact,
+        //             gender: patientOnBoardData.gender,
+        //             reasonForVisit: patientOnBoardData.reason,
+        //             location: patientOnBoardData.location,
+        //             billNo: patientOnBoardData.billNo,
+        //             preferredDoctorName: patientOnBoardData.preferredDoctor,
+        //             bookedBy: bookedByName
+        //         }, {
+        //             headers: {
+        //                 'Authorization': `Bearer ${access_token}`
+        //             }
+        //         })
+
+        //         if ( response.status === 200 ){
+
+        //             const responseData = response.data;
+
+        //             console.log(responseData);
+
+        //             toast.success("Patient Onboard Success", {
+        //                 duration: 1000,
+        //                 style: {
+        //                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
+        //                     color: '#fff', // Tailwind text-white
+        //                     fontWeight: '600', // Tailwind font-semibold
+        //                     borderRadius: '0.5rem', // Tailwind rounded-lg
+        //                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+        //                     marginTop: '2.5rem' // Tailwind mt-10,
+        //                 }
+        //             });
+
+        //             setPatientOnBoardDataPrint((prevElement) => ({
+        //                 ...prevElement,
+        //                 patientID : responseData,
+        //                 name: patientOnBoardData.name,
+        //                 age: patientOnBoardData.age
+        //             }));
+
+        //             setPatientOnBoardData({
+        //                 name: '',
+        //                 age: '',
+        //                 contact: '',
+        //                 location: '',
+        //                 gender: '',
+        //                 medicalHistory: '',
+        //                 reason: '',
+        //                 preferredDoctor: '',
+        //                 billNo: '',
+        //                 aadharNumber: ''
+        //             });
+
+        //             setPatientDetailsOnBoard((prevElement) => ({
+        //                 ...prevElement,
+        //                 newPatientOnBoardActivated: false
+        //             }));
+
+        //             fetchPatientTemporaryData();
+
+        //             setTimeout(() => {
+
+        //                 handlePrint();
+
+        //             }, 1500);
+
+        //         }
+
+        //     }catch(error){
+
+        //         handleError(error);
+
+        //     }
 
         }else {
 
@@ -545,32 +668,72 @@ const NewPatientOnBoardFrontDesk = () => {
                                         <th>{appointment.newPatientOnBoardContact}</th>
                                         <th
                                             className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
-                                            onClick={() => {
+                                            onClick={async () => {
 
-                                                setPatientOnBoardData((prevElement) => {
+                                                try{
 
-                                                    const updatedPatientOnBoarddata = {...prevElement};
+                                                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/checkTheAppointmentIsAvailable/${appointment.id}`, {
+                                                        headers: {
+                                                            Authorization: `Bearer ${access_token}`
+                                                        }
+                                                    }); 
 
-                                                    updatedPatientOnBoarddata.id = appointment.id;
-                                                    updatedPatientOnBoarddata.name = appointment.newPatientOnBoardName;
-                                                    updatedPatientOnBoarddata.age = appointment.newPatientOnBoardAge;
-                                                    updatedPatientOnBoarddata.contact = appointment.newPatientOnBoardContact;
-                                                    updatedPatientOnBoarddata.aadharNumber = appointment.newPatientOnBoardAadharNumber;
-                                                    updatedPatientOnBoarddata.location = appointment.newPatientOnBoardLocation;
+                                                    if ( response.status === 200 ){
 
-                                                    return updatedPatientOnBoarddata;
+                                                        const responseData = response.data;
 
-                                                });
+                                                        console.log(responseData);
 
-                                                setPatientDetailsOnBoard((prevElement) => {
+                                                        if ( responseData ){
 
-                                                    const updatedData = {...prevElement};
+                                                            setPatientOnBoardData((prevElement) => {
 
-                                                    updatedData.newPatientOnBoardActivated = true;
+                                                                const updatedPatientOnBoarddata = {...prevElement};
+            
+                                                                updatedPatientOnBoarddata.id = appointment.id;
+                                                                updatedPatientOnBoarddata.name = appointment.newPatientOnBoardName;
+                                                                updatedPatientOnBoarddata.age = appointment.newPatientOnBoardAge;
+                                                                updatedPatientOnBoarddata.contact = appointment.newPatientOnBoardContact;
+                                                                updatedPatientOnBoarddata.aadharNumber = appointment.newPatientOnBoardAadharNumber;
+                                                                updatedPatientOnBoarddata.location = appointment.newPatientOnBoardLocation;
+            
+                                                                return updatedPatientOnBoarddata;
+            
+                                                            });
+            
+                                                            setPatientDetailsOnBoard((prevElement) => {
+            
+                                                                const updatedData = {...prevElement};
+            
+                                                                updatedData.newPatientOnBoardActivated = true;
+            
+                                                                return updatedData;
+            
+                                                            });
 
-                                                    return updatedData;
+                                                        }else {
 
-                                                });
+                                                            toast.error(`Already Filled or Not Found`, {
+                                                                duration: 2000,
+                                                                style: {
+                                                                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                                                                    color: '#fff', // Tailwind text-white
+                                                                    fontWeight: '600', // Tailwind font-semibold
+                                                                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                                                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                                                                    marginTop: '2.5rem' // Tailwind mt-10,
+                                                                }
+                                                            });
+
+                                                        }
+
+                                                    }
+
+                                                }catch(error){
+
+                                                    console.error(error);
+
+                                                }
 
                                             }}
                                         >
