@@ -268,7 +268,13 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                             }
                         
                             stompClient.send(`/app/sendRequestToFrontDeskCrossConsultation`, {}, JSON.stringify(sendToFrontDeskObjectModel));
+
+                            const notificationTypeModel = {
+                                notificationType: `CrossConsultationRefresh`
+                            }
                 
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
                             navigate('/medical-support-cross-consultation');
 
                         }
@@ -620,6 +626,14 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                                     {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITETREATMENT' && 'On Site Treatment'}
+
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medication Plus Follow Up'}
+
+                                    {patientData.consultationType === 'PHARMACY' && 'In Pharmacy'}
 
 
                                 </div>

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { IoPeopleCircleOutline, IoPersonAddSharp } from 'react-icons/io5';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const PharmacyLeftNavBar = () => {
 
@@ -111,6 +113,122 @@ const PharmacyLeftNavBar = () => {
 
     }, [pathName]);
 
+    useEffect(() => {
+
+        if ( access_token ){
+
+            if ( pathName !== `/pharmacy-pending-medications` ){
+
+                console.log(`Function is running in pharmacy left nav bar and the pathName is ${pathName}`);
+
+                checkPendingMedicationsRefreshFunction();
+
+            }
+
+        }
+
+    }, []);
+
+    const [leftNavBarRedBall, setLeftNavBarRedBall] = useState({
+        pendingMedications: false,
+        completedMedications: false
+    });
+
+    // Function to check pending medications
+    const checkPendingMedicationsRefreshFunction = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/checkPendingMedicationsRefresh`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                if ( responseData ){
+
+                    setLeftNavBarRedBall((prevElement) => {
+    
+                        const updatedData = {...prevElement};
+
+                        updatedData.pendingMedications = true;
+
+                        return updatedData;
+
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    const newNotificationReceived = (message) => {
+
+        const messageObject = JSON.parse(message.body);
+
+        if ( pathName !== `/pharmacy-pending-medications` ){
+
+            if ( messageObject.notificationType === `PendingMedicationsRefresh` ){
+
+                console.log(`\n\n\nFunction running inside messageObject.notificationType\n\n\n`);
+
+                checkPendingMedicationsRefreshFunction();
+
+            }
+
+        }
+
+    }
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => newNotificationReceived(message));
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
+
     return (
 
         <>
@@ -120,8 +238,26 @@ const PharmacyLeftNavBar = () => {
                 <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                     <div 
-                        className={`${pendingMedications1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                        onClick={() => navigate('/pharmacy-pending-medications')}
+                        className={`${pendingMedications1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                        onClick={() => {
+
+                            if ( leftNavBarRedBall.pendingMedications ){
+
+                                setLeftNavBarRedBall((prevElement) => {
+
+                                    const updatedData = {...prevElement};
+        
+                                    updatedData.pendingMedications = false;
+        
+                                    return updatedData;
+        
+                                });
+
+                            }
+
+                            navigate('/pharmacy-pending-medications');
+
+                        }}
                     >
 
                         <div className="">
@@ -138,10 +274,12 @@ const PharmacyLeftNavBar = () => {
 
                         </div>
 
+                        {leftNavBarRedBall.pendingMedications && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
                     </div>
 
                     <div 
-                        className={`${completedMedication1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                        className={`${completedMedication1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                         onClick={() => navigate('/pharmacy-completed-medications')}
                     >
 
@@ -158,6 +296,8 @@ const PharmacyLeftNavBar = () => {
                             Completed Medications
 
                         </div>
+
+                        {leftNavBarRedBall.completedMedications && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                     </div>
 

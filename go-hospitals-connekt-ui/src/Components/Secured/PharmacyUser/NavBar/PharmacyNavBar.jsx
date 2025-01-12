@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
 import { Toaster } from 'react-hot-toast';
 import { toast } from 'react-toastify';
 import { HiOutlineLogout, HiOutlineSpeakerphone } from 'react-icons/hi';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const PharmacyNavBar = () => {
 
@@ -133,7 +133,7 @@ const PharmacyNavBar = () => {
 
         try{
 
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchNotificationByUserId`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -142,6 +142,8 @@ const PharmacyNavBar = () => {
             if ( response.status === 200 ){
 
                 const notificationData = response.data;
+
+                console.log(notificationData);
 
                 setNotificationArray(notificationData);
 
@@ -181,35 +183,37 @@ const PharmacyNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        // if ( notificationStatus === 'BOOKAPPOINTMENT' ){
+        console.log(notificationStatus);
 
-        //     navigate(`/medical-support-consultation-queue/${applicationID}`);
+        if ( notificationStatus === 'PHARMACYPROFILE' ){
 
-        //     setNotificationsVisible(false);
+            navigate(`/pharmacy-profiles/${applicationID}`);
 
-        //     try{
+            setNotificationsVisible(false);
 
-        //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/setNotificationReadByNotificationId/${notificationID}`, {
-        //             headers: {
-        //                 Authorization: `Bearer ${access_token}`
-        //             }
-        //         });
+            try{
 
-        //         if ( response.status === 200 ){
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/setNotificationReadByNotificationId/${notificationID}`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
 
-        //             const responseData = response.data;
+                if ( response.status === 200 ){
 
-        //             fetchNotifications();                    
+                    const responseData = response.data;
 
-        //         }
+                    fetchNotifications();                    
 
-        //     }catch(error){
+                }
 
-        //         console.error(error);
+            }catch(error){
 
-        //     }
+                console.error(error);
 
-        // }
+            }
+
+        }
 
     }
 
@@ -273,45 +277,47 @@ const PharmacyNavBar = () => {
     }, [notificationArray]);
 
     // Function to run when the new notification received
-    const newNotificationReceived = (message) => {
+    const newNotificationFunction = (message) => {
 
-        const messageObject = JSON.parse(message.body);
+        const messageobject = JSON.parse(message.body);
+
+        console.log(messageobject);
+
+        if ( messageobject.notificationType === `PendingMedicationsRefresh` ){
+
+            console.log("\n\n\nNotification Type :" + messageobject.notificationType);
+
+            fetchNotifications();
+
+        }
 
     }
 
-    // State to store stompClient
-    const [stompClient, setStompClient] = useState(null);
-
-    // Connect to websockets when the component mounts with useEffect hook
+    // useEffect Hook to handle websockets
     useEffect(() => {
 
-        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
-        const client = Stomp.over(() => sock);
-
-        setStompClient(client);
+        const socket = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => socket);
 
         client.connect(
             {},
             () => {
 
-                // client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+                console.log(`Connection Successfull`);
+
+                client.subscribe(`/common/commonFunction`, (message) => newNotificationFunction(message));
 
             },
-            () => {
+            (error) => {
 
                 console.error(error);
-        
+
             }
         );
 
-        // Disconnect on page unmount
         return () => {
 
-            if ( client ){
-
-                client.disconnect();
-
-            }
+            client.disconnect();
 
         }
 
@@ -412,7 +418,7 @@ const PharmacyNavBar = () => {
                                                         key={notification.id}
                                                     >
 
-                                                        {role === medicalSupportUser && (
+                                                        {role === pharmacy && (
 
                                                             <div 
                                                                 className={`py-3 mx-2 px-2 text-base rounded-lg ${notification.read ? '' : 'bg-sky-900'} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}

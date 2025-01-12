@@ -248,4 +248,42 @@ public class FrontDeskController {
 
     }
 
+    @GetMapping("/checkTemporaryDataAvailableForNewPatientOnBoardPage")
+    public ResponseEntity<Boolean> checkTemporaryDataAvailableForNewPatientOnBoardPage(){
+
+        Boolean fetchBooleanValue = frontDeskService.checkTemporaryDataAvailableForNewPatientOnBoardPage();
+
+        return ResponseEntity.ok(fetchBooleanValue);
+
+    }
+
+    @GetMapping("/deleteTemporaryAppointmentById/{appointmentID}")
+    public ResponseEntity<Boolean> deleteTemporaryAppointmentById(
+            @PathVariable("appointmentID") Long appointmentID
+    ){
+
+        Boolean fetchedBooleanValue = frontDeskService.deleteTemporaryAppointmentById(appointmentID);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/checkCrossConsultationAvailableOrNot")
+    public ResponseEntity<Boolean> checkCrossConsultationAvailableOrNot(){
+
+        Boolean fetchedBooleanValue = frontDeskService.checkCrossConsultationAvailableOrNot();
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/checkFollowUpPatientAvailableOrNot")
+    public ResponseEntity<Boolean> checkFollowUpPatientAvailableOrNot(){
+
+        Boolean fetchedBooleanValue = frontDeskService.checkFollowUpPatientAvailableOrNot();
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
 }

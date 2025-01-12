@@ -1,8 +1,10 @@
 package com.Go_Work.Go_Work.Controller.Secured.PHARMACY;
 
+import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
+import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
@@ -101,6 +103,39 @@ public class PharmacyController {
         String fetchedRole = pharmacyService.fetchUserRole(request);
 
         return ResponseEntity.ok(fetchedRole);
+
+    }
+
+    @GetMapping("/checkPendingMedicationsRefresh")
+    public ResponseEntity<Boolean> checkPendingMedicationsRefresh(){
+
+        Boolean booleanValue = pharmacyService.checkPendingMedicationsRefresh();
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @GetMapping("/setNotificationReadByNotificationId/{notificationId}")
+    public ResponseEntity<String> setNotificationReadByNotificationId(
+            @PathVariable("notificationId") Long id
+    ) throws NotificationNotFoundException {
+
+        String message = pharmacyService.setNotificationReadByNotificationId(id);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/fetchNotificationByUserId")
+    public ResponseEntity<List<Notification>> fetchNotificationByUserId(
+            HttpServletRequest request
+    ){
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        List<Notification> fetchedNotifications = pharmacyService.fetchNotificationByUserId(jwtToken);
+
+        return ResponseEntity.ok(fetchedNotifications);
 
     }
 

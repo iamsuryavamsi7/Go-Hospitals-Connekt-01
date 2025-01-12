@@ -101,7 +101,6 @@ public class WebSocketService {
         fetchedApplication.setApplicationCompletedTime(null);
         fetchedApplication.setPaymentDone(false);
         fetchedApplication.setPatientGotApproved(true);
-        fetchedApplication.setMedicationPlusFollowUp(false);
         fetchedApplication.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
         fetchedApplication.setReasonForVisit(acceptCrossConsultationModel.getReasonForVisit());
         fetchedApplication.setPreferredDoctorName(acceptCrossConsultationModel.getDoctorName());

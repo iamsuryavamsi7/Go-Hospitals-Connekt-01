@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,12 +59,13 @@ public class Applications {
 
     private boolean isPatientGotApproved;
 
+    private LocalDate nextFollowUpDate;
+    private Boolean isMedicationPlusFollow;
+
     private boolean treatmentDone;
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
-
-    private boolean isMedicationPlusFollowUp;
 
     private String patientAdmitMessage;
 
@@ -88,6 +90,8 @@ public class Applications {
     private Date teleSupportUserAssignedTime;
 
     private boolean teleSupportConsellingDone;
+
+    private Date pharmacyGoingTime;
 
     @OneToMany(
             mappedBy = "application",

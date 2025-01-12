@@ -8,6 +8,8 @@ import { CgDetailsMore } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom'; 
 import { Toaster, toast } from 'react-hot-toast';
 import { FaUserDoctor } from 'react-icons/fa6';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const LeftNavBarFrontDesk = () => {
 
@@ -28,7 +30,7 @@ const LeftNavBarFrontDesk = () => {
         role: ``
     }); 
 
-    const fetchUserObject = async () => {
+    const fetchUserRole = async () => {
 
         try{
 
@@ -118,12 +120,33 @@ const LeftNavBarFrontDesk = () => {
     // FrontDesk role type
     const frontDesk = 'FRONTDESK';
 
+    // PathName to have hold on page change with URL's
+    const pathName = window.location.pathname;
+
     // Performing tasks when the page mounts with useEffect Hook
     useEffect(() => {
 
         if ( access_token ){
 
-            fetchUserObject();
+            fetchUserRole();
+
+            if( pathName !== `/front-desk-new-patient-on-board`){
+
+                checkNewPatientOnBoardPage();
+
+            }
+
+            if ( pathName !== `/front-desk-cross-consultation-approvals` ){
+
+                checkCrossConsultationAvailableOrNot();
+
+            }
+
+            if ( pathName !== `/front-desk-follow-up` ){
+
+                checkFollowUpPatientAvailableOrNot();
+
+            }
 
         }else {
 
@@ -160,9 +183,6 @@ const LeftNavBarFrontDesk = () => {
     const [crossConsultationApprovals, setCrossConsultationApprovals] = useState(`text-gray-400`);
 
     const [crossConsultationApprovals2, setCrossConsultationApprovals2] = useState(`text-gray-400`);
-
-    // PathName to have hold on page change with URL's
-    const pathName = window.location.pathname;
 
     useEffect(() => {
 
@@ -257,6 +277,214 @@ const LeftNavBarFrontDesk = () => {
 
     }, [moreButtonActivated]);
 
+    // State to handle incomplete work status
+    const [leftNavBarRedBall, setLeftNavBarRedBall] = useState({
+        newPatientOnBoarding: false,
+        consultationQueue: false,
+        patientApprovals: false,
+        followUpPatients: false,
+        crossConsultation: false
+    });
+
+    // Function to run to check the new patient page data is available or not
+    const checkNewPatientOnBoardPage = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/checkTemporaryDataAvailableForNewPatientOnBoardPage`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    setLeftNavBarRedBall((prevElement) => {
+
+                        const updatedData = {...prevElement};
+
+                        updatedData.newPatientOnBoarding = true;
+
+                        return updatedData;
+
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when patient onbaord data received through websockets
+    const newPatientOnBoardDataReceived = (message) => {
+
+        const messageBody = JSON.parse(message.body);
+
+        const pathname2 = window.location.pathname;
+
+        // Check we are in the same URL or not
+        if ( pathname2 !== `/front-desk-new-patient-on-board` ){
+
+            console.log(`\n\n\nCurrent PathName : ${pathName}\n\n\n`);
+
+            // Check the data if only its value is false
+            if ( !leftNavBarRedBall.newPatientOnBoarding ){
+
+                console.log(leftNavBarRedBall.newPatientOnBoarding);
+
+                checkNewPatientOnBoardPage();
+
+            }
+
+        }
+
+    }
+
+    const checkCrossConsultationAvailableOrNot = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/checkCrossConsultationAvailableOrNot`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    setLeftNavBarRedBall((prevElement) => {
+
+                        const updatedData = {...prevElement};
+
+                        updatedData.crossConsultation = true;
+
+                        return updatedData;
+
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+
+    }
+
+    const checkFollowUpPatientAvailableOrNot = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/checkFollowUpPatientAvailableOrNot`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    setLeftNavBarRedBall((prevElement) => {
+
+                        const updatedData = {...prevElement};
+
+                        updatedData.followUpPatients = true;
+
+                        return updatedData;
+
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to check refresh method
+    const leftNavBarRefreshFunction = (message) => {
+
+        const messageBody = JSON.parse(message.body);
+
+        if ( messageBody.notificationType === `CrossConsultationRefresh` ){
+
+            checkCrossConsultationAvailableOrNot();
+
+        }
+
+        if ( messageBody.notificationType === `RefreshMedicationPlusFollowUpPage` ){
+
+            checkFollowUpPatientAvailableOrNot();
+
+        }
+
+    } 
+
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/frontDeskOnBoardPublicPage/public-page-frontDesk-onboard`, (message) => newPatientOnBoardDataReceived(message));
+        
+                client.subscribe(`/common/commonFunction`, (message) => leftNavBarRefreshFunction(message));
+
+            },
+            () => {
+
+                console.error(error); 
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
+
     return (
 
         <>
@@ -268,8 +496,22 @@ const LeftNavBarFrontDesk = () => {
                     <div className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                         <div 
-                            className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/front-desk-new-patient-on-board')}
+                            className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => {
+
+                                setLeftNavBarRedBall((prevElement) => {
+
+                                    const updatedData = {...prevElement};
+
+                                    updatedData.newPatientOnBoarding = false;
+
+                                    return updatedData;
+
+                                });
+
+                                navigate('/front-desk-new-patient-on-board')
+
+                            }}
                         >
 
                             <div className="">
@@ -286,10 +528,12 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
+                            {leftNavBarRedBall.newPatientOnBoarding && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
                         </div>
 
                         <div 
-                            className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-consultation-queue')}
                         >
 
@@ -307,10 +551,12 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
+                            {leftNavBarRedBall.consultationQueue && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
                         </div>
 
                         <div 
-                            className={`${patientApprovals1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            className={`${patientApprovals1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-patient-approvals')}
                         >
 
@@ -329,11 +575,27 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
+                            {leftNavBarRedBall.patientApprovals && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
                         </div>
 
                         <div 
-                            className={`${followUpPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/front-desk-follow-up')}
+                            className={`${followUpPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => {
+
+                                setLeftNavBarRedBall((prevElement) => {
+
+                                    const updatedData = {...prevElement};
+
+                                    updatedData.followUpPatients = false;
+
+                                    return updatedData;
+
+                                });
+
+                                navigate('/front-desk-follow-up')
+
+                            }}
                         >
 
 
@@ -351,11 +613,27 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
+                            {leftNavBarRedBall.followUpPatients && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
                         </div>
 
                         <div 
-                            className={`${crossConsultationApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/front-desk-cross-consultation-approvals')}
+                            className={`${crossConsultationApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => {
+
+                                setLeftNavBarRedBall((prevElement) => {
+
+                                    const updatedData = {...prevElement};
+
+                                    updatedData.crossConsultation = false;
+
+                                    return updatedData;
+
+                                });
+
+                                navigate('/front-desk-cross-consultation-approvals');
+
+                            }}
                         >
 
 
@@ -367,11 +645,13 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
-                            <div className="">
+                            <div className="whitespace-nowrap">
 
-                                Cross Consultation Approvals
+                                Cross Consultation
 
                             </div>
+
+                            {leftNavBarRedBall.crossConsultation && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                         </div>
 

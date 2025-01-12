@@ -1,13 +1,12 @@
 package com.Go_Work.Go_Work.Service.Secured.PHARMACY;
 
-import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.*;
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
-import com.Go_Work.Go_Work.Entity.ImageUrls;
-import com.Go_Work.Go_Work.Entity.Notification;
-import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.AppointmentNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
+import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
@@ -20,9 +19,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,6 +51,18 @@ public class PharmacyService {
         BeanUtils.copyProperties(fetchedApplication, application1);
 
         User fetchedMedicalSupportUserDetails = fetchedApplication.getMedicalSupportUser();
+
+        if ( !fetchedApplication.getBills().isEmpty() ){
+
+            Bills latestBill = fetchedApplication.getBills()
+                    .stream()
+                    .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                    .findFirst()
+                    .orElse(null);
+
+            application1.setBillNo(latestBill.getBillNo());
+
+        }
 
         if ( fetchedMedicalSupportUserDetails != null ){
 
@@ -80,12 +93,22 @@ public class PharmacyService {
         fetchedApplication.setPaymentDone(true);
         fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
-        fetchedApplication.setConsultationType(ConsultationType.COMPLETED);
+
+        if ( fetchedApplication.getIsMedicationPlusFollow() ){
+
+            fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        }else {
+
+            fetchedApplication.setConsultationType(ConsultationType.COMPLETED);
+
+        }
+
         fetchedApplication.setPharmacyMessage(pharmacyMessage);
 
         applicationsRepo.save(fetchedApplication);
 
-        if ( fetchedApplication.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP) ) {
+        if ( fetchedApplication.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED) ) {
 
             userRepo.findAll()
                     .stream()
@@ -94,11 +117,12 @@ public class PharmacyService {
 
                         Notification notification = new Notification();
 
-                        notification.setMessage("Application Completed !");
+                        notification.setMessage("New Follow Up Patient Added !");
                         notification.setUser(user1);
                         notification.setRead(false);
                         notification.setTimeStamp(new Date(System.currentTimeMillis()));
                         notification.setApplicationId(fetchedApplication.getId());
+                        notification.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
 
                         user1.getNotifications().add(notification);
 
@@ -193,12 +217,25 @@ public class PharmacyService {
 
         return applicationsPage
                 .stream()
-                .filter(applications -> applications.isTreatmentDone() && !applications.isPaymentDone())
+                .filter(applications -> applications.getConsultationType().equals(ConsultationType.PHARMACY))
+                .sorted(Comparator.comparing(Applications::getPharmacyGoingTime).reversed())
                 .map(application1 -> {
 
                     ApplicationsResponseModel application = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(application1, application);
+
+                    if ( !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp))
+                                .findFirst()
+                                .orElse(null);
+
+                        application.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
 
@@ -223,6 +260,50 @@ public class PharmacyService {
         );
 
         return fetchedFrontDeskUser.getRole().name();
+
+    }
+
+    public Boolean checkPendingMedicationsRefresh() {
+
+        List<Applications> fetchedApplications = applicationsRepo.findAll();
+
+        if ( !fetchedApplications.isEmpty() ){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public String setNotificationReadByNotificationId(Long id) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(id).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found")
+        );
+
+        fetchedNotification.setRead(true);
+
+        notificationRepo.save(fetchedNotification);
+
+        return "Notification Read Updated Successfully";
+
+    }
+
+    public List<Notification> fetchNotificationByUserId(String jwtToken) {
+
+        String userEmail = jwtService.extractUserName(jwtToken);
+
+        User user = userRepo.findByEmail(userEmail).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        );
+
+        return user.getNotifications()
+                .stream()
+                .sorted(Comparator.comparing(Notification::getTimeStamp).reversed())
+                .limit(50)
+                .toList();
 
     }
 

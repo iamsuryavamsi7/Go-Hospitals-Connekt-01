@@ -1,17 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { IoCloseCircleSharp } from 'react-icons/io5';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+import DatePicker from 'react-datepicker';
 
 const MedicalPlusFollowUpProfile = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
+
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
 
     const [userObject, setUserObject] = useState(null);
 
@@ -22,6 +31,8 @@ const MedicalPlusFollowUpProfile = () => {
     const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
 
     const [treatmentDone, steTreatmentDone] = useState(``);
+
+    const [nextMedicationDate, setNextMedicationDate] = useState(``);
 
     const [patientData, setPatientData] = useState({
         id: id,
@@ -38,17 +49,17 @@ const MedicalPlusFollowUpProfile = () => {
         appointmentFinished: ''
     });
 
-    const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
+    // const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
 
     const roles = {
         medicalSupport: 'MEDICALSUPPORT',
     }
 
     // Your patient data
-    const patientCreatedOn = {
-    appointmentCreatedOn: "2024-10-20T09:36:33.702+00:00",
-    // other data...
-    };
+    // const patientCreatedOn = {
+    // appointmentCreatedOn: "2024-10-20T09:36:33.702+00:00",
+    // // other data...
+    // };
   
     // Convert to Date object
     const appointmentDate = new Date(patientData.appointmentCreatedOn);
@@ -63,10 +74,10 @@ const MedicalPlusFollowUpProfile = () => {
         hour12: true // for AM/PM format
     };
     
-    const formattedDate = appointmentDate.toLocaleString('en-US', options);
+    // const formattedDate = appointmentDate.toLocaleString('en-US', options);
     
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -93,7 +104,7 @@ const MedicalPlusFollowUpProfile = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -121,7 +132,7 @@ const MedicalPlusFollowUpProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -130,6 +141,8 @@ const MedicalPlusFollowUpProfile = () => {
             if ( response.status === 200 ){
 
                 const appointmentData = response.data;
+
+                // console.log(appointmentData);
 
                 setPatientData(appointmentData);
 
@@ -153,6 +166,8 @@ const MedicalPlusFollowUpProfile = () => {
     
     };
 
+    const calendarRef = useRef();
+
     const handleSubmit = async (e) => {
         
         e.preventDefault();
@@ -169,62 +184,77 @@ const MedicalPlusFollowUpProfile = () => {
         });
 
         formData.append("prescriptionMessage", treatmentDone);
+        formData.append("nextMedicationDate", nextMedicationDate);
 
-        try {
+        if ( nextMedicationDate !== null && nextMedicationDate !== `` ){
 
-          // Send the form data to the backend
-          const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
-            headers: {
-                'Authorization': `Bearer ${access_token}`,
-                'Content-Type': `multipart/form-data`
-            },
-          });
+            try {
 
-          if ( response.status === 200 ){
-
-            toast.success("Treatment Completed", {
-                duration: 1000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-right'
-            });
-
-            steTreatmentDone(``);
-
-            setImage([]);
-
-            setTreatMentDoneVisible(false);
-
-            fetchAppointmentData();
-
-          }
-
-        } catch (error) {
+                // Send the form data to the backend
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                        'Content-Type': `multipart/form-data`
+                    },
+                });
         
-            handleError(error);
-
-            toast.error("File size exceeded", {
-                duration: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
-
-            setImage([]);
+                if ( response.status === 200 ){
         
-        }
+                    toast.success("Treatment Completed", {
+                        duration: 1000,
+                        style: {
+                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                            color: '#fff', // Tailwind text-white
+                            fontWeight: '600', // Tailwind font-semibold
+                            borderRadius: '0.5rem', // Tailwind rounded-lg
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                            marginTop: '2.5rem' // Tailwind mt-10,
+                        },
+                        position: 'top-right'
+                    });
+        
+                    steTreatmentDone(``);
+        
+                    setImage([]);
+        
+                    setTreatMentDoneVisible(false);
+        
+                    fetchAppointmentData();
+        
+                    if ( stompClient !== null ){
+                    
+                        const notificationTypeModel = {
+                            notificationType: `PendingMedicationsRefresh`
+                        }
+            
+                        stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+        
+                    }
+        
+                }
+        
+            } catch (error) {
+            
+                handleError(error);
+    
+                toast.error("File size exceeded", {
+                    duration: 2000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    },
+                    position: 'top-center'
+                });
+    
+                setImage([]);
+            
+            }
+
+        } 
 
     };
 
@@ -238,11 +268,49 @@ const MedicalPlusFollowUpProfile = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, `_self`);
 
         }
 
     }, [id]);
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connection Successfull`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 
@@ -286,6 +354,22 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.patientId}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Age
 
                                 </div>
@@ -318,22 +402,6 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Gender
 
                                 </div>
@@ -341,22 +409,6 @@ const MedicalPlusFollowUpProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -421,22 +473,6 @@ const MedicalPlusFollowUpProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.medicalSupportUserName}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Appointment Created On
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {formattedDate}
 
                                 </div>
 
@@ -533,7 +569,7 @@ const MedicalPlusFollowUpProfile = () => {
                             >
 
                                 <form 
-                                    className="block relative bg-gray-900 text-xl rounded-2xl border-[1px] border-gray-800"
+                                    className="block relative bg-gray-900 rounded-2xl border-[1px] border-gray-800 py-5"
                                     onSubmit={handleSubmit}
                                 >
                                 
@@ -562,26 +598,57 @@ const MedicalPlusFollowUpProfile = () => {
                                         className="px-10 transition-all duration-200 cursor-pointer"
                                     >
 
-                                        <label className='text-xs'>Upload the prescription <span className='text-red-400'>*</span></label><br />
+                                        <label className='text-xs'>Upload prescription <span className='text-red-400'>*</span></label><br />
 
-                                        <input 
-                                            type="file"
-                                            accept="image/*"
-                                            capture="environment" // opens the camera on mobile devices
-                                            onChange={(e) => handleCapture(e)}
-                                            multiple // Allows multiple file selection
-                                            className='mt-2 mb-5 cursor-pointer'
-                                            id='fileInput'
-                                        /><br />
+                                        <div className="mt-3">
 
-                                        <label htmlFor="fileInput" className="mt-2 cursor-pointer bg-gray-800 text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
-                                            Add More
-                                        </label>
+                                            <input 
+                                                type="file"
+                                                accept="image/*"
+                                                capture="environment" // opens the camera on mobile devices
+                                                onChange={(e) => handleCapture(e)}
+                                                multiple // Allows multiple file selection
+                                                className='mt-2 mb-5 cursor-pointer hidden'
+                                                id='fileInput'
+                                            />
+
+                                            <label 
+                                                htmlFor='fileInput'
+                                                className="cursor-pointer bg-gray-800 text-sm text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
+                                                    Upload
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div 
+                                        className="mt-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                    >
+                                        
+                                        <label className='text-xs'>Next Consultation Date</label><br />
+
+                                        <div className="relative inline-block">
+
+                                            <input 
+                                                type='date'
+                                                className='bg-sky-300 text-black border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                value={treatmentDone}
+                                                onChange={(e) => {
+
+                                                    const value = e.target.value;
+
+                                                    setNextMedicationDate(value);
+
+                                                }}
+                                            />
+                                            
+                                        </div>
 
                                     </div>
 
                                     <button 
-                                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        className='bg-[#238636] mx-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
                                         type='submit'
                                     >
                                         Submit

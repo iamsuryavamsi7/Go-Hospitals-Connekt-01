@@ -21,7 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/frontDeskOnBoardPublicPage",
+        registry.enableSimpleBroker(
+                "/common",
+                "/frontDeskOnBoardPublicPage",
                 "/medicalSupportUserNotification",
                 "/frontDeskUserNotification",
                 "/user");

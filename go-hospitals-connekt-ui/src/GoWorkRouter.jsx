@@ -118,13 +118,13 @@ function GoWorkRouter() {
 						<Route path='/medical-support-consultation-queue-current-job/:id' element={<MyJobsConsulationProfileMedicalSupport />} />
 						<Route path='/medical-support-on-site-treatement' element={<OnSiteTreatement />}/>
 						<Route path='/medical-support-medication-plus-follow-up' element={<MedicationPlusFollowUp />}/>
+						<Route path='/medical-support-medical-plus-follow-up-profile/:id' element={<MedicalPlusFollowUpProfile />}/>
 						<Route path='/medical-support-surgery-care' element={<SurgeryCare />}/>
 						<Route path='/medical-support-cross-consultation' element={<CrossConsulation />}/>
 						<Route path='/medical-support-patient-admit' element={<PatientAdmit />}/>
 						<Route path='/medical-support-onsite-treatment-profile/:id' element={<OnSiteTreatmentProfile />}/>
-						<Route path='/medical-support-medical-plus-follow-up-profile/:id' element={<MedicalPlusFollowUpProfile />}/>
 						<Route path='/medical-support-surgery-care-profile/:id' element={<SurgeryCareProfile />}/>
-						<Route path='/medical-support-pharmacy-profile/:id' element={<PharmacyProfile />}/>
+						{/* <Route path='/medical-support-pharmacy-profile/:id' element={<PharmacyProfile />}/> */}
 						<Route path='/medical-support-patient-admit-profile/:id' element={<PatientAdmitProfile />}/>
 						<Route path='/medical-support-cross-consultation-profile/:id' element={<CrossConsultationProfile />}/>
 					</Route>

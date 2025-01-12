@@ -225,6 +225,15 @@ const FrontDeskRegister = () => {
                                     name='firstName'
                                     value={userData.firstName}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Last Name</label><br />
@@ -234,6 +243,15 @@ const FrontDeskRegister = () => {
                                     name='lastName'
                                     value={userData.lastName}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> E-mail Address</label><br />
@@ -243,6 +261,15 @@ const FrontDeskRegister = () => {
                                     name='email'
                                     value={userData.email}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Password</label><br />
@@ -252,6 +279,15 @@ const FrontDeskRegister = () => {
                                     name='password'
                                     value={userData.password}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Confirm Password</label><br />
@@ -261,6 +297,15 @@ const FrontDeskRegister = () => {
                                     name='conformPassword'
                                     value={userData.conformPassword}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <button

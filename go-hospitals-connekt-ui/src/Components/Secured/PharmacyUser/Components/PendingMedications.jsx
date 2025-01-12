@@ -3,19 +3,25 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const PendingMedications = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
-
-    const [userObject, setUserObject] = useState(null);
 
     const [inCompleteApplications, setInCompleteApplications] = useState([]);
 
@@ -29,7 +35,7 @@ const PendingMedications = () => {
         pharmacy: 'PHARMACYCARE'
     }
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -48,11 +54,11 @@ const PendingMedications = () => {
 
     }
 
-    const fetchIncompleteApplications = async () => {
+    const fetchPharmacyApplications = async () => {
         
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyMedicationsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchAllPharmacyMedicationsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -62,8 +68,6 @@ const PendingMedications = () => {
 
                 let appointmentsData = response.data;
 
-                console.log(appointmentsData);
-
                 if ( appointmentsData.length === 0 ){
 
                     return false;
@@ -72,16 +76,7 @@ const PendingMedications = () => {
 
                 setIsLastPage(appointmentsData.length < pageSize);
 
-                appointmentsData = appointmentsData.sort((a, b) => {
-                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
-                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
-
-                    return aHasSupportUser - bHasSupportUser;
-                });
-
                 setInCompleteApplications(appointmentsData);
-
-                console.log("Finished")
 
                 return true;
     
@@ -96,15 +91,11 @@ const PendingMedications = () => {
 
     };
 
-    const fetchUserObject = async () => {
-
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
+    const fetchUserRole = async () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchUserRole`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -112,11 +103,9 @@ const PendingMedications = () => {
 
             if ( response.status === 200 ){
 
-                const userObject = response.data;
+                const userRole = response.data;
 
-                setRole(userObject.role);
-
-                setUserObject(userObject);
+                setRole(userRole);
 
             }
 
@@ -128,11 +117,44 @@ const PendingMedications = () => {
 
     }
 
+    const fetchPharmacyApplications2 = async (page) => {
+        
+        try {
+            
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchAllPharmacyMedicationsPaging/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                let appointmentsData = response.data;
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                return true;
+    
+            }
+
+        } catch (error) {
+        
+            handleError(error);
+
+            return false;
+        }
+
+    };
+
     const nextPage = async () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchIncompleteApplications(page + 1);
+            const hasPage = await fetchPharmacyApplications2(page + 1);
 
             if ( hasPage ){
 
@@ -160,13 +182,13 @@ const PendingMedications = () => {
 
         if ( access_token ){
 
-            fetchUserObject();
+            fetchUserRole();
 
-            fetchIncompleteApplications();
+            fetchPharmacyApplications();
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
@@ -174,9 +196,59 @@ const PendingMedications = () => {
 
     useEffect(() => {
 
-        fetchIncompleteApplications();
+        fetchPharmacyApplications();
 
     }, [page]);
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => {
+
+                    const messageObject = JSON.parse(message.body);
+
+                    console.log(messageObject);
+
+                    if ( messageObject.notificationType === `PendingMedicationsRefresh` ){
+
+                        fetchPharmacyApplications();
+
+                    }
+
+                });
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 
@@ -241,7 +313,7 @@ const PendingMedications = () => {
                                                 className='text-left leading-10 text-base border-b-[.5px] border-gray-800 text-gray-400'
                                             >
 
-                                                <th>{index + 1}</th>
+                                                <th>{(page * pageSize) + (index + 1)}</th>
 
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>

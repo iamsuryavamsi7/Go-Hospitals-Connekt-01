@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 import { IoPersonAddSharp } from 'react-icons/io5';
 import { FaBriefcaseMedical, FaHospitalUser, FaStethoscope, FaTasks } from 'react-icons/fa';
 import { TbExchange } from 'react-icons/tb';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const MedicalSupportUserLeftNavBar = () => {
 
@@ -53,12 +55,21 @@ const MedicalSupportUserLeftNavBar = () => {
 
     }
 
+    // Pathname to get the hold on page change
+    const pathName = window.location.pathname;
+
     // Running required functions when the component mounts
     useEffect(() => {
 
         if ( access_token ){
 
             setUserRole();
+
+            if ( pathName !== `/medical-support-consulation-queue` ){
+
+                checkWaitingPatientsAreAvailableOrNot();
+
+            }
 
         }else {
 
@@ -67,9 +78,6 @@ const MedicalSupportUserLeftNavBar = () => {
         }
 
     }, []);
-
-    // Pathname to get the hold on page change
-    const pathName = window.location.pathname;
 
     // States to manage left nav bar style
     const [consulationQueueMedical1, setConsulationQueueMedical1] = useState(`text-gray-400`);
@@ -184,7 +192,7 @@ const MedicalSupportUserLeftNavBar = () => {
             setCrossConsultation1(`text-gray-400`);
 
             setCrossConsultation2(`text-gray-400`);            
-
+ 
         }
 
         if ( pathName === `/medical-support-patient-admit`){
@@ -203,6 +211,95 @@ const MedicalSupportUserLeftNavBar = () => {
 
     }, [pathName]);
 
+    // State to handle incomplete work status
+    const [leftNavBarRedBall, setLeftNavBarRedBall] = useState({
+        waitingPatients: false,
+    });
+
+    // Function to run when new notification received
+    const checkWaitingPatientsAreAvailableOrNot = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/checkWaitingPatientsAreAvailableOrNot`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    setLeftNavBarRedBall((prevElement) => {
+
+                        const updatedData = {...prevElement};
+
+                        updatedData.waitingPatients = true;
+
+                        return updatedData;
+
+                    });
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when the new notification received
+    const newNotificationFunction = (message) => {
+
+        const messageobject = JSON.parse(message.body);
+
+        if ( messageobject.notificationType === `WaitingPatientsRefreshLeftNavBar` ){
+
+            if ( pathName !== `/medical-support-consulation-queue` ){
+
+                checkWaitingPatientsAreAvailableOrNot();
+
+            }
+
+        }
+
+    }
+
+    // useEffect Hook to handle websockets
+    useEffect(() => {
+
+        const socket = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => socket);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => newNotificationFunction(message));
+
+            },
+            (error) => {
+
+                console.error(error);
+
+            }
+        );
+
+        return () => {
+
+            client.disconnect();
+
+        }
+
+    }, []);
+
     return (
 
         <>
@@ -212,8 +309,22 @@ const MedicalSupportUserLeftNavBar = () => {
                 <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                     <div 
-                        className={`${consulationQueueMedical1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                        onClick={() => navigate('/medical-support-consulation-queue')}
+                        className={`${consulationQueueMedical1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                        onClick={() => {
+
+                            setLeftNavBarRedBall((prevElement) => {
+
+                                const updatedData = {...prevElement};
+
+                                updatedData.waitingPatients = false;
+
+                                return updatedData;
+
+                            });
+
+                            navigate('/medical-support-consulation-queue')
+
+                        }}
                     >
 
                         <div className=""> 
@@ -229,6 +340,8 @@ const MedicalSupportUserLeftNavBar = () => {
                             Waiting Patients
 
                         </div>
+
+                        {leftNavBarRedBall.waitingPatients && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                     </div>
 

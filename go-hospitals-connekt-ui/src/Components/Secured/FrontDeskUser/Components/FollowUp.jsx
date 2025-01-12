@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
+import { format } from 'date-fns';
 
 const FollowUp = () => {
 
@@ -62,6 +63,8 @@ const FollowUp = () => {
 
                 let appointmentsData = response.data;
 
+                console.log(appointmentsData);
+
                 if ( appointmentsData.length === 0 ){
 
                     return false;
@@ -70,14 +73,42 @@ const FollowUp = () => {
 
                 setIsLastPage(appointmentsData.length < pageSize);
 
-                appointmentsData = appointmentsData.sort((a, b) => {
-                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
-                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
-
-                    return aHasSupportUser - bHasSupportUser;
-                });
-
                 setCompleteApplications(appointmentsData);
+
+                return true;
+    
+            }
+
+        } catch (error) {
+        
+            handleError(error);
+
+            return false;
+        }
+
+    };
+
+    const fetchMedicationPlusFollowUp2 = async (page) => {
+
+        try {
+            
+            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchMedicationPlusFollowUpPaging/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                let appointmentsData = response.data;
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(appointmentsData.length < pageSize);
 
                 return true;
     
@@ -96,7 +127,7 @@ const FollowUp = () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchMedicationPlusFollowUp(page + 1);
+            const hasPage = await fetchMedicationPlusFollowUp2(page + 1);
 
             if ( hasPage ){
 
@@ -200,9 +231,8 @@ const FollowUp = () => {
 
                                         <th>S.No</th>
                                         <th>Patient Name</th>
-                                        <th>Doctors Name</th>
-                                        <th>Bill No</th>
-                                        <th>Medical Support User</th>
+                                        <th>Next Date</th>
+                                        <th>Contact</th>
 
                                     </tr>
 
@@ -216,7 +246,6 @@ const FollowUp = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
-                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -240,27 +269,8 @@ const FollowUp = () => {
                                                 <th>{(page * pageSize) + (index + 1)}</th>
 
                                                 <th>{application.name}</th>
-                                                <th>{application.preferredDoctorName}</th>
-                                                <th>{application.billNo}</th>
-                                                <th>{application.medicalSupportUserName ? (
-
-                                                    <>
-
-                                                        {application.medicalSupportUserName}
-
-                                                    </>
-
-                                                ) : (
-
-                                                    <>
-                                                    
-                                                        <span 
-                                                            className='text-red-500 cursor-pointer'
-                                                        >Not Taken</span>
-
-                                                    </>
-
-                                                )}</th>
+                                                <th>{format(application.nextFollowUpDate, 'MMMM dd')}</th>
+                                                <th>{application.contact}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
                                                     onClick={(id) => navigate(`/front-desk-follow-up-profile/${application.id}`)}
@@ -278,7 +288,7 @@ const FollowUp = () => {
 
                         </div>
 
-                        {CompleteApplications && CompleteApplications.length < 0 && (
+                        {CompleteApplications && CompleteApplications.length > 0 && (
 
                             <div className="space-x-5 text-center mx-10 mt-5">
                                 

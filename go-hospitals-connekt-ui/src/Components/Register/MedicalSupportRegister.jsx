@@ -224,6 +224,15 @@ const MedicalSupportRegister = () => {
                                     name='firstName'
                                     value={userData.firstName}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Last Name</label><br />
@@ -233,6 +242,15 @@ const MedicalSupportRegister = () => {
                                     name='lastName'
                                     value={userData.lastName}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> E-mail Address</label><br />
@@ -242,6 +260,15 @@ const MedicalSupportRegister = () => {
                                     name='email'
                                     value={userData.email}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Password</label><br />
@@ -251,6 +278,15 @@ const MedicalSupportRegister = () => {
                                     name='password'
                                     value={userData.password}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <label> Confirm Password</label><br />
@@ -260,6 +296,15 @@ const MedicalSupportRegister = () => {
                                     name='conformPassword'
                                     value={userData.conformPassword}
                                     onChange={(e) => handleInputChange(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                                 /><br /><br />
 
                                 <button

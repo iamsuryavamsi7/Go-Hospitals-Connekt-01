@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -286,10 +288,11 @@ public class MedicalSupportController {
     public ResponseEntity<String> uploadPrescription(
             @PathVariable("applicationId") Long applicationId,
             @RequestParam("imageFile") List<MultipartFile> imageFiles,
-            @RequestParam(value = "prescriptionMessage", required = false) String prescriptionMessage
+            @RequestParam(value = "prescriptionMessage", required = false) String prescriptionMessage,
+            @RequestParam("nextMedicationDate") LocalDate nextMedicationDate
     ) throws ApplicationNotFoundException, IOException {
 
-        String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage);
+        String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage, nextMedicationDate);
 
         return ResponseEntity.ok(successMessage);
 
@@ -327,6 +330,15 @@ public class MedicalSupportController {
     ) throws ApplicationNotFoundException {
 
         Boolean status = medicalSupportService.changeStatusToDMOCHECKCOMPLETED(applicationID);
+
+        return ResponseEntity.ok(status);
+
+    }
+
+    @GetMapping("/checkWaitingPatientsAreAvailableOrNot")
+    public ResponseEntity<Boolean> checkWaitingPatientsAreAvailableOrNot(){
+
+        Boolean status = medicalSupportService.checkWaitingPatientsAreAvailableOrNot();
 
         return ResponseEntity.ok(status);
 

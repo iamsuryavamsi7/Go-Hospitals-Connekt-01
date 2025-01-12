@@ -4,10 +4,11 @@ import Cookies from 'js-cookie';
 import '../../../../Style/secured/navbar/navbaruser.css'
 import axios from 'axios';
 import '../../../../Style/secured/navbar/navbaruser.css'
-import { GiCancel } from 'react-icons/gi';
+// import { GiCancel } from 'react-icons/gi';
 import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import { GiCancel } from 'react-icons/gi';
 
 const FollowUpProfile = () => { 
 
@@ -68,12 +69,12 @@ const FollowUpProfile = () => {
     // };
       
     // Convert to Date object
-    const appointmentDate = new Date(patientData.appointmentCreatedOn);
+    // const appointmentDate = new Date(patientData.appointmentCreatedOn);
     
     // const formattedDate = appointmentDate.toLocaleString('en-US', options);
 
     // Convert to Date object
-    const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
+    // const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
 
     // const appointmentCompletedFormattedDate = appointmentCompletedDate.toLocaleString('en-US', options);
 
@@ -506,13 +507,13 @@ const FollowUpProfile = () => {
 
                     handlePrint();
 
-                }, 1500);
-    
+                }, 1000);
+
                 setTimeout(() => {
     
                     navigate(`/front-desk-new-patient-on-board`);
     
-                }, 3000);
+                }, 2000);
     
             }
 
@@ -553,7 +554,7 @@ const FollowUpProfile = () => {
             // Trigger print dialog
             printWindow.print();
 
-        }, 2000);
+        }, 1000);
 
     };
 
@@ -646,6 +647,22 @@ const FollowUpProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.name}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.patientId}
 
                                 </div>
 
@@ -773,6 +790,8 @@ const FollowUpProfile = () => {
 
                                 <div className="text-lg">
                                     
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Completed'}
+
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
 
                                 </div>
@@ -799,7 +818,7 @@ const FollowUpProfile = () => {
 
                             {/* )} */}
 
-                            {/* {patientData.consultationType === 'COMPLETED' && (
+                            {(patientData.consultationType === 'COMPLETED' || patientData.consultationType === `CROSSCONSULTATION`) && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -817,9 +836,9 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            )} */}
+                            )}
 
-                            {/* {patientData.consultationType === 'COMPLETED' && (
+                            {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -845,7 +864,7 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            )} */}
+                            )}
 
                         </div>
 

@@ -182,11 +182,7 @@ const FrontDeskNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
-
-            navigate(`/front-desk-follow-up-profile/${applicationID}`);
-
-            setNotificationsVisible(false);
+        setNotificationsVisible(false);
 
             try{
 
@@ -209,6 +205,16 @@ const FrontDeskNavBar = () => {
                 console.error(error);
 
             }
+
+        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
+
+            navigate(`/front-desk-follow-up-profile/${applicationID}`);
+
+        }
+
+        if ( notificationStatus === 'FOLLOWUPPATIENT' ){
+
+            navigate(`/front-desk-follow-up-profile/${applicationID}`);
 
         }
 
@@ -290,6 +296,20 @@ const FrontDeskNavBar = () => {
 
     }
 
+    const commonNotificationReceived = (message) => {
+
+        const messageObject = JSON.parse(message.body);
+
+        console.log(messageObject);
+
+        if ( messageObject.notificationType === `RefreshMedicationPlusFollowUpPage` ){
+
+            fetchNotifications();
+
+        }
+
+    }
+
     // State to store stompClient
     const [stompClient, setStompClient] = useState(null);
 
@@ -306,6 +326,8 @@ const FrontDeskNavBar = () => {
             () => {
 
                 client.subscribe(`/frontDeskUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+
+                client.subscribe(`/common/commonFunction`, (message) => commonNotificationReceived(message))
 
             },
             () => {

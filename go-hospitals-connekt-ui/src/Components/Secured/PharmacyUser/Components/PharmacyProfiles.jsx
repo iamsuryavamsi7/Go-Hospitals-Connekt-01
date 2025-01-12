@@ -6,16 +6,22 @@ import axios from 'axios';
 import { IoCloseCircle } from 'react-icons/io5';
 import { CgLoadbar } from 'react-icons/cg';
 import { Toaster, toast } from 'react-hot-toast';
+import { format } from 'date-fns';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const PharmacyProfiles = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
-    const navigate = useNavigate();
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
-// State Management
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -58,9 +64,9 @@ const PharmacyProfiles = () => {
     };
       
     // Convert to Date object
-    const appointmentDate = new Date(patientData.appointmentCreatedOn);
+    // const appointmentDate = new Date(patientData.appointmentCreatedOn);
     
-    const formattedDate = appointmentDate.toLocaleString('en-US', options);
+    // const formattedDate = appointmentDate.toLocaleString('en-US', options);
 
     // Convert to Date object
     const appointmentCompletedDate = new Date(patientData.applicationCompletedTime);
@@ -90,7 +96,7 @@ const PharmacyProfiles = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -122,7 +128,7 @@ const PharmacyProfiles = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -160,7 +166,7 @@ const PharmacyProfiles = () => {
 
             try{
 
-                const response = await axios.post(`http://localhost:7777/api/v1/pharmacy/consultationCompleted/${applicationId}`, formData, {
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/consultationCompleted/${applicationId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -184,7 +190,17 @@ const PharmacyProfiles = () => {
                     });
 
                     fetchAppointmentData();
-    
+
+                    const webSocketNotificationTypeModel = {
+                        notificationType: `RefreshMedicationPlusFollowUpPage`
+                    }
+
+                    if ( stompClient ){
+
+                        stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+
+                    }
+                    
                 }
     
             }catch(error){
@@ -227,7 +243,7 @@ const PharmacyProfiles = () => {
             console.log("Started...");
     
             try {
-                const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageSrc1, {
                     responseType: 'blob',
                     headers: {
                         Authorization: `Bearer ${access_token}`
@@ -270,7 +286,7 @@ const PharmacyProfiles = () => {
 
             try{
 
-                const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${fileName1}`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     },
@@ -339,6 +355,44 @@ const PharmacyProfiles = () => {
 
     }, [id]);
 
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connected to websockets in pharmacy profiles page`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
+
     return (
 
         <>
@@ -381,6 +435,22 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.patientId}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Age
 
                                 </div>
@@ -397,29 +467,13 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Contact
+                                    Next Follow Up
 
                                 </div>
 
                                 <div className="text-lg">
                                     
-                                    {patientData.contact}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
+                                    {patientData.nextFollowUpDate && format(patientData.nextFollowUpDate, 'MMMM dd')}
 
                                 </div>
 
@@ -436,22 +490,6 @@ const PharmacyProfiles = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -525,22 +563,6 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Appointment Created On
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {formattedDate}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Booked By
 
                                 </div>
@@ -568,6 +590,26 @@ const PharmacyProfiles = () => {
                                 </div>
 
                             </div>
+
+                            {patientData.treatmentDoneMessage && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Message From Nurse
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {patientData.treatmentDoneMessage}
+
+                                    </div>
+
+                                </div>
+
+                            )}
 
                             {patientData.consultationType === 'COMPLETED' && (
 
@@ -639,28 +681,9 @@ const PharmacyProfiles = () => {
 
                             </div>
 
-                            <div className="mt-10">
-
-                                <button
-                                    onClick={ () => {
-
-                                        window.print();
-
-                                        console.log(`Printer feature activated`);
-
-                                    }}
-                                    className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                >
-
-                                    Print Bill
-
-                                </button>
-
-                            </div>
-
                         </div>
 
-                        {patientData.consultationType != 'COMPLETED' && (
+                        {patientData.consultationType !== 'COMPLETED' && patientData.consultationType !== 'FOLLOWUPCOMPLETED' && (
 
                             <div className="mx-10 my-5">
 
@@ -682,77 +705,7 @@ const PharmacyProfiles = () => {
 
                         )}
 
-                        {fetchedImageVisible && (
-                            
-                            <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
-                            
-                                <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
-
-                                <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
-
-                                    {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
-
-                                        return mimeType === 'application/pdf' ? (
-                                            <object
-                                                key={index}
-                                                data={blobUrl}
-                                                type="application/pdf"
-                                                width="100%"
-                                                height="400px"
-                                                aria-label={`Prescription PDF ${index + 1}`}
-                                                className='transition-transform duration-300 ease-in-out transform'
-                                            >
-                                                <p>PDF Preview Not Available</p>
-                                            </object>
-                                        ) : (
-                                            <img
-                                                key={index}
-                                                src={blobUrl}
-                                                alt={`Prescription ${index + 1}`}
-                                                className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
-                                            />
-                                        );
-                                    }) : (
-                            
-                                        <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
-                                        
-                                            <div className="flex items-center space-x-2 text-xl">
-                                        
-                                                <div className="animate-spin">
-                                        
-                                                    <CgLoadbar />
-                                        
-                                                </div>
-                                        
-                                                <div className="animate-pulse">
-                                        
-                                                    Fetching ...
-                                        
-                                                </div>
-                                        
-                                            </div>
-                                        
-                                        </div>
-                                    
-                                    )}
-
-                                    <IoCloseCircle
-                                        className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
-                                        onClick={() => {
-                                            
-                                            setFetchedImageVisible(false);
-                                            setImages([]);
-                                        
-                                        }}
-                                    />
-                                
-                                </div>
-                            
-                            </div>
-                        
-                        )}
-
-                        {patientData.consultationType != 'COMPLETED' && (
+                        {patientData.consultationType !== 'COMPLETED' && patientData.consultationType !== 'FOLLOWUPCOMPLETED' && (
 
                             <div className="ml-10">
 
@@ -788,6 +741,76 @@ const PharmacyProfiles = () => {
                         )}
 
                     </div>
+
+                    {fetchedImageVisible && (
+                            
+                        <div className="fixed top-0 right-0 bottom-0 left-0 z-50 flex backdrop-blur-sm">
+                        
+                            <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
+
+                            <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
+
+                                {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
+
+                                    return mimeType === 'application/pdf' ? (
+                                        <object
+                                            key={index}
+                                            data={blobUrl}
+                                            type="application/pdf"
+                                            width="100%"
+                                            height="400px"
+                                            aria-label={`Prescription PDF ${index + 1}`}
+                                            className='transition-transform duration-300 ease-in-out transform'
+                                        >
+                                            <p>PDF Preview Not Available</p>
+                                        </object>
+                                    ) : (
+                                        <img
+                                            key={index}
+                                            src={blobUrl}
+                                            alt={`Prescription ${index + 1}`}
+                                            className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
+                                        />
+                                    );
+                                }) : (
+                        
+                                    <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
+                                    
+                                        <div className="flex items-center space-x-2 text-xl">
+                                    
+                                            <div className="animate-spin">
+                                    
+                                                <CgLoadbar />
+                                    
+                                            </div>
+                                    
+                                            <div className="animate-pulse">
+                                    
+                                                Fetching ...
+                                    
+                                            </div>
+                                    
+                                        </div>
+                                    
+                                    </div>
+                                
+                                )}
+
+                                <IoCloseCircle
+                                    className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                    onClick={() => {
+                                        
+                                        setFetchedImageVisible(false);
+                                        setImages([]);
+                                    
+                                    }}
+                                />
+                            
+                            </div>
+                        
+                        </div>
+                        
+                    )}
 
                 </>
 

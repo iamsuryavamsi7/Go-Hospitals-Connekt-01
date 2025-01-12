@@ -8,6 +8,7 @@ import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.AcceptCrossConsultationModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.BookAppointmentWebSocketModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.CrossConsultationApplicationIDModel;
+import com.Go_Work.Go_Work.Model.WebSocket.WebSocketNotificationType;
 import com.Go_Work.Go_Work.Service.WebSocket.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -22,6 +23,19 @@ import java.util.Date;
 public class WebSocketController {
 
     private final WebSocketService webSocketService;
+
+    // Common WEBSOCKETS
+    @MessageMapping("/commonWebSocket")
+    @SendTo("/common/commonFunction")
+    public WebSocketNotificationType commonFunction(
+            @Payload WebSocketNotificationType webSocketNotificationType
+    ){
+
+        System.out.println("WebSocketNotificationType : " + webSocketNotificationType.getNotificationType() + "\n\n\n");
+
+        return webSocketNotificationType;
+
+    }
 
     // FrontDesk WEBSOCKETS
     @MessageMapping("/public-page-frontDesk-onboard")

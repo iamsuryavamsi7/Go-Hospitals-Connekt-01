@@ -21,7 +21,7 @@ const CurrentJob = () => {
 
     const [page, setPage] = useState(0); // Track the current page
     
-    const pageSize = 25; 
+    const pageSize = 10; 
 
     const [isLastPage, setIsLastPage] = useState(false); //  
 
@@ -254,6 +254,10 @@ const CurrentJob = () => {
                                                 {job.consultationType === 'ONSITETREATMENT' && 'On Site Treatment'}
 
                                                 {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+
+                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medication Plus Follow Up'}
+
+                                                {job.consultationType === 'PHARMACY' && 'In Pharmacy'}
 
                                             </th>
                                             <th>{job.billNo}</th>

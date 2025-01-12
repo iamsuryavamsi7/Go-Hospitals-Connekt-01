@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -31,6 +32,7 @@ public class ApplicationsResponseModel {
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
+    private LocalDate nextFollowUpDate;
 
     private boolean isPatientGotApproved;
 

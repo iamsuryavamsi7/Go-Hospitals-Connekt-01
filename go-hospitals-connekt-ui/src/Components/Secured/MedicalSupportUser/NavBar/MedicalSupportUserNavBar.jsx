@@ -146,8 +146,6 @@ const MedicalSupportUserNavBar = () => {
 
                 let notificationData = response.data;
 
-                console.log(notificationData);
-
                 setNotificationArray(notificationData);
 
             }
@@ -251,8 +249,6 @@ const MedicalSupportUserNavBar = () => {
 
                         const responseData = response.data;
 
-                        console.log(responseData);
-
                         setTimeout(() => {
 
                             const audio = new Audio(`/Notifications/notification_count.mp4`);
@@ -284,11 +280,7 @@ const MedicalSupportUserNavBar = () => {
 
         const messageObject = JSON.parse(message.body);
 
-        console.log(messageObject);
-
         if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT' ){
-
-            console.log(`\n\n\nFetchingNotifications\n\n\n`);
 
             fetchNotifications();
 

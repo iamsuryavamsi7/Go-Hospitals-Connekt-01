@@ -29,7 +29,7 @@ const ConsultationQueueMedicalSupport = () => {
 
     const [page, setPage] = useState(0); // Track the current page
     
-    const pageSize = 25; 
+    const pageSize = 10; 
 
     const [isLastPage, setIsLastPage] = useState(false); // 
 

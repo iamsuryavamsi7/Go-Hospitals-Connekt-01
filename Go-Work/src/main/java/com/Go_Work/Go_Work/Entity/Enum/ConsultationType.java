@@ -18,6 +18,8 @@ public enum ConsultationType {
 
     PATIENTADMIT,
 
-    COMPLETED
+    COMPLETED,
+
+    FOLLOWUPCOMPLETED
 
 }

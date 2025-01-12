@@ -2,6 +2,7 @@ package com.Go_Work.Go_Work.Service.Secured.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.*;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
@@ -30,6 +31,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -430,109 +432,108 @@ public class MedicalSupportService {
 
     }
 
-    public String makeConsultationType(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException {
-
-
-        // For SURGERYCARE Consultation Type
-        if ( consultationType.equals(ConsultationType.SURGERYCARE) ){
-
-            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
-                    () -> new ApplicationNotFoundException("Application Not Found")
-            );
-
-            fetchedApplication.setConsultationType(consultationType);
-            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
-            fetchedApplication.setTeleSupportConsellingDone(false);
-
-            applicationsRepo.save(fetchedApplication);
-
-            userRepo.findAll()
-                    .stream()
-                    .filter(user -> user.getRole().equals(Role.TELESUPPORT))
-                    .forEach(fetchedUser -> {
-
-                        Notification notification = new Notification();
-
-                        notification.setApplicationId(fetchedApplication.getId());
-                        notification.setRead(false);
-                        notification.setMessage("New Counselling Request ");
-                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
-                        notification.setUser(fetchedUser);
-
-                        notificationRepo.save(notification);
-
-                    });
-
-            return "Consultation Type Updated";
-
-        }
-
-        // For MEDICATIONPLUSFOLLOWUP Consultation Type
-        if ( consultationType.equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)){
-
-            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
-                    () -> new ApplicationNotFoundException("Application Not Found")
-            );
-
-            fetchedApplication.setConsultationType(consultationType);
-            fetchedApplication.setMedicationPlusFollowUp(true);
-            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
-
-            applicationsRepo.save(fetchedApplication);
-
-            return "Consultation Type updated";
-
-        }
-
-        // For Remaining Consultation Types
-        if ( !consultationType.equals(ConsultationType.PATIENTADMIT)){
-
-            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
-                    () -> new ApplicationNotFoundException("Application Not Found")
-            );
-
-            fetchedApplication.setConsultationType(consultationType);
-            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
-
-            applicationsRepo.save(fetchedApplication);
-
-            return "Consultation Type updated";
-
-        }else {
-
-            // For PATIENTADMIT Consultation Type
-            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
-                    () -> new ApplicationNotFoundException("Application Not Found")
-            );
-
-            fetchedApplication.setConsultationType(consultationType);
-            fetchedApplication.setPatientGotApproved(false);
-            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
-
-            applicationsRepo.save(fetchedApplication);
-
-            userRepo.findAll()
-                    .stream()
-                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
-                    .forEach(fetchedUser -> {
-
-                        Notification notification = new Notification();
-
-                        notification.setApplicationId(fetchedApplication.getId());
-                        notification.setRead(false);
-                        notification.setMessage("New Patient Admit Request");
-                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
-                        notification.setUser(fetchedUser);
-
-                        notificationRepo.save(notification);
-
-                    });
-
-            return "Consultation Type updated";
-
-        }
-
-    }
+//    public String makeConsultationType(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException {
+//
+//
+//        // For SURGERYCARE Consultation Type
+//        if ( consultationType.equals(ConsultationType.SURGERYCARE) ){
+//
+//            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+//                    () -> new ApplicationNotFoundException("Application Not Found")
+//            );
+//
+//            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+//            fetchedApplication.setTeleSupportConsellingDone(false);
+//
+//            applicationsRepo.save(fetchedApplication);
+//
+//            userRepo.findAll()
+//                    .stream()
+//                    .filter(user -> user.getRole().equals(Role.TELESUPPORT))
+//                    .forEach(fetchedUser -> {
+//
+//                        Notification notification = new Notification();
+//
+//                        notification.setApplicationId(fetchedApplication.getId());
+//                        notification.setRead(false);
+//                        notification.setMessage("New Counselling Request ");
+//                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+//                        notification.setUser(fetchedUser);
+//
+//                        notificationRepo.save(notification);
+//
+//                    });
+//
+//            return "Consultation Type Updated";
+//
+//        }
+//
+//        // For MEDICATIONPLUSFOLLOWUP Consultation Type
+//        if ( consultationType.equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)){
+//
+//            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+//                    () -> new ApplicationNotFoundException("Application Not Found")
+//            );
+//
+//            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+//
+//            applicationsRepo.save(fetchedApplication);
+//
+//            return "Consultation Type updated";
+//
+//        }
+//
+//        // For Remaining Consultation Types
+//        if ( !consultationType.equals(ConsultationType.PATIENTADMIT)){
+//
+//            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+//                    () -> new ApplicationNotFoundException("Application Not Found")
+//            );
+//
+//            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+//
+//            applicationsRepo.save(fetchedApplication);
+//
+//            return "Consultation Type updated";
+//
+//        }else {
+//
+//            // For PATIENTADMIT Consultation Type
+//            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+//                    () -> new ApplicationNotFoundException("Application Not Found")
+//            );
+//
+//            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setPatientGotApproved(false);
+//            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+//
+//            applicationsRepo.save(fetchedApplication);
+//
+//            userRepo.findAll()
+//                    .stream()
+//                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
+//                    .forEach(fetchedUser -> {
+//
+//                        Notification notification = new Notification();
+//
+//                        notification.setApplicationId(fetchedApplication.getId());
+//                        notification.setRead(false);
+//                        notification.setMessage("New Patient Admit Request");
+//                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+//                        notification.setUser(fetchedUser);
+//
+//                        notificationRepo.save(notification);
+//
+//                    });
+//
+//            return "Consultation Type updated";
+//
+//        }
+//
+//    }
 
     public String makeConsultationType2(Long applicationId, ConsultationType consultationType) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
@@ -545,6 +546,23 @@ public class MedicalSupportService {
 
             fetchedApplication.setConsultationType(consultationType);
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type updated";
+
+        }
+
+        // For Medication Plus Follow Up Consultation Type
+        if ( consultationType.equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(consultationType);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setIsMedicationPlusFollow(true);
 
             applicationsRepo.save(fetchedApplication);
 
@@ -579,7 +597,9 @@ public class MedicalSupportService {
     public String uploadPrescription(
             Long applicationId,
             List<MultipartFile> imageFiles,
-            String prescriptionMessage) throws ApplicationNotFoundException {
+            String prescriptionMessage,
+            LocalDate nextMedicationDate) throws ApplicationNotFoundException
+    {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
@@ -622,6 +642,14 @@ public class MedicalSupportService {
         fetchedApplication.getPrescriptionUrl().addAll(uploadedFilenames);
         fetchedApplication.setTreatmentDoneMessage(prescriptionMessage);
         fetchedApplication.setTreatmentDone(true);
+        fetchedApplication.setConsultationType(ConsultationType.PHARMACY);
+        fetchedApplication.setPharmacyGoingTime(new Date(System.currentTimeMillis()));
+
+        if ( nextMedicationDate != null ){
+
+            fetchedApplication.setNextFollowUpDate(nextMedicationDate);
+
+        }
 
         applicationsRepo.save(fetchedApplication);
 
@@ -634,6 +662,8 @@ public class MedicalSupportService {
                     newNotification.setTimeStamp(new Date());
                     newNotification.setApplicationId(applicationId);
                     newNotification.setUser(pharmacyUser);
+                    newNotification.setNotificationStatus(NotificationStatus.PHARMACYPROFILE);
+
                     notificationRepo.save(newNotification);
                     pharmacyUser.getNotifications().add(newNotification);
                     userRepo.save(pharmacyUser);
@@ -664,6 +694,18 @@ public class MedicalSupportService {
                     ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(application1, applicationNew);
+
+                    if ( !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        applicationNew.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
 
@@ -961,4 +1003,20 @@ public class MedicalSupportService {
 
     }
 
+    public Boolean checkWaitingPatientsAreAvailableOrNot() {
+
+        List<Applications> fetchedApplications = applicationsRepo.findAll()
+                .stream()
+                .filter(applications -> applications.getConsultationType().equals(ConsultationType.WAITING))
+                .toList();
+
+        if ( !fetchedApplications.isEmpty() ){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
 }

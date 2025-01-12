@@ -233,6 +233,15 @@ const navigate = useNavigate();
                                     name='email'
                                     value={loginData.email}
                                     onChange={(e) => handleLoginFormData(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }} 
                                 /><br /><br />
 
                                 <div className="flex justify-between">
@@ -260,6 +269,15 @@ const navigate = useNavigate();
                                     name='password'
                                     value={loginData.password}
                                     onChange={(e) => handleLoginFormData(e)}
+                                    onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }} 
                                 /><br /><br />
 
                                 <button

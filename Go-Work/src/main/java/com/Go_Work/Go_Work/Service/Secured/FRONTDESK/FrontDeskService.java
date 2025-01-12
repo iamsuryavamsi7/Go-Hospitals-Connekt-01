@@ -69,7 +69,7 @@ public class FrontDeskService {
         applications.setTreatmentDone(false);
         applications.setPaymentDone(false);
         applications.setPatientGotApproved(true);
-        applications.setMedicationPlusFollowUp(false);
+        applications.setIsMedicationPlusFollow(false);
 
         // Create and associate the bill
         Bills bill = new Bills();
@@ -356,12 +356,25 @@ public class FrontDeskService {
 
         return applicationsPage
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.COMPLETED) && applications.isMedicationPlusFollowUp() )
+                .filter(applications -> applications.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED) )
+                .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
                 .map(application1 -> {
 
                     ApplicationsResponseModel application = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(application1, application);
+
+                    if ( !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        application.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
 
@@ -387,7 +400,6 @@ public class FrontDeskService {
         fetchedApplication.setApplicationCompletedTime(null);
         fetchedApplication.setPaymentDone(false);
         fetchedApplication.setPatientGotApproved(true);
-        fetchedApplication.setMedicationPlusFollowUp(false);
         fetchedApplication.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
 
         applicationsRepo.save(fetchedApplication);
@@ -571,6 +583,56 @@ public class FrontDeskService {
         int end = Math.min(start + size, fetchedApplications.size());
 
         return fetchedApplications.subList(start, end);
+
+    }
+
+    public Boolean checkTemporaryDataAvailableForNewPatientOnBoardPage() {
+
+        List<TemporaryAppointmentDataEntity> fetchedList = temporaryAppointmentDataRepo.findAll();
+
+        return !fetchedList.isEmpty();
+
+    }
+
+    public Boolean deleteTemporaryAppointmentById(Long appointmentID) {
+
+        temporaryAppointmentDataRepo.deleteById(appointmentID);
+
+        return true;
+
+    }
+
+    public Boolean checkCrossConsultationAvailableOrNot() {
+
+        List<Applications> fetchedApplications = applicationsRepo.findAll()
+                .stream()
+                .filter(application -> application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .toList();
+
+        if ( !fetchedApplications.isEmpty() ){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public Boolean checkFollowUpPatientAvailableOrNot() {
+
+        List<Applications> fetchedApplications = applicationsRepo.findAll()
+                .stream()
+                .filter(application -> application.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED))
+                .toList();
+
+        if ( !fetchedApplications.isEmpty() ){
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

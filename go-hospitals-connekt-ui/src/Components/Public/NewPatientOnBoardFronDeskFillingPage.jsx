@@ -59,17 +59,17 @@ const NewPatientOnBoardFronDeskFillingPage = () => {
             stompClient.send(`/app/public-page-frontDesk-onboard`, {}, JSON.stringify(patientOnBoardDetailsModel));
 
             // Show toast message for success
-            toast.success('Submit Success', {
-                duration: 1000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                }
-            });
+            // toast.success('Submit Success', {
+            //     duration: 1000,
+            //     style: {
+            //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+            //         color: '#fff', // Tailwind text-white
+            //         fontWeight: '600', // Tailwind font-semibold
+            //         borderRadius: '0.5rem', // Tailwind rounded-lg
+            //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+            //         marginTop: '2.5rem' // Tailwind mt-10,
+            //     }
+            // });
 
             // After successfull patient onboard clear the input fields
             setPatientOnBoardData({
@@ -82,9 +82,9 @@ const NewPatientOnBoardFronDeskFillingPage = () => {
 
         }else {
 
-            toast.error('Something went wrong', {
-                duration: 2000,
-            });
+            // toast.error('Something went wrong', {
+            //     duration: 2000,
+            // });
 
         }
 
