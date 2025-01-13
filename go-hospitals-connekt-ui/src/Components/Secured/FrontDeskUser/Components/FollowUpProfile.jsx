@@ -798,6 +798,22 @@ const FollowUpProfile = () => {
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Pharmacy Message
+
+                                </div>
+
+                                <div className="text-lg bg-red-500 max-h-[100px] overflow-y-hidden">
+                                    
+                                    {patientData.pharmacyMessage}
+
+                                </div>
+
+                            </div>
+
                             {/* {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">

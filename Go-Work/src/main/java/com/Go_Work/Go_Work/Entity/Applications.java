@@ -59,7 +59,7 @@ public class Applications {
 
     private boolean isPatientGotApproved;
 
-    private LocalDate nextFollowUpDate;
+    private Date nextFollowUpDate;
     private Boolean isMedicationPlusFollow;
 
     private boolean treatmentDone;

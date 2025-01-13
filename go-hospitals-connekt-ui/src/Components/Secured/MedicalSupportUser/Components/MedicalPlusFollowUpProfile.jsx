@@ -7,6 +7,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { format, isAfter, isBefore } from 'date-fns';
 
 const MedicalPlusFollowUpProfile = () => {
 
@@ -26,13 +28,15 @@ const MedicalPlusFollowUpProfile = () => {
 
     const [image, setImage] = useState([]);
 
+    const imagesLength = image.length;
+
     const {id} = useParams();
 
     const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
 
     const [treatmentDone, steTreatmentDone] = useState(``);
 
-    const [nextMedicationDate, setNextMedicationDate] = useState(``);
+    const [nextMedicationDate, setNextMedicationDate] = useState(new Date());
 
     const [patientData, setPatientData] = useState({
         id: id,
@@ -163,6 +167,8 @@ const MedicalPlusFollowUpProfile = () => {
         setImage(
             (prevFiles) => [...prevFiles, ...files]
         );
+
+        console.log(image.length);
     
     };
 
@@ -186,7 +192,7 @@ const MedicalPlusFollowUpProfile = () => {
         formData.append("prescriptionMessage", treatmentDone);
         formData.append("nextMedicationDate", nextMedicationDate);
 
-        if ( nextMedicationDate !== null && nextMedicationDate !== `` ){
+        if ( imagesLength > 0 && nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
 
             try {
 
@@ -200,18 +206,18 @@ const MedicalPlusFollowUpProfile = () => {
         
                 if ( response.status === 200 ){
         
-                    toast.success("Treatment Completed", {
-                        duration: 1000,
-                        style: {
-                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                            color: '#fff', // Tailwind text-white
-                            fontWeight: '600', // Tailwind font-semibold
-                            borderRadius: '0.5rem', // Tailwind rounded-lg
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                            marginTop: '2.5rem' // Tailwind mt-10,
-                        },
-                        position: 'top-right'
-                    });
+                    // toast.success("Treatment Completed", {
+                    //     duration: 1000,
+                    //     style: {
+                    //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    //         color: '#fff', // Tailwind text-white
+                    //         fontWeight: '600', // Tailwind font-semibold
+                    //         borderRadius: '0.5rem', // Tailwind rounded-lg
+                    //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    //         marginTop: '2.5rem' // Tailwind mt-10,
+                    //     },
+                    //     position: 'top-right'
+                    // });
         
                     steTreatmentDone(``);
         
@@ -237,24 +243,24 @@ const MedicalPlusFollowUpProfile = () => {
             
                 handleError(error);
     
-                toast.error("File size exceeded", {
-                    duration: 2000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-center'
-                });
+                // toast.error("File size exceeded", {
+                //     duration: 2000,
+                //     style: {
+                //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                //         color: '#fff', // Tailwind text-white
+                //         fontWeight: '600', // Tailwind font-semibold
+                //         borderRadius: '0.5rem', // Tailwind rounded-lg
+                //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                //         marginTop: '2.5rem' // Tailwind mt-10,
+                //     },
+                //     position: 'top-center'
+                // });
     
                 setImage([]);
             
             }
 
-        } 
+        }
 
     };
 
@@ -273,6 +279,9 @@ const MedicalPlusFollowUpProfile = () => {
         }
 
     }, [id]);
+
+    // State to store date value
+    const [currentDateValue, setCurrentDateValue] = useState(format(new Date(), 'MMMM dd yyyy')); 
 
     // State to store stompClient
     const [stompClient, setStompClient] = useState(null);
@@ -598,7 +607,7 @@ const MedicalPlusFollowUpProfile = () => {
                                         className="px-10 transition-all duration-200 cursor-pointer"
                                     >
 
-                                        <label className='text-xs'>Upload prescription <span className='text-red-400'>*</span></label><br />
+                                        <label className='text-xs' onClick={() => console.log(format(nextMedicationDate, 'MMMM dd yyyy'))}>Upload prescription <span className='text-red-400'>*</span></label><br />
 
                                         <div className="mt-3">
 
@@ -618,6 +627,8 @@ const MedicalPlusFollowUpProfile = () => {
                                                     Upload
                                             </label>
 
+                                            <span className='ml-3'>{imagesLength} Files Selected</span>
+
                                         </div>
 
                                     </div>
@@ -630,15 +641,16 @@ const MedicalPlusFollowUpProfile = () => {
 
                                         <div className="relative inline-block">
 
-                                            <input 
-                                                type='date'
-                                                className='bg-sky-300 text-black border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
-                                                value={treatmentDone}
-                                                onChange={(e) => {
+                                            <DatePicker 
+                                                className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                value={currentDateValue}
+                                                onChange={(date) => {
 
-                                                    const value = e.target.value;
+                                                    const dateValue = format(date, 'MMMM dd yyyy');
 
-                                                    setNextMedicationDate(value);
+                                                    setCurrentDateValue(dateValue);
+
+                                                    setNextMedicationDate(date);
 
                                                 }}
                                             />

@@ -32,7 +32,8 @@ public class ApplicationsResponseModel {
     private boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
-    private LocalDate nextFollowUpDate;
+    private Date nextFollowUpDate;
+    private String pharmacyMessage;
 
     private boolean isPatientGotApproved;
 

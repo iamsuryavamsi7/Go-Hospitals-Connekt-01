@@ -112,8 +112,6 @@ const ConsultationQueueMedicalSupport = () => {
 
                 }
 
-                setInCompleteApplications(appointmentsData);
-
                 return true;
     
             }
@@ -207,20 +205,22 @@ const ConsultationQueueMedicalSupport = () => {
 
             if ( response.status === 200 ){
 
-                toast.success("Job Taken", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-right'
-                });
+                // toast.success("Job Taken", {
+                //     duration: 1000,
+                //     style: {
+                //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                //         color: '#fff', // Tailwind text-white
+                //         fontWeight: '600', // Tailwind font-semibold
+                //         borderRadius: '0.5rem', // Tailwind rounded-lg
+                //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                //         marginTop: '2.5rem' // Tailwind mt-10,
+                //     },
+                //     position: 'top-right'
+                // });
 
                 fetchIncompleteApplications();
+
+                navigate(`/medical-support-current-job`);
 
             }
 

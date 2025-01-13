@@ -37,7 +37,7 @@ public class MedicalSupportResponseModel {
     private Date applicationCompletedTime;
     private String pharmacyMessage;
     private String patientId;
-    private LocalDate nextFollowUpDate;
+    private Date nextFollowUpDate;
 
     private boolean isPatientGotApproved;
 

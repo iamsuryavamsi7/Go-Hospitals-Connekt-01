@@ -289,7 +289,7 @@ public class MedicalSupportController {
             @PathVariable("applicationId") Long applicationId,
             @RequestParam("imageFile") List<MultipartFile> imageFiles,
             @RequestParam(value = "prescriptionMessage", required = false) String prescriptionMessage,
-            @RequestParam("nextMedicationDate") LocalDate nextMedicationDate
+            @RequestParam("nextMedicationDate") Date nextMedicationDate
     ) throws ApplicationNotFoundException, IOException {
 
         String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage, nextMedicationDate);

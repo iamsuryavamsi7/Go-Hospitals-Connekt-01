@@ -598,7 +598,7 @@ public class MedicalSupportService {
             Long applicationId,
             List<MultipartFile> imageFiles,
             String prescriptionMessage,
-            LocalDate nextMedicationDate) throws ApplicationNotFoundException
+            Date nextMedicationDate) throws ApplicationNotFoundException
     {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId)
@@ -890,7 +890,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplications = fetchedUser.getApplications()
                 .stream()
-                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED)
+                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED)
                 .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
                 .map(fetchedApplication -> {
 
