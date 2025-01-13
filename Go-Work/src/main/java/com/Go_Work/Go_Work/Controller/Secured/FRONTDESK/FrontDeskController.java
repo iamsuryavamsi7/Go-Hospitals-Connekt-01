@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -281,6 +282,41 @@ public class FrontDeskController {
     public ResponseEntity<Boolean> checkFollowUpPatientAvailableOrNot(){
 
         Boolean fetchedBooleanValue = frontDeskService.checkFollowUpPatientAvailableOrNot();
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @PostMapping("/rescheduleAppointment/{applicationID}")
+    public ResponseEntity<Boolean> rescheduleAppointment(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam("note") String note,
+            @RequestParam("updateNextAppointmentDateValue")Date updateNextAppointmentDateValue
+            ) throws ApplicationNotFoundException {
+
+        Boolean fetchedBooleanValue = frontDeskService.rescheduleAppointment(applicationID, note, updateNextAppointmentDateValue);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/deleteNextAppointmentData/{nextAppointmentID}")
+    public ResponseEntity<Boolean> deleteNextAppointmentData(
+            @PathVariable("nextAppointmentID") Long nextAppointmentID
+    ){
+
+        Boolean fetchedBooleanValue = frontDeskService.deleteNextAppointmentData(nextAppointmentID);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/forwardToNurse/{applicationID}")
+    public ResponseEntity<Boolean> forwardToNurse(
+            @PathVariable("applicationID") Long applicationID
+    ) throws ApplicationNotFoundException {
+
+        Boolean fetchedBooleanValue = frontDeskService.forwardToNurse(applicationID);
 
         return ResponseEntity.ok(fetchedBooleanValue);
 

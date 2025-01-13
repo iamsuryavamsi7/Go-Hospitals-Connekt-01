@@ -280,7 +280,7 @@ const MedicalSupportUserNavBar = () => {
 
         const messageObject = JSON.parse(message.body);
 
-        if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT' ){
+        if ( messageObject.notificationStatus === 'BOOKAPPOINTMENT'){
 
             fetchNotifications();
 
@@ -304,6 +304,18 @@ const MedicalSupportUserNavBar = () => {
             () => {
 
                 client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+
+                client.subscribe(`/common/commonFunction`, (message) => {
+
+                    const messageObject = JSON.parse(message.body);
+
+                    if ( messageObject.notificationType === `FollowUpPatientCame` ){
+
+                        fetchNotifications();
+
+                    }
+
+                });
         
             },
             () => {

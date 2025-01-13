@@ -690,7 +690,7 @@ const PharmacyProfiles = () => {
                                 <label className='text-xs'>Write any feed (Optional)</label><br />
 
                                 <textarea
-                                    className='mt-2 h-[80px] border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    className='mt-2 h-[80px] border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg'
                                     value={ifNeededData}
                                     onChange={(e) => {
 

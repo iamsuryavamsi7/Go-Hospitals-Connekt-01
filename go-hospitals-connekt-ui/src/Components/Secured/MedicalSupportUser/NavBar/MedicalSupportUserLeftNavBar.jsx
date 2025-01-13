@@ -260,7 +260,7 @@ const MedicalSupportUserLeftNavBar = () => {
 
         const messageobject = JSON.parse(message.body);
 
-        if ( messageobject.notificationType === `WaitingPatientsRefreshLeftNavBar` ){
+        if ( messageobject.notificationType === `WaitingPatientsRefreshLeftNavBar` && messageobject.notificationType === `FollowUpPatientCame` ){
 
             if ( pathName !== `/medical-support-consulation-queue` ){
 

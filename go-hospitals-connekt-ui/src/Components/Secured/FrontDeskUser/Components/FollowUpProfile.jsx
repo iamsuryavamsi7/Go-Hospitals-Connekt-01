@@ -9,6 +9,9 @@ import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { GiCancel } from 'react-icons/gi';
+import "react-datepicker/dist/react-datepicker.css";
+import { format, isAfter } from 'date-fns';
+import DatePicker from 'react-datepicker';
 
 const FollowUpProfile = () => { 
 
@@ -43,9 +46,13 @@ const FollowUpProfile = () => {
         reasonForVisit: '',
         appointmentOn: '',
         preferredDoctorName: '',
-        appointmentCreatedOn: '',
+        appointmentCreatedOn: new Date(),
         appointmentFinished: '',
-        patientAdmitMessage: ''
+        patientAdmitMessage: '',
+        nextFollowUpDate: new Date(),
+        updatableNextFollowUpDate: ``,
+        noteData: ``,
+        nextAppointmentDate: []
     });
 
     const roles = {
@@ -614,6 +621,129 @@ const FollowUpProfile = () => {
 
     }, []);
 
+    // State to toggle follow up date reschedule
+    const [followUpRescheduleActivated, setFollowUpRescheduleActivated] = useState(false);
+
+    const [currentDateValue, setCurrentDateValue] = useState(format(patientData.nextFollowUpDate, 'MMMM dd yyyy')); 
+
+    // Function to reschedule appointment
+    const rescheduleAppointmentButton = async () => {
+
+        const note = patientData.noteData;
+        const updateNextAppointmentDateValue = patientData.updatableNextFollowUpDate;
+
+        if ( note !== `` && note !== null && updateNextAppointmentDateValue !== null && updateNextAppointmentDateValue !== `` && isAfter(updateNextAppointmentDateValue, patientData.nextFollowUpDate)){
+
+            const formData = new FormData();
+
+            formData.append('note', note);
+            formData.append('updateNextAppointmentDateValue', updateNextAppointmentDateValue);
+
+            try{
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/rescheduleAppointment/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                })
+
+                if ( response.status === 200 ){
+
+                    const responseData = response.data;
+
+                    if ( responseData ){
+
+                        fetchAppointmentData();
+
+                        setFollowUpRescheduleActivated(false);
+
+                    }
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
+        
+    }
+
+    const followUpRescheduleDelete = async (appointment) => {
+
+        const nextAppointmentID = appointment.id;
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/deleteNextAppointmentData/${nextAppointmentID}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    fetchAppointmentData();
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to book appointment
+    const bookAppointmentFunction = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/forwardToNurse/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    fetchAppointmentData();
+
+                    if ( stompClient !== null ){
+                    
+                        const notificationTypeModel = {
+                            notificationType: `FollowUpPatientCame`
+                        }
+            
+                        stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+        
+                    }
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
     return (
 
         <>
@@ -736,6 +866,26 @@ const FollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Follow-Up Scheduled
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.nextFollowUpDate && (
+
+                                        <span>{format(patientData.nextFollowUpDate, 'MMMM dd, yyyy')}</span>
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Preferred Doctor
 
                                 </div>
@@ -790,7 +940,7 @@ const FollowUpProfile = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Completed'}
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
 
@@ -798,7 +948,7 @@ const FollowUpProfile = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.pharmacyMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -806,13 +956,13 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                                <div className="text-lg bg-red-500 max-h-[100px] overflow-y-hidden">
+                                <div className="text-lg max-h-[100px] overflow-y-scroll custom-scrollbar">
                                     
                                     {patientData.pharmacyMessage}
 
                                 </div>
 
-                            </div>
+                            </div>}
 
                             {/* {patientData.consultationType === 'COMPLETED' && (
 
@@ -883,6 +1033,185 @@ const FollowUpProfile = () => {
                             )}
 
                         </div>
+                        
+                        {patientData.consultationType === 'FOLLOWUPCOMPLETED' && (
+
+                            <>
+
+                                <div className="my-10 mx-10 relative">
+
+                                    <button
+                                        className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                        onClick={() => setFollowUpRescheduleActivated(true)}
+                                    >
+
+                                        Reschedule Follow Up
+
+                                    </button>
+
+                                    <button
+                                        className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        onClick={bookAppointmentFunction}
+                                    >
+
+                                        Book Appointment
+
+                                    </button>
+
+                                    { followUpRescheduleActivated && <div className="fixed top-0 left-0 right-0 bottom-0 z-50 backdrop-blur-[2px] flex justify-center items-center">
+
+                                        <div className="bg-gray-900 py-10 rounded-lg">
+
+                                            <div className="flex flex-col mx-10">
+
+                                                <label className='text-xs mb-2'>Note Message <span className='text-red-500'>*</span></label>
+
+                                                <textarea 
+                                                    className='bg-[#0d1117] min-h-[100px] max-h-[100px] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg h-[80px] px-3 w-[300px] max-sm:w-full'
+                                                    value={patientData.noteData}
+                                                    onChange={(e) => {
+
+                                                        const value = e.target.value;
+
+                                                        setPatientData((prevElement) => {
+
+                                                            const updatedData = {...prevElement};
+
+                                                            updatedData.noteData = value;
+
+                                                            return updatedData;
+
+                                                        })
+
+                                                    }}
+                                                />
+
+                                            </div>
+
+                                            <div 
+                                                className="mt-2 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                            >
+                                                
+                                                <label className='text-xs'>Rescheduled Date <span className='text-red-500'>*</span></label><br />
+
+                                                <div className="relative inline-block">
+
+                                                    <DatePicker 
+                                                        className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                        value={currentDateValue}
+                                                        onChange={(date) => {
+
+                                                            const dateValue = format(date, 'MMMM dd yyyy');
+
+                                                            setCurrentDateValue(dateValue);
+
+                                                            setPatientData((prevElement) => {
+
+                                                                const updatedData = {...prevElement};
+
+                                                                updatedData.updatableNextFollowUpDate = date;
+
+                                                                return updatedData;
+
+                                                            });
+
+                                                        }}
+                                                    />
+                                                    
+                                                </div>
+
+                                            </div>
+
+                                            <div className="">
+
+                                                <button 
+                                                    className='bg-[#238636] ml-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                                    onClick={rescheduleAppointmentButton}
+                                                >
+                                                    Submit
+
+                                                </button>
+
+                                                <button 
+                                                    className='bg-red-500 ml-5 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                                    onClick={() => setFollowUpRescheduleActivated(false)}
+                                                >
+                                                    Cancel
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>}
+
+                                </div>
+                            
+                            </>
+
+                        )}
+
+                        {patientData.consultationType === 'FOLLOWUPCOMPLETED' && patientData.nextAppointmentDate.length > 1 && (
+
+                            <div className="mx-10 grid grid-cols-3 gap-5">
+
+                                {patientData.nextAppointmentDate.slice().reverse().map((appointment, index) => {
+                                    
+                                    return (
+
+                                    <div 
+                                        className="mb-5 flex space-x-2 bg-gray-800 rounded-lg p-5 relative"
+                                        key={index}
+                                    >
+
+                                        <div className="">
+
+                                            {index + 1}{')'}
+
+                                        </div>
+
+                                        <div className="">
+
+                                            <div className="flex items-center">
+
+                                                <div className="text-sm">Actual Date : </div>
+
+                                                <div className="ml-1 text-gray-400">{patientData.appointmentCreatedOn && format(patientData.appointmentCreatedOn, 'MMMM dd yyyy')}</div>
+
+                                            </div>
+
+                                            <div className="flex items-center">
+
+                                                <div className="text-sm">Rescheduled Date : </div>
+
+                                                <div className="ml-1 text-gray-400">{appointment.nextFollowUpDate && format(appointment.nextFollowUpDate, 'MMMM dd yyyy')}</div>
+
+                                            </div>
+
+                                            <div className="">
+
+                                                <div className="text-sm">Note : </div>
+
+                                                <div className="text-gray-400">{appointment.note}</div>
+
+                                            </div>
+
+                                        </div>
+
+                                        {index === 0 && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 absolute right-4 top-4"
+                                            onClick={() => followUpRescheduleDelete(appointment)}
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>}
+
+                                    </div>
+
+                                )})}
+
+                            </div>
+
+                        )}
 
                         {/* {patientData.patientGotApproved && !patientData.forCrossConsultation && (
 
@@ -961,7 +1290,7 @@ const FollowUpProfile = () => {
 
                                                 </div>
 
-                                            </div>
+                                            </div>, 'MMMM dd yyyy
 
                                         </div>
 

@@ -1,9 +1,6 @@
 package com.Go_Work.Go_Work.Model.WebSocket;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -11,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WebSocketNotificationType {
 
+        @NonNull
         private String notificationType;
 
 }

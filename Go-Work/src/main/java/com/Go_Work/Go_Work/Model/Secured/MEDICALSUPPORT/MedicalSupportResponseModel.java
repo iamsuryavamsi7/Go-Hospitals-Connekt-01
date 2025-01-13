@@ -2,6 +2,7 @@ package com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.ImageUrls;
+import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,5 +55,6 @@ public class MedicalSupportResponseModel {
     private Long medicalSupportUserId;
     private String medicalSupportUserName;
 
+    private List<NextAppointmentDate> nextAppointmentDates;
 
 }

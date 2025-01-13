@@ -1,13 +1,16 @@
 package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -47,5 +50,7 @@ public class ApplicationsResponseModel {
 
     private Long medicalSupportUserId;
     private String medicalSupportUserName;
+
+    private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
 
 }

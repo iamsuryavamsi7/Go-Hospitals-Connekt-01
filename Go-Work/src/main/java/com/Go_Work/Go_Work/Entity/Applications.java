@@ -59,7 +59,6 @@ public class Applications {
 
     private boolean isPatientGotApproved;
 
-    private Date nextFollowUpDate;
     private Boolean isMedicationPlusFollow;
 
     private boolean treatmentDone;
@@ -108,5 +107,13 @@ public class Applications {
     )
     @JsonManagedReference
     private List<Bills> bills = new ArrayList<>();
+
+    // One Application - Many Appointment dates
+    @OneToMany(
+            mappedBy = "application",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference("nextAppointmentDate")
+    private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
 
 }

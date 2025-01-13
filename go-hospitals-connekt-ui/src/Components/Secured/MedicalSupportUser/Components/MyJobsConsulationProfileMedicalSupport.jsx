@@ -315,6 +315,9 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
     }, [id]);
 
+    // State to maintain the dmo check
+    const [dmoCheckActivated, setDmoCheckActivated] = useState(false);
+
     const dmoCareCompletedFunction = async () => {
 
         try{
@@ -664,12 +667,43 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                     {patientData.consultationType === 'WAITING' && <button
                         className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
                         type='submit'
-                        onClick={dmoCareCompletedFunction}
+                        onClick={() => setDmoCheckActivated(true)}
                     >
 
                         DMO Care Completed
 
                     </button>}
+
+                    {patientData.consultationType === 'WAITING' && (
+
+                        <>
+
+                            {dmoCheckActivated && <div className="fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center backdrop-blur-[2px] z-50">
+
+                                <div className="bg-gray-900 p-10 rounded-lg">
+
+                                    <label className='text-xs'>By clicking this you are assuring that DMO check is completed <span className='text-red-500'>*</span></label>
+                                    <div className="mt-10">
+
+                                        <button
+                                            className='bg-[#238636] px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
+                                            onClick={dmoCareCompletedFunction}
+                                        >DMO Care Completed</button>    
+
+                                        <button
+                                            className='bg-red-500 ml-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'
+                                            onClick={() => setDmoCheckActivated(false)}
+                                        >Cancel</button>    
+
+                                    </div>
+
+                                </div>
+
+                            </div>}
+
+                        </>
+
+                    )}
 
                     {patientData.consultationType === 'DMOCARECOMPLETED' && <button
                         className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40'

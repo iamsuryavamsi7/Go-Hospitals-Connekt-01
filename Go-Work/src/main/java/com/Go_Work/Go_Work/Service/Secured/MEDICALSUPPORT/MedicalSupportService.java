@@ -645,11 +645,13 @@ public class MedicalSupportService {
         fetchedApplication.setConsultationType(ConsultationType.PHARMACY);
         fetchedApplication.setPharmacyGoingTime(new Date(System.currentTimeMillis()));
 
-        if ( nextMedicationDate != null ){
+        NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
 
-            fetchedApplication.setNextFollowUpDate(nextMedicationDate);
+        nextAppointmentDate.setNextFollowUpDate(nextMedicationDate);
+        nextAppointmentDate.setNote("First Default Note");
+        nextAppointmentDate.setApplication(fetchedApplication);
 
-        }
+        fetchedApplication.getNextAppointmentDate().add(nextAppointmentDate);
 
         applicationsRepo.save(fetchedApplication);
 

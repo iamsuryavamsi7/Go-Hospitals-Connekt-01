@@ -64,6 +64,18 @@ public class PharmacyService {
 
         }
 
+        if ( !fetchedApplication.getNextAppointmentDate().isEmpty() ){
+
+            NextAppointmentDate latestNextAppointmentDate = fetchedApplication.getNextAppointmentDate()
+                    .stream()
+                    .sorted(Comparator.comparing(NextAppointmentDate::getNextFollowUpDate).reversed())
+                    .findFirst()
+                    .orElse(null);
+
+            application1.setNextFollowUpDate(latestNextAppointmentDate.getNextFollowUpDate());
+
+        }
+
         if ( fetchedMedicalSupportUserDetails != null ){
 
             application1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());

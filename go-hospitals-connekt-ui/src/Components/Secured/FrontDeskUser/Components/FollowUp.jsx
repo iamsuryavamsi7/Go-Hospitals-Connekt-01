@@ -231,7 +231,7 @@ const FollowUp = () => {
 
                                         <th>S.No</th>
                                         <th>Patient Name</th>
-                                        <th>Next Date</th>
+                                        <th>Next Visit</th>
                                         <th>Contact</th>
 
                                     </tr>
@@ -269,7 +269,7 @@ const FollowUp = () => {
                                                 <th>{(page * pageSize) + (index + 1)}</th>
 
                                                 <th>{application.name}</th>
-                                                <th>{format(application.nextFollowUpDate, 'MMMM dd')}</th>
+                                                <th>{format(application.nextFollowUpDate, 'MMMM dd, yyyy')}</th>
                                                 <th>{application.contact}</th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'
