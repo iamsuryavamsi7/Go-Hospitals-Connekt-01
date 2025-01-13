@@ -19,6 +19,8 @@ public class NextAppointmentDate {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date nextFollowUpDate;
     private String note;
 

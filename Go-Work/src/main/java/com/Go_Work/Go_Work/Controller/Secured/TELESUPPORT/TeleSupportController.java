@@ -117,4 +117,24 @@ public class TeleSupportController {
 
     }
 
+    @GetMapping("/checkIncompletePatientsAvailableOrNot")
+    public ResponseEntity<Boolean> checkIncompletePatientsAvailableOrNot(){
+
+        Boolean booleanValue = teleSupportService.checkIncompletePatientsAvailableOrNot();
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @GetMapping("/setNotificationReadByNotificationId/{notificationId}")
+    public ResponseEntity<String> setNotificationReadByNotificationId(
+            @PathVariable("notificationId") Long id
+    ) throws NotificationNotFoundException {
+
+        String message = teleSupportService.setNotificationReadByNotificationId(id);
+
+        return ResponseEntity.ok(message);
+
+    }
+
 }

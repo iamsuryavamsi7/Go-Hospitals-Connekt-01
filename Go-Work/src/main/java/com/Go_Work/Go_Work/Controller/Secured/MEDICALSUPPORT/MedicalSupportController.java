@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -145,6 +144,18 @@ public class MedicalSupportController {
     ) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
         String message = medicalSupportService.makeConsultationType2(applicationId, consultationType);
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    @PostMapping("/makeConsultationTypeCaseClose/{applicationId}")
+    public ResponseEntity<Boolean> makeConsultationTypeCaseClose(
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam(value = "caseCloseInput", required = false) String caseCloseInput
+    ) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
+
+        Boolean message = medicalSupportService.makeConsultationTypeCaseClose(applicationId, caseCloseInput);
 
         return ResponseEntity.ok(message);
 

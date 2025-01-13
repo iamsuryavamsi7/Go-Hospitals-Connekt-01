@@ -118,8 +118,6 @@ const FollowUpProfile = () => {
 
                 const appointmentData = response.data;
 
-                console.log(appointmentData);
-
                 setPatientData(appointmentData);
 
             }
@@ -687,6 +685,8 @@ const FollowUpProfile = () => {
 
                 const booleanValue = response.data;
 
+                console.log(booleanValue);
+
                 if ( booleanValue ){
 
                     fetchAppointmentData();
@@ -862,7 +862,7 @@ const FollowUpProfile = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.consultationType === 'FOLLOWUPCOMPLETED' && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -880,7 +880,7 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            </div>
+                            </div>}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -943,6 +943,8 @@ const FollowUpProfile = () => {
                                     {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+
+                                    {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                 </div>
 
@@ -1156,7 +1158,7 @@ const FollowUpProfile = () => {
 
                             <div className="mx-10 grid grid-cols-3 gap-5">
 
-                                {patientData.nextAppointmentDate.slice().reverse().map((appointment, index) => {
+                                {patientData.nextAppointmentDate.slice(1).map((appointment, index) => {
                                     
                                     return (
 

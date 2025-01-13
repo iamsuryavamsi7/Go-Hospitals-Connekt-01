@@ -64,6 +64,18 @@ public class TeleSupportService {
 
                     BeanUtils.copyProperties(application, application1);
 
+                    if ( !application.getBills().isEmpty() ){
+
+                        Bills latestBill = application.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        application1.setBillNo(latestBill.getBillNo());
+
+                    }
+
                     User fetchedMedicalSupportUser = application.getMedicalSupportUser();
 
                     if ( fetchedMedicalSupportUser != null ){
@@ -99,6 +111,18 @@ public class TeleSupportService {
         TeleSupportResponseModel newApplication1 = new TeleSupportResponseModel();
 
         BeanUtils.copyProperties(fetchedApplication, newApplication1);
+
+        if ( !fetchedApplication.getBills().isEmpty() ){
+
+            Bills latestBill = fetchedApplication.getBills()
+                    .stream()
+                    .sorted(Comparator.comparing(Bills::getTimeStamp))
+                    .findFirst()
+                    .orElse(null);
+
+            newApplication1.setBillNo(latestBill.getBillNo());
+
+        }
 
         User fetchedMedicalSupportUser = fetchedApplication.getMedicalSupportUser();
 
@@ -272,6 +296,37 @@ public class TeleSupportService {
         );
 
         return fetchedFrontDeskUser.getRole().name();
+
+    }
+
+    public Boolean checkIncompletePatientsAvailableOrNot() {
+
+        List<Applications> fetchedApplications = applicationsRepo.findAll()
+                .stream()
+                .filter(application1 -> application1.getConsultationType().equals(ConsultationType.SURGERYCARE) && !application1.isTeleSupportConsellingDone())
+                .toList();
+
+        if ( !fetchedApplications.isEmpty() ){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public String setNotificationReadByNotificationId(Long id) throws NotificationNotFoundException {
+
+        Notification fetchedNotification = notificationRepo.findById(id).orElseThrow(
+                () -> new NotificationNotFoundException("Notification Not Found")
+        );
+
+        fetchedNotification.setRead(true);
+
+        notificationRepo.save(fetchedNotification);
+
+        return "Notification Read Updated Successfully";
 
     }
 

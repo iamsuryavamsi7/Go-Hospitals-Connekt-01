@@ -55,6 +55,7 @@ import MyJobsProfile from './Components/Secured/TeleSupport/Components/MyJobsPro
 import FillTheSurgeryForm from './Components/Public/FillTheSurgeryForm'
 import NewPatientOnBoardFronDeskFillingPage from './Components/Public/NewPatientOnBoardFronDeskFillingPage'
 import CrossConsultationApprovals from './Components/Secured/FrontDeskUser/Components/CrossConsultationApprovals'
+import ClosedCasesFrontDesk from './Components/Secured/FrontDeskUser/Components/ClosedCasesFrontDesk'
 
 function GoWorkRouter() {
 
@@ -96,7 +97,7 @@ function GoWorkRouter() {
 						<Route path='/admin-management' element={<AdminManagement />}/>
 					</Route>
 
-					{/* FRONTDESK ROUTING */} 
+					{/* FRONTDESK ROUTING */}
 					<Route element={<FrontDeskLayout />}>
 						<Route path="/front-desk-new-patient-on-board" element={<NewPatientOnBoardFrontDesk />} />
 						<Route path="/front-desk-consultation-queue" element={<ConsulationQueueFrontDesk />} />
@@ -105,6 +106,7 @@ function GoWorkRouter() {
 						<Route path="/front-desk-follow-up-profile/:id" element={<FollowUpProfile />} />
 						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
 						<Route path='/front-desk-cross-consultation-approvals' element={<CrossConsultationApprovals />}/>
+						<Route path='/front-desk-closed-cases' element={<ClosedCasesFrontDesk />}/> 
 					</Route>
 
 					{/* FRONTDESK ROUTING */} 
@@ -130,7 +132,7 @@ function GoWorkRouter() {
 					</Route>
 
 					{/* PHARMACYPAGE ROUTING */}
-					<Route element={<PharmacyPageLayout />}>
+					<Route element={<PharmacyPageLayout />}> 
 						<Route path='/pharmacy-pending-medications' element={<PendingMedications />}/>
 						<Route path='/pharmacy-completed-medications' element={<CompletedMedications />}/>
 						<Route path='/pharmacy-profiles/:id' element={<PharmacyProfiles />}/>

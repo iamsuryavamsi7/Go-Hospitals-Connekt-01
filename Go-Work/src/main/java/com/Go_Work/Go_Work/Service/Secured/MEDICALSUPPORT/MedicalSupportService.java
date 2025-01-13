@@ -570,7 +570,66 @@ public class MedicalSupportService {
 
         }
 
+        // For Medication Plus Follow Up Consultation Type
+        if ( consultationType.equals(ConsultationType.SURGERYCARE)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(ConsultationType.SURGERYCARE);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
+
+            applicationsRepo.save(fetchedApplication);
+
+            userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.TELESUPPORT))
+                    .forEach(fetchedUser -> {
+
+                        Notification notification = new Notification();
+
+                        notification.setApplicationId(fetchedApplication.getId());
+                        notification.setRead(false);
+                        notification.setMessage("New Counselling Request !!");
+                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                        notification.setUser(fetchedUser);
+                        notification.setNotificationStatus(NotificationStatus.TELESUPPORTUSERPROFILE);
+
+                        notificationRepo.save(notification);
+
+                    });
+
+            return "Consultation Type Updated";
+
+        }
+
         throw new ConsultationTypeNotFoundException("Consultation Not Found");
+
+    }
+
+    public Boolean makeConsultationTypeCaseClose(Long applicationId, String caseCloseInput) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+        fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setPaymentDone(true);
+        fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
+
+        if ( !caseCloseInput.isEmpty() ){
+
+            fetchedApplication.setCaseCloseInput(caseCloseInput);
+
+        }
+
+        applicationsRepo.save(fetchedApplication);
+
+        return true;
 
     }
 
@@ -892,7 +951,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplications = fetchedUser.getApplications()
                 .stream()
-                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED)
+                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED && applications.getConsultationType() != ConsultationType.CASECLOSED)
                 .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
                 .map(fetchedApplication -> {
 

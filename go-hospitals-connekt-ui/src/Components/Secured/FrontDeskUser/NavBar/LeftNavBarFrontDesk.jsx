@@ -184,6 +184,10 @@ const LeftNavBarFrontDesk = () => {
 
     const [crossConsultationApprovals2, setCrossConsultationApprovals2] = useState(`text-gray-400`);
 
+    const [caseClosed1, setCaseClosed1] = useState(`text-gray-400`);
+
+    const [caseClosed2, setCaseClosed2] = useState(`text-gray-400`);
+
     useEffect(() => {
 
         // FRONTDESK LEFTNAVBAR
@@ -254,6 +258,20 @@ const LeftNavBarFrontDesk = () => {
             setCrossConsultationApprovals(`text-gray-400`);
 
             setCrossConsultationApprovals2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-closed-cases`){
+
+            setCaseClosed1(`text-sky-500`);
+
+            setCaseClosed2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setCaseClosed1(`text-gray-400`);
+
+            setCaseClosed2(`text-gray-400`);
 
         }
 
@@ -652,6 +670,30 @@ const LeftNavBarFrontDesk = () => {
                             </div>
 
                             {leftNavBarRedBall.crossConsultation && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
+                        </div>
+
+                        <div 
+                            className={`${caseClosed1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => navigate('/front-desk-closed-cases')}
+                        >
+
+
+                            <div className="">
+
+                                <SiTicktick 
+                                    className={`${caseClosed2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Case Closed
+
+                            </div>
+
+                            {leftNavBarRedBall.patientApprovals && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                         </div>
 

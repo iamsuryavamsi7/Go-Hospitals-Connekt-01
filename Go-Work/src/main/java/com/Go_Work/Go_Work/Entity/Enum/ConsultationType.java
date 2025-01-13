@@ -20,6 +20,8 @@ public enum ConsultationType {
 
     COMPLETED,
 
-    FOLLOWUPCOMPLETED
+    FOLLOWUPCOMPLETED,
+
+    CASECLOSED
 
 }

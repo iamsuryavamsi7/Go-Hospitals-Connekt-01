@@ -7,7 +7,7 @@ import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
-const TeleSupportNavBar = () => {
+const TeleSupportNavBar = () => { 
 
     // JWT Token
     const access_token = Cookies.get('access_token');
@@ -180,35 +180,35 @@ const TeleSupportNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        // if ( notificationStatus === 'BOOKAPPOINTMENT' ){
+        if ( notificationStatus === 'TELESUPPORTUSERPROFILE' ){
 
-        //     navigate(`/medical-support-consultation-queue/${applicationID}`);
+            navigate(`/telesupport-profile/${applicationID}`);
 
-        //     setNotificationsVisible(false);
+            setNotificationsVisible(false);
 
-        //     try{
+            try{
 
-        //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/setNotificationReadByNotificationId/${notificationID}`, {
-        //             headers: {
-        //                 Authorization: `Bearer ${access_token}`
-        //             }
-        //         });
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/setNotificationReadByNotificationId/${notificationID}`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
 
-        //         if ( response.status === 200 ){
+                if ( response.status === 200 ){
 
-        //             const responseData = response.data;
+                    const responseData = response.data;
 
-        //             fetchNotifications();                    
+                    fetchNotifications();                    
 
-        //         }
+                }
 
-        //     }catch(error){
+            }catch(error){
 
-        //         console.error(error);
+                console.error(error);
 
-        //     }
+            }
 
-        // }
+        }
 
     }
 
@@ -271,10 +271,17 @@ const TeleSupportNavBar = () => {
 
     }, [notificationArray]);
 
-    // Function to run when the new notification received
-    const newNotificationReceived = (message) => {
-
+    const commonNotificationReceived = (message) => {
+    
         const messageObject = JSON.parse(message.body);
+
+        console.log(messageObject);
+
+        if ( messageObject.notificationType === `RefreshTeleSupportNotifications` ){
+
+            fetchNotifications();
+
+        }
 
     }
 
@@ -293,7 +300,7 @@ const TeleSupportNavBar = () => {
             {},
             () => {
 
-                // client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+                client.subscribe(`/common/commonFunction`, (message) => commonNotificationReceived(message))
 
             },
             () => {
@@ -411,7 +418,7 @@ const TeleSupportNavBar = () => {
                                                         key={notification.id}
                                                     >
 
-                                                        {role === medicalSupportUser && (
+                                                        {role === teleSupport && (
 
                                                             <div 
                                                                 className={`py-3 mx-2 px-2 text-base rounded-lg ${notification.read ? '' : 'bg-sky-900'} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}

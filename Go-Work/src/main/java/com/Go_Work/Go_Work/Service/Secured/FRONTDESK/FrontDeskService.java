@@ -364,41 +364,6 @@ public class FrontDeskService {
 
     public List<ApplicationsResponseModel> fetchMedicationPlusFollowUpPaging(int pageNumber, int size) {
 
-//        Pageable pageable = PageRequest.of(pageNumber, size);
-//
-//        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
-//
-//        return applicationsPage
-//                .stream()
-//                .filter(applications -> applications.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED) )
-//                .map(application1 -> {
-//
-//                    ApplicationsResponseModel application = new ApplicationsResponseModel();
-//
-//                    BeanUtils.copyProperties(application1, application);
-//
-//                    if ( !application1.getBills().isEmpty() ){
-//
-//                        Bills latestBill = application1.getBills()
-//                                .stream()
-//                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
-//                                .findFirst()
-//                                .orElse(null);
-//
-//                        application.setBillNo(latestBill.getBillNo());
-//
-//                    }
-//
-//                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
-//
-//                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
-//                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
-//
-//                    return application;
-//
-//                })
-//                .collect(Collectors.toList());
-
         List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
@@ -455,6 +420,7 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> sortedList = fetchedApplications
                 .stream()
+//                .filter(appointment -> !appointment.getNextAppointmentDate().isEmpty() )
                 .sorted(Comparator.comparing(ApplicationsResponseModel::getNextFollowUpDate))
                 .toList();
 
@@ -735,9 +701,25 @@ public class FrontDeskService {
 
     public Boolean deleteNextAppointmentData(Long nextAppointmentID) {
 
-        nextAppointmentDateRepo.deleteById(nextAppointmentID);
+        NextAppointmentDate fetchedAppointment = nextAppointmentDateRepo.findById(nextAppointmentID).orElseThrow(
+                () -> new UsernameNotFoundException("Appointment Not Found")
+        );
 
-        return true;
+        Applications fetchedApplication = fetchedAppointment.getApplication();
+
+        List<NextAppointmentDate> fetchedAppointments = fetchedApplication.getNextAppointmentDate();
+
+        if ( fetchedAppointments.size() > 1 ){
+
+            fetchedApplication.getNextAppointmentDate().removeIf(appointment -> appointment.getId().equals(nextAppointmentID));
+
+            nextAppointmentDateRepo.deleteById(nextAppointmentID);
+
+            return true;
+
+        }
+
+        return false;
 
     }
 
@@ -774,6 +756,58 @@ public class FrontDeskService {
                 });
 
         return true;
+
+    }
+
+    public List<ApplicationsResponseModel> fetchCaseClosedAppointmentsPaging(int pageNumber, int size) {
+
+        List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
+
+        List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
+                .stream()
+                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.CASECLOSED))
+                .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
+                .map(application1 -> {
+
+                    ApplicationsResponseModel newApplication = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, newApplication);
+
+                    if ( application1.getBills() != null && !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        newApplication.setBillNo(latestBill.getBillNo());
+
+                    }
+
+                    User fetchedMedicalSupportUserDetails = application1.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        newApplication.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        newApplication.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        newApplication.setMedicalSupportUserId(null);
+                        newApplication.setMedicalSupportUserName(null);
+
+                    }
+
+                    return newApplication;
+
+                })
+                .toList();
+
+        int start = pageNumber * size;
+        int end = Math.min(start + size, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
 
     }
 

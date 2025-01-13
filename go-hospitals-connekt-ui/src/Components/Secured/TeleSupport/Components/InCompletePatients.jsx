@@ -3,16 +3,24 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {Toaster, toast} from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const InCompletePatients = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL; 
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -70,14 +78,42 @@ const InCompletePatients = () => {
 
                 setIsLastPage(appointmentsData.length < pageSize);
 
-                appointmentsData = appointmentsData.sort((a, b) => {
-                    const aHasSupportUser = a.medicalSupportUserId != null && a.medicalSupportUserName != null;
-                    const bHasSupportUser = b.medicalSupportUserId != null && b.medicalSupportUserName != null;
-
-                    return aHasSupportUser - bHasSupportUser;
-                });
-
                 setInCompleteApplications(appointmentsData);
+
+                return true;
+    
+            }
+
+        } catch (error) {
+        
+            handleError(error);
+
+            return false;
+        }
+
+    };
+
+    const fetchAllIncompleteSurgeryCarePatients2 = async (page) => {
+        
+        try {
+            
+            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchAllIncompleteSurgeryCarePatientsPaging/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                let appointmentsData = response.data;
+
+                if ( appointmentsData.length === 0 ){
+
+                    return false;
+
+                }
+
+                setIsLastPage(appointmentsData.length < pageSize);
 
                 return true;
     
@@ -128,7 +164,9 @@ const InCompletePatients = () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchAllIncompleteSurgeryCarePatients(page + 1);
+            const pageNumber = page + 1;
+
+            const hasPage = await fetchAllIncompleteSurgeryCarePatients2(pageNumber);
 
             if ( hasPage ){
 
@@ -173,6 +211,58 @@ const InCompletePatients = () => {
         fetchAllIncompleteSurgeryCarePatients();
 
     }, [page]);
+
+    const commonNotificationReceived = (message) => {
+    
+        const messageObject = JSON.parse(message.body);
+
+        console.log(messageObject);
+
+        if ( messageObject.notificationType === `RefreshTeleSupportNotifications` ){
+
+            fetchAllIncompleteSurgeryCarePatients();
+
+        }
+
+    }
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => commonNotificationReceived(message))
+
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 

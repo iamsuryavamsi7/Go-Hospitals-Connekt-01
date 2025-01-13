@@ -59,10 +59,12 @@ public class Applications {
 
     private boolean isPatientGotApproved;
 
+    private String caseCloseInput;
+
     private Boolean isMedicationPlusFollow;
 
     private boolean treatmentDone;
-    private boolean paymentDone;
+    private Boolean paymentDone;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
 

@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import { IoCloseCircleSharp } from 'react-icons/io5';
 
 const MyJobsConsulationProfileMedicalSupport = () => {
 
@@ -45,7 +46,8 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
         surgery: 'SURGERYCARE',
         pharmacy: 'PHARMACY',
         crossConsultation: 'CROSSCONSULTATION',
-        patientAdmit: 'PATIENTADMIT'
+        patientAdmit: 'PATIENTADMIT',
+        caseClosed: 'CASECLOSED'
     });
 
     const [consulationDoneisVisible, setConsulationDoneisVisible] = useState(false);
@@ -249,7 +251,17 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                     if ( consultationType1 === consultationType.surgery ) {
 
-                        navigate('/medical-support-surgery-care');
+                        if ( stompClient !== null ){
+
+                            const notificationTypeModel = {
+                                notificationType: `RefreshTeleSupportNotifications`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                            navigate('/medical-support-surgery-care');
+
+                        }
 
                     }
 
@@ -294,6 +306,50 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
         }catch(error){
 
             handleError(error);
+
+        }
+
+    }
+
+    const [caseCloseInput, setCaseCloseInput] = useState(``);
+
+    const caseClosedFunction = async (e) => {
+
+        e.preventDefault();
+
+        const applicationId = id;
+
+        if ( caseCloseInput !== `` && caseCloseInput !== null ){
+
+            const formData = new FormData();
+            
+            formData.append("caseCloseInput", caseCloseInput);
+
+            try{
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/makeConsultationTypeCaseClose/${applicationId}`, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+    
+                if ( response.status === 200 ){
+    
+                    const booleavValue = response.data;
+    
+                    if ( booleavValue ){
+    
+                        navigate('/medical-support-consulation-queue');
+    
+                    }
+    
+                }
+    
+            }catch(error){
+    
+                handleError(error);
+    
+            }
 
         }
 
@@ -401,6 +457,9 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
         }
 
     }, []);
+
+    // State to toggle the caseClosed 
+    const [caseClosedActivated, setCaseClosedActivated] = useState(false);
 
     return (
 
@@ -638,7 +697,6 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                                     {patientData.consultationType === 'PHARMACY' && 'In Pharmacy'}
 
-
                                 </div>
 
                             </div>
@@ -730,7 +788,9 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                             }}
                         >
 
-                            <div className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800">
+                            <div 
+                                className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800"
+                            >
                             
                                 <div 
                                     className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
@@ -769,7 +829,7 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                                 </div>
 
                                 <div    
-                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
                                     onClick={(consultation) => consulationTypeUpdateFunction(consultationType.patientAdmit)}    
                                 >
 
@@ -777,7 +837,89 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                                 </div>
 
+                                <div    
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                    onClick={() => {
+
+                                        setCaseClosedActivated(true)
+        
+                                    }}
+                                >
+
+                                    <button>Case Closed</button>
+
+                                </div>
+
                             </div>
+
+                        </div>
+
+                    )}
+
+                    {caseClosedActivated && (
+
+                        <div className="fixed top-0 right-0 left-0 bottom-0 z-50 backdrop-blur-[2px] flex justify-center items-center">
+
+                            <form 
+                                className="block relative bg-gray-900 rounded-2xl border-[1px] border-gray-800 py-5"
+                                onClick={caseClosedFunction}
+                            >
+                            
+                                <div 
+                                    className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                >
+                                    
+                                    <label className='text-xs'>Write any feed (Optional)</label><br />
+
+                                    <textarea 
+                                        type='text'
+                                        className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                        value={caseCloseInput}
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setCaseCloseInput(value);
+
+                                        }}
+                                    />
+                                
+                                </div>
+
+                                <div className="">
+
+                                    <div className='mx-10 text-xs'> Are you sure you want to close the case <span className='text-red-500'>*</span></div>
+
+                                    <div className="">
+
+                                        <button 
+                                            className='bg-[#238636] ml-10 mr-5 mt-2 px-2 rounded-lg leading-8 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                        >
+                                            
+                                            Conform
+    
+                                        </button>
+
+                                        <button 
+                                            className='bg-red-500 mt-2 px-2 rounded-lg leading-8 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                            onClick={() => {
+
+                                                setCaseClosedActivated(false);
+
+                                            }}
+                                        >
+                                            
+                                            Cancel
+    
+                                        </button>
+
+                                    </div>
+                                    
+                                </div>
+
+                            </form>
 
                         </div>
 

@@ -322,4 +322,17 @@ public class FrontDeskController {
 
     }
 
+
+    @GetMapping("/fetchCaseClosedAppointmentsPaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchCaseClosedAppointmentsPaging(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = frontDeskService.fetchCaseClosedAppointmentsPaging(pageNumber, size);
+
+        return ResponseEntity.ok(fetchedApplications);
+
+    }
+
 }
