@@ -11,10 +11,16 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const PharmacyCare = () => {
 
-// Use Navigation Hook
+    // Use Navigation Hook
     const navigate = useNavigate();
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // GoHospitals BadEnd API Cookie Saving Path
+    const goHospitalsCookieSavingPath = import.meta.env.VITE_COOKIE_SAVING_PATH;
+
+    // State Management
     const [loading, setLoading] = useState(true);
 
     const [loginData, setLoginData] = useState({
@@ -22,7 +28,7 @@ const PharmacyCare = () => {
         password: ''
     });
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -55,7 +61,7 @@ const PharmacyCare = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/auth/authenticate-pharmacy-care', loginData);
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/auth/authenticate-pharmacy-care`, loginData);
 
             if ( response.status === 200 ){
 
@@ -65,7 +71,7 @@ const PharmacyCare = () => {
 
                 Cookies.set('access_token', access_token, {
                     path: '/',
-                    domain: '.gohospitals.in', 
+                    domain: goHospitalsCookieSavingPath, 
                     expires: 1,
                     secure: false, // Set to true if using HTTPS
                     sameSite: 'Lax' // Allows sharing across subdomains
@@ -79,7 +85,7 @@ const PharmacyCare = () => {
 
                     try{
 
-                        const response = await axios.post('http://localhost:7777/api/v1/auth/fetchUserRole', formData);
+                        const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/auth/fetchUserRole`, formData);
 
                         if ( response.status === 200 ){ 
 

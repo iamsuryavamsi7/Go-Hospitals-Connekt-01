@@ -259,6 +259,8 @@ const CurrentJob = () => {
 
                                                 {job.consultationType === 'PHARMACY' && 'In Pharmacy'}
 
+                                                {job.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
                                             </th>
                                             <th>{job.billNo}</th>
                                             <th

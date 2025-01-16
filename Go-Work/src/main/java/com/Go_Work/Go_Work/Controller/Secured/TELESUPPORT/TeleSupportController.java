@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -45,13 +44,13 @@ public class TeleSupportController {
 
     }
 
-    @GetMapping("/assign-tele-support-user/{id}")
+    @GetMapping("/assign-tele-support-user/{applicationId}")
     public ResponseEntity<String> assignTeleSupportUser(
-            @PathVariable("id") Long id,
+            @PathVariable("applicationId") Long applicationId,
             HttpServletRequest request
     ) throws ApplicationNotFoundException {
 
-        String successMessage =  teleSupportService.assignTeleSupportUser(id, request);
+        String successMessage =  teleSupportService.assignTeleSupportUser(applicationId, request);
 
         return ResponseEntity.ok(successMessage);
 
@@ -134,6 +133,28 @@ public class TeleSupportController {
         String message = teleSupportService.setNotificationReadByNotificationId(id);
 
         return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/acceptSurgeryCareDocs/{applicationID}")
+    public ResponseEntity<Boolean> acceptSurgeryCareDocs(
+            @PathVariable("applicationID") Long applicationID
+    ) throws ApplicationNotFoundException {
+
+        Boolean booleanValue = teleSupportService.acceptSurgeryCareDocs(applicationID);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @GetMapping("/rejectSurgeryCareDocs/{applicationID}")
+    public ResponseEntity<Boolean> rejectSurgeryCareDocs(
+            @PathVariable("applicationID") Long applicationID
+    ) throws ApplicationNotFoundException {
+
+        Boolean booleanValue = teleSupportService.rejectSurgeryCareDocs(applicationID);
+
+        return ResponseEntity.ok(booleanValue);
 
     }
 

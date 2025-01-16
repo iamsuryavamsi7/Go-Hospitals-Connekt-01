@@ -237,6 +237,7 @@ const PharmacyNavBar = () => {
             for(let i = 0; i < unPlayedNotificationsCount.length; i++){
 
                 const currentNotificationID = unPlayedNotificationsCount[i].id;
+                const currentNotificationMessage = unPlayedNotificationsCount[i].message;
 
                 try{
 
@@ -251,6 +252,19 @@ const PharmacyNavBar = () => {
                         const responseData = response.data;
 
                         setTimeout(() => {
+
+                            Notification.requestPermission().then(perm => {
+
+                                if ( perm === 'granted' ){
+                    
+                                    new Notification('Nursing Notification', {
+                                        body: currentNotificationMessage,
+                                        icon: '/Go-Hospitals-Logo.webp'
+                                    });
+                    
+                                }
+                    
+                            });
 
                             const audio = new Audio(`/Notifications/notification_count.mp4`);
         

@@ -13,6 +13,9 @@ const PharmacyCareRegister = () => {
     // State's for temperory data storage
     const [loading, setLoading] = useState(true);
 
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
     const navigate = useNavigate();
 
     const role = 'PHARMACYCARE';
@@ -26,7 +29,7 @@ const PharmacyCareRegister = () => {
         role: role
     });
 
-// Functions
+    // Functions
 
     const handleError = (error) => {
 
@@ -62,7 +65,7 @@ const PharmacyCareRegister = () => {
 
             try{
 
-                const response = await axios.post('http://localhost:7777/api/v1/auth/register', userData);
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/auth/register`, userData);
 
                 if ( response.status === 200 ){
 

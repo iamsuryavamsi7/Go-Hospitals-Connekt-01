@@ -336,7 +336,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartments', {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartments`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -366,7 +366,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartmentById/' + departmentId, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartmentById/` + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -406,7 +406,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/front-desk/fetchDoctorsByDepartmentId/' + departmentId, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchDoctorsByDepartmentId/` + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }

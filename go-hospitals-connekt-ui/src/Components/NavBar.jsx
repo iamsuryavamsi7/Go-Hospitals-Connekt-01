@@ -4,7 +4,7 @@ const NavBar = () => {
 
     return (
 
-        <div className="h-16 mt-1 flex items-center">
+        <div className="h-16 mt-1 flex items-center border-b-[1px] border-b-gray-700">
 
             <div className="mx-10">
 

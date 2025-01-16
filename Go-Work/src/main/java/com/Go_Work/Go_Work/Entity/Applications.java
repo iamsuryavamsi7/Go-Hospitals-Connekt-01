@@ -82,15 +82,17 @@ public class Applications {
     private User medicalSupportUser;
 
     @ManyToOne
-    @JsonBackReference("tele-support-application")
     @JoinColumn(
             name = "tele_support_user_id"
     )
+    @JsonBackReference("tele-support-application")
     private User teleSupportUser;
 
     private Date teleSupportUserAssignedTime;
 
     private boolean teleSupportConsellingDone;
+
+    private boolean teleSupportSurgeryDocumentsAccept;
 
     private Date pharmacyGoingTime;
 

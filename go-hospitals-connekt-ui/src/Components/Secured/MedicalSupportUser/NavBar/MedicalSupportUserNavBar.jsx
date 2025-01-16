@@ -236,6 +236,7 @@ const MedicalSupportUserNavBar = () => {
             for(let i = 0; i < unPlayedNotificationsCount.length; i++){
 
                 const currentNotificationID = unPlayedNotificationsCount[i].id;
+                const currentNotificationMessage = unPlayedNotificationsCount[i].message;
 
                 try{
 
@@ -247,9 +248,22 @@ const MedicalSupportUserNavBar = () => {
 
                     if ( response.status === 200 ){
 
-                        const responseData = response.data;
+                        const responseData = response.data; 
 
                         setTimeout(() => {
+
+                            Notification.requestPermission().then(perm => {
+
+                                if ( perm === 'granted' ){
+                    
+                                    new Notification('Nursing Notification', {
+                                        body: currentNotificationMessage,
+                                        icon: '/Go-Hospitals-Logo.webp'
+                                    });
+                    
+                                }
+                    
+                            });
 
                             const audio = new Audio(`/Notifications/notification_count.mp4`);
         
@@ -325,7 +339,7 @@ const MedicalSupportUserNavBar = () => {
             }
         );
 
-        // Disconnect on page unmount
+        // Disconnect on page unmount 
         return () => {
 
             if ( client ){
@@ -358,7 +372,9 @@ const MedicalSupportUserNavBar = () => {
 
                     </div>
 
-                    <div className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser">
+                    <div 
+                        className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser"
+                    >
 
                         works
 

@@ -50,36 +50,6 @@ public class WebSocketService {
     @Transactional
     public Notification sendRequestToFrontDeskCrossConsultation(CrossConsultationApplicationIDModel crossConsultationApplicationIDModel) throws ApplicationNotFoundException {
 
-        Applications fetchedApplication = applicationsRepo.findById(crossConsultationApplicationIDModel.getApplicationId()).orElseThrow(
-                () -> new ApplicationNotFoundException("Application Not Found")
-        );
-
-        fetchedApplication.setTreatmentDone(true);
-
-        applicationsRepo.save(fetchedApplication);
-
-        userRepo.findAll()
-                .stream()
-                .filter(user -> user.getRole().equals(Role.FRONTDESK))
-                .forEach(user1 -> {
-
-                    Notification notification = new Notification();
-
-                    notification.setMessage("Cross Consultation Request !");
-                    notification.setApplicationId(fetchedApplication.getId());
-                    notification.setUser(user1);
-                    notification.setTimeStamp(new Date(System.currentTimeMillis()));
-                    notification.setRead(false);
-                    notification.setNotificationStatus(NotificationStatus.CROSSCONSULTATIONNEEDED);
-
-                    notificationRepo.save(notification);
-
-                    user1.getNotifications().add(notification);
-
-                    userRepo.save(user1);
-
-                });
-
         Notification notification = new Notification();
 
         notification.setNotificationStatus(NotificationStatus.CROSSCONSULTATIONNEEDED);

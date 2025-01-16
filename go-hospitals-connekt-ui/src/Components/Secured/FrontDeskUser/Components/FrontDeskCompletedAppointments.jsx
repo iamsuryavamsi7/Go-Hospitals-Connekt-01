@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { useEffect, useState } from 'react'
 import { GiSandsOfTime } from 'react-icons/gi'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const ClosedCasesFrontDesk = () => {
+const FrontDeskCompletedAppointments = () => {
 
     // JWT Token
     const access_token = Cookies.get('access_token');
@@ -52,10 +53,10 @@ const ClosedCasesFrontDesk = () => {
 
     }
 
-    const fetchCaseClosedAppointments2 = async (page) => {
+    const fetchCompletedAppointments2 = async (page) => {
         
         try {
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchCaseClosedAppointments/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchCompletedAppointmentsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -64,8 +65,6 @@ const ClosedCasesFrontDesk = () => {
             if (response.status === 200) {
 
                 const appointmentsData = response.data;
-
-                console.log(appointmentsData);
 
                 if ( appointmentsData.length === 0 ){
 
@@ -90,7 +89,7 @@ const ClosedCasesFrontDesk = () => {
 
             const page = page + 1;
 
-            const hasPage = await fetchCaseClosedAppointments2(page);
+            const hasPage = await fetchCompletedAppointments2(page);
 
             if ( hasPage ){
 
@@ -120,10 +119,10 @@ const ClosedCasesFrontDesk = () => {
 
     }
 
-    const fetchCaseClosedAppointments = async () => {
+    const fetchCompletedAppointments = async () => {
         
         try {
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchCaseClosedAppointmentsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchCompletedAppointmentsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -132,8 +131,6 @@ const ClosedCasesFrontDesk = () => {
             if (response.status === 200) {
 
                 const appointmentsData = response.data;
-
-                console.log(appointmentsData);
 
                 if ( appointmentsData.length === 0 ){
 
@@ -192,7 +189,7 @@ const ClosedCasesFrontDesk = () => {
 
             fetchUserObject();
 
-            fetchCaseClosedAppointments();
+            fetchCompletedAppointments();
 
         } else {
 
@@ -204,12 +201,12 @@ const ClosedCasesFrontDesk = () => {
 
     useEffect(() => {
 
-        fetchCaseClosedAppointments();
+        fetchCompletedAppointments();
 
     }, [page]);
 
     return (
-        
+
         <>
         
             {role === frontDesk && (
@@ -338,4 +335,4 @@ const ClosedCasesFrontDesk = () => {
 
 }
 
-export default ClosedCasesFrontDesk
+export default FrontDeskCompletedAppointments

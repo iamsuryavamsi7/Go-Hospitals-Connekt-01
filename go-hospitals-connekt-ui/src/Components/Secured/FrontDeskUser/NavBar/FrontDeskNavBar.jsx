@@ -15,7 +15,7 @@ const FrontDeskNavBar = () => {
     // Use Navigate Hook
     const navigate = useNavigate();
 
-    // State to store the medical support user role
+    // State to store the medical support user role 
     const fronDesk = 'FRONTDESK';
 
     // GoHospitals BackEnd API environment variable
@@ -144,7 +144,7 @@ const FrontDeskNavBar = () => {
 
                 setNotificationArray(notificationData);
 
-                console.log(`Notification Fetched`);
+                console.log(`Notification Fetched`); 
 
             }
 
@@ -206,17 +206,23 @@ const FrontDeskNavBar = () => {
 
             }
 
-        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
+        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' || notificationStatus === 'FOLLOWUPPATIENT' || notificationStatus === 'CASECLOSED' ){
 
             navigate(`/front-desk-follow-up-profile/${applicationID}`);
 
         }
 
-        if ( notificationStatus === 'FOLLOWUPPATIENT' ){
+        // if ( notificationStatus === 'FOLLOWUPPATIENT' ){
 
-            navigate(`/front-desk-follow-up-profile/${applicationID}`);
+        //     navigate(`/front-desk-follow-up-profile/${applicationID}`);
 
-        }
+        // }
+
+        // if ( notificationStatus === 'CASECLOSED' ){
+
+        //     navigate(`/front-desk-follow-up-profile/${applicationID}`);
+
+        // }
 
     }
 
@@ -235,11 +241,14 @@ const FrontDeskNavBar = () => {
 
         });
 
+        console.log(notificationArray);
+
         const playMusicFunction = async () => {
                 
             for(let i = 0; i < unPlayedNotificationsCount.length; i++){
 
                 const currentNotificationID = unPlayedNotificationsCount[i].id;
+                const currentNotificationMessage = unPlayedNotificationsCount[i].message;
 
                 try{
 
@@ -253,9 +262,20 @@ const FrontDeskNavBar = () => {
 
                         const responseData = response.data;
 
-                        console.log(responseData);
-
                         setTimeout(() => {
+
+                            Notification.requestPermission().then(perm => {
+
+                                if ( perm === 'granted' ){
+                    
+                                    new Notification('Nursing Notification', {
+                                        body: currentNotificationMessage,
+                                        icon: '/Go-Hospitals-Logo.webp'
+                                    });
+                    
+                                }
+                    
+                            });
 
                             const audio = new Audio(`/Notifications/notification_count.mp4`);
         
@@ -302,7 +322,7 @@ const FrontDeskNavBar = () => {
 
         console.log(messageObject);
 
-        if ( messageObject.notificationType === `RefreshMedicationPlusFollowUpPage` ){
+        if ( messageObject.notificationType === `RefreshMedicationPlusFollowUpPage` || messageObject.notificationType === `RefreshFrontDeskCaseClosed` ){
 
             fetchNotifications();
 

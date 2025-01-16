@@ -70,6 +70,8 @@ const ConsultationQueueMedicalSupport = () => {
 
                 let appointmentsData = response.data;
 
+                console.log(appointmentsData);
+
                 if ( appointmentsData.length === 0 ){
 
                     return false;

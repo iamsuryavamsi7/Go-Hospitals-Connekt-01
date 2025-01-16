@@ -811,6 +811,58 @@ public class FrontDeskService {
 
     }
 
+    public List<ApplicationsResponseModel> fetchCompletedAppointments(int pageNumber, int size) {
+
+        List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
+
+        List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
+                .stream()
+                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.COMPLETED))
+                .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
+                .map(application1 -> {
+
+                    ApplicationsResponseModel newApplication = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(application1, newApplication);
+
+                    if ( application1.getBills() != null && !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        newApplication.setBillNo(latestBill.getBillNo());
+
+                    }
+
+                    User fetchedMedicalSupportUserDetails = application1.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        newApplication.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        newApplication.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        newApplication.setMedicalSupportUserId(null);
+                        newApplication.setMedicalSupportUserName(null);
+
+                    }
+
+                    return newApplication;
+
+                })
+                .toList();
+
+        int start = pageNumber * size;
+        int end = Math.min(start + size, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
+
+    }
+
 }
 
 

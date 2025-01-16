@@ -221,43 +221,48 @@ public class PharmacyService {
 
     }
 
-    public List<ApplicationsResponseModel> fetchAllPharmacyMedicationsPaging(int pageNumber, int size) {
+    public List<ApplicationsResponseModel> fetchAllPharmacyMedicationsPaging(int page, int pageSize) {
 
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
+                            .stream()
+                            .filter(applications -> applications.getConsultationType().equals(ConsultationType.PHARMACY))
+                            .sorted(Comparator.comparing(Applications::getPharmacyGoingTime).reversed())
+                            .map(application1 -> {
 
-        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+                                ApplicationsResponseModel application = new ApplicationsResponseModel();
 
-        return applicationsPage
-                .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.PHARMACY))
-                .sorted(Comparator.comparing(Applications::getPharmacyGoingTime).reversed())
-                .map(application1 -> {
+                                BeanUtils.copyProperties(application1, application);
 
-                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+                                if ( !application1.getBills().isEmpty() ){
 
-                    BeanUtils.copyProperties(application1, application);
+                                    Bills latestBill = application1.getBills()
+                                            .stream()
+                                            .sorted(Comparator.comparing(Bills::getTimeStamp))
+                                            .findFirst()
+                                            .orElse(null);
 
-                    if ( !application1.getBills().isEmpty() ){
+                                    application.setBillNo(latestBill.getBillNo());
 
-                        Bills latestBill = application1.getBills()
-                                .stream()
-                                .sorted(Comparator.comparing(Bills::getTimeStamp))
-                                .findFirst()
-                                .orElse(null);
+                                }
 
-                        application.setBillNo(latestBill.getBillNo());
+                                if ( application1.getMedicalSupportUser() != null ){
 
-                    }
+                                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
 
-                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+                                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
+                                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
 
-                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
-                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+                                }
 
-                    return application;
+                                return application;
 
-                })
-                .collect(Collectors.toList());
+                            })
+                            .collect(Collectors.toList());
+
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
 
     }
 

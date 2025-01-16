@@ -52,9 +52,10 @@ public class TeleSupportResponseModel {
     private Long medicalSupportUserId;
     private String medicalSupportUserName;
 
-    private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
-
     private Long teleSupportUserId;
     private String teleSupportUserName;
+    private boolean teleSupportSurgeryDocumentsAccept;
+
+    private List<SurgeryDocumentsUrls> surgeryDocumentsUrls = new ArrayList<>();
 
 }

@@ -10,12 +10,19 @@ import { IoCloseCircle } from 'react-icons/io5';
 
 const TeleSupportProfiles = () => {
 
-// JWT Token
-    const access_token = Cookies.get('access_token');
+    // JWT Token
+    const access_token = Cookies.get('access_token'); 
 
+    // useNavigate Hook for url change
     const navigate = useNavigate();
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL; 
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -84,7 +91,7 @@ const TeleSupportProfiles = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -112,13 +119,9 @@ const TeleSupportProfiles = () => {
 
     const fetchUserObject = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -144,11 +147,9 @@ const TeleSupportProfiles = () => {
 
     const takeJobFunction = async () => {
 
-        console.log("Hi")
-
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/assign-tele-support-user/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/assign-tele-support-user/${id}`, {
                 headers: {
                     Authorization: `Bearer ${access_token}`
                 }
@@ -316,7 +317,7 @@ const TeleSupportProfiles = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
@@ -669,7 +670,7 @@ const TeleSupportProfiles = () => {
 
                                 {fetchedImageVisible && (
                                         
-                                    <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
+                                    <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm z-50">
                                     
                                         <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
 

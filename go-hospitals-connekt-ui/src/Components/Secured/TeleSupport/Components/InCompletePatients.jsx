@@ -68,7 +68,7 @@ const InCompletePatients = () => {
     
             if (response.status === 200) {
 
-                let appointmentsData = response.data;
+                const appointmentsData = response.data;
 
                 if ( appointmentsData.length === 0 ){
 
@@ -77,6 +77,8 @@ const InCompletePatients = () => {
                 }
 
                 setIsLastPage(appointmentsData.length < pageSize);
+
+                console.log(appointmentsData);
 
                 setInCompleteApplications(appointmentsData);
 
@@ -264,6 +266,61 @@ const InCompletePatients = () => {
 
     }, []);
 
+    const takeJobFunction = async (application) => {
+
+        const applicationID = application.id;
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/assign-tele-support-user/${applicationID}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                toast.success("Job Taken", {
+                    autoClose: 1000,
+                    style: {
+                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                        color: '#fff', // Tailwind text-white
+                        fontWeight: '600', // Tailwind font-semibold
+                        borderRadius: '0.5rem', // Tailwind rounded-lg
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                        marginTop: '2.5rem' // Tailwind mt-10,
+                    }
+                });
+
+                setTimeout(() => {
+
+                    navigate(`/telesupport-MyJobs`);
+
+                }, 1600);
+
+            }
+
+        }catch(error){
+
+            handleError(error);
+
+            toast.error("Something went wrong", {
+                autoClose: 2000,
+                style: {
+                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    color: '#fff', // Tailwind text-white
+                    fontWeight: '600', // Tailwind font-semibold
+                    borderRadius: '0.5rem', // Tailwind rounded-lg
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    marginTop: '2.5rem' // Tailwind mt-10,
+                },
+                position: 'top-center'
+            });
+
+        }
+
+    }
+
     return (
 
         <>
@@ -293,7 +350,7 @@ const InCompletePatients = () => {
                                         <th>Doctors Name</th>
                                         <th>Bill No</th>
                                         <th>Medical Support User</th>
-                                        <th>Status</th>
+                                        <th>Counselling User</th>
 
                                     </tr>
 
@@ -307,6 +364,8 @@ const InCompletePatients = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
+                                        <th>No Data</th>
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
@@ -333,9 +392,11 @@ const InCompletePatients = () => {
                                                 <th>{application.preferredDoctorName}</th>
                                                 <th>{application.billNo}</th>
                                                 <th>{application.medicalSupportUserName}</th>
-                                                <th>
+                                                <th
+                                                    onClick={() => takeJobFunction(application)}
+                                                >
                                                     
-                                                    {application.consultationType === 'ONSITETREATMENT' && (
+                                                    {/* {application.consultationType === 'ONSITETREATMENT' && (
 
                                                     <span>On Site Treatment</span>
 
@@ -362,6 +423,16 @@ const InCompletePatients = () => {
                                                     {application.consultationType === 'PATIENTADMIT' && (
 
                                                     <span>Patient Admit</span>
+
+                                                    )} */}
+
+                                                    {application.teleSupportUserName !== null ? (
+
+                                                        <span>{application.teleSupportUserName}</span>
+
+                                                    ) : (
+
+                                                        <span className='text-red-500'>Take Job</span>
 
                                                     )}
 

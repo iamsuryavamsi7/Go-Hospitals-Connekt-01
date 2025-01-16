@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { IoPeopleCircleOutline, IoPersonAddSharp } from 'react-icons/io5';
 import { SiTicktick } from 'react-icons/si';
-import { MdFollowTheSigns } from 'react-icons/md';
+import { MdFollowTheSigns, MdOutlineIncompleteCircle } from 'react-icons/md';
 import { CgDetailsMore } from 'react-icons/cg';
 import { useNavigate } from 'react-router-dom'; 
 import { Toaster, toast } from 'react-hot-toast';
@@ -82,7 +82,7 @@ const LeftNavBarFrontDesk = () => {
     // Function to copy the link for frontend
     const copyMyLinkFunction = () => {
 
-        const textToCopy = `http://gowork.gohospitals.in:7778/patient-self-filling-page`;
+        const textToCopy = `http://localhost:7778/patient-self-filling-page`;
 
         // Check if `navigator.clipboard` is supported
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -150,7 +150,7 @@ const LeftNavBarFrontDesk = () => {
 
         }else {
 
-            window.open(`${goHospitalsFRONTENDBASEURL}`, '_self');
+            // window.open(`${goHospitalsFRONTENDBASEURL}`, '_self');
 
         }
 
@@ -183,6 +183,10 @@ const LeftNavBarFrontDesk = () => {
     const [crossConsultationApprovals, setCrossConsultationApprovals] = useState(`text-gray-400`);
 
     const [crossConsultationApprovals2, setCrossConsultationApprovals2] = useState(`text-gray-400`);
+
+    const [completedAppointment1, setCompletedAppointment1] = useState(`text-gray-400`);
+
+    const [completedAppointment2, setCompletedAppointment2] = useState(`text-gray-400`);
 
     const [caseClosed1, setCaseClosed1] = useState(`text-gray-400`);
 
@@ -258,6 +262,20 @@ const LeftNavBarFrontDesk = () => {
             setCrossConsultationApprovals(`text-gray-400`);
 
             setCrossConsultationApprovals2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-completed-appointments`){
+
+            setCompletedAppointment1(`text-sky-500`);
+
+            setCompletedAppointment2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setCompletedAppointment1(`text-gray-400`);
+
+            setCompletedAppointment2(`text-gray-400`);
 
         }
 
@@ -673,6 +691,28 @@ const LeftNavBarFrontDesk = () => {
 
                         </div>
 
+                        <div 
+                            className={`${completedAppointment1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => navigate('/front-desk-completed-appointments')}
+                        >
+
+
+                            <div className="">
+
+                                <MdOutlineIncompleteCircle 
+                                    className={`${completedAppointment2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Completed Appointments
+
+                            </div>
+
+                        </div>
+                        
                         <div 
                             className={`${caseClosed1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-closed-cases')}

@@ -5,13 +5,19 @@ import axios from 'axios';
 
 const MyJobs = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL; 
+
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -30,7 +36,7 @@ const MyJobs = () => {
 
     const [myJobs, setMyJobs] = useState([]);
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -53,7 +59,7 @@ const MyJobs = () => {
 
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchMyJobsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchMyJobsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -73,26 +79,44 @@ const MyJobs = () => {
 
                 setIsLastPage(myJobsData.length < pageSize);
 
-                // Sort to place items with consultationType "WAITING" first
-                myJobsData = myJobsData.sort((a, b) => {
-                    
-                    if (a.consultationType === "WAITING" && b.consultationType !== "WAITING") {
-                    
-                        return -1;
-                    
-                    } else if (a.consultationType !== "WAITING" && b.consultationType === "WAITING") {
-                    
-                        return 1;
-                    
-                    } else {
-                    
-                        return 0;
-                    
-                    }
-                
-                });
-
                 setMyJobs(myJobsData);
+
+                return true;
+
+            }
+
+        } catch (error) {
+        
+            handleError(error);
+
+            return false;
+        }
+
+    };
+
+    const fetchMyJobs2 = async (page) => {
+
+        try {
+            
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchMyJobsPaging/${page}/${pageSize}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+                
+                let myJobsData = response.data;
+
+                console.log(myJobsData);
+
+                if ( myJobsData.length === 0 ){ 
+
+                    return false;
+
+                }
+
+                setIsLastPage(myJobsData.length < pageSize);
 
                 return true;
 
@@ -109,13 +133,9 @@ const MyJobs = () => {
 
     const fetchUserObject = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -147,7 +167,9 @@ const MyJobs = () => {
 
         if ( !isLastPage ) {
 
-            const hasPage = await fetchMyJobs(page + 1);
+            const pageNumber = page + 1;
+
+            const hasPage = await fetchMyJobs2(pageNumber);
 
             if ( hasPage ){
 
@@ -180,7 +202,7 @@ const MyJobs = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 

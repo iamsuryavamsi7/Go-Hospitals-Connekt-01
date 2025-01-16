@@ -10,12 +10,16 @@ import { IoCloseCircle } from 'react-icons/io5';
 
 const MyJobsProfile = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-    const navigate = useNavigate();
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL; 
 
-// State Management
+    // GoHospitals BASE URL environment variable
+    const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -84,7 +88,7 @@ const MyJobsProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -102,7 +106,7 @@ const MyJobsProfile = () => {
 
         }catch(error){
 
-            handleError(error);
+            console.error(error);
 
             setPatientData([]);
 
@@ -112,13 +116,9 @@ const MyJobsProfile = () => {
 
     const fetchUserObject = async () => {
 
-        const formData = new FormData();
-
-        formData.append("jwtToken", access_token);
-
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchUserObject`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -142,67 +142,13 @@ const MyJobsProfile = () => {
 
     }    
 
-    const takeJobFunction = async () => {
-
-        console.log("Hi")
-
-        try{
-
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/assign-tele-support-user/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                toast.success("Job Taken", {
-                    autoClose: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    }
-                });
-
-                setTimeout(() => {
-
-                    navigate(`/telesupport-MyJobs`);
-
-                }, 1600);
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-            toast.error("Something went wrong", {
-                autoClose: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
-
-        }
-
-    }
-
     const sendLinkFunction = () => {
 
         window.open(`https://wa.me/${patientData.contact}?text=Click%20on%20this%20link%20to%20go%20further%20with%20our%20surgery%20process%3A%20http%3A%2F%2Fgowork.gohospitals.in%3A7778%2Fpublic%2Ffill-the-surgery-form%2F${userObject.id}%2F${id}`, '_blank');
 
     }
 
+    // Function to copy link
     const copyLinkFunction = () => {
 
         const teleSupportUserId = userObject.id;
@@ -276,20 +222,24 @@ const MyJobsProfile = () => {
             console.log("Started...");
     
             try {
-                const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageSrc1, {
                     responseType: 'blob',
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     }
                 });
     
-                const value = response.data;
-                const mimeType = response.headers['content-type'];
-                const blobUrl = URL.createObjectURL(value);
-    
-                console.log("Finished...");
-    
-                return { blobUrl, mimeType };
+                if ( response.status === 200 ){
+
+                    const value = response.data;
+                    const mimeType = response.headers['content-type'];
+                    const blobUrl = URL.createObjectURL(value);
+        
+                    console.log("Finished...");
+        
+                    return { blobUrl, mimeType };
+
+                }
     
             } catch (error) {
                 handleError(error);
@@ -317,7 +267,7 @@ const MyJobsProfile = () => {
 
             try{
 
-                const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${fileName1}`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     },
@@ -378,11 +328,107 @@ const MyJobsProfile = () => {
 
         } else {
 
-            console.log("Jwt Token is not avaiable");
+            window.open(goHospitalsFRONTENDBASEURL, '_self');
 
         }
 
     }, [id]);
+
+    const counsellingDone = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/consellingDone/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const booleavValue = response.data;
+
+                if ( booleavValue ){
+
+                    fetchAppointmentData();
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+            setPatientData([]);
+
+        }
+
+    }
+
+    const dontAcceptUploads = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/rejectSurgeryCareDocs/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const booleavValue = response.data;
+
+                if ( booleavValue ){
+
+                    fetchAppointmentData();
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+            setPatientData([]);
+
+        }
+
+    }
+
+    const acceptUploads = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/acceptSurgeryCareDocs/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            })
+
+            if ( response.status === 200 ){
+
+                const booleavValue = response.data;
+
+                if ( booleavValue ){
+
+                    fetchAppointmentData();
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+            setPatientData([]);
+
+        }
+
+    }
 
     return (
 
@@ -394,273 +440,239 @@ const MyJobsProfile = () => {
 
                 <>
 
-                {patientData &&  patientData.length === 0 ? (
+                    {patientData &&  patientData.length === 0 ? (
 
-                    <div className="relative h-[500px]">
+                        <div className="relative h-[500px]">
 
-                        <div className="absolute left-0 right-0 bottom-0 top-0 flex items-center justify-center">
+                            <div className="absolute left-0 right-0 bottom-0 top-0 flex items-center justify-center">
 
-                            No Data Available
-
-                        </div>
-
-                    </div>
-
-                ): (
-
-                    <>
-
-                        <div 
-                            className="mb-7"
-                        >
-
-                            <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
-
-                                Patient Details    
+                                No Data Available
 
                             </div>
 
-                            <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
+                        </div>
 
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                    ): (
 
-                                    <div className="text-base text-gray-300">
+                        <>
 
-                                        Name
+                            <div 
+                                className="mb-7"
+                            >
 
-                                    </div>
+                                <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
 
-                                    <div className="text-lg">
-                                        
-                                        {patientData.name}
-
-                                    </div>
+                                    Patient Details    
 
                                 </div>
 
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Age
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.age}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Contact
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.contact}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Address
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.address}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Gender
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.gender}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Medical History
-
-                                    </div>
-
-                                    <div className="text-lg w-auto break-words">
-                                        
-                                        {patientData.medicalHistory}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Reason for visit
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.reasonForVisit}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Bill No
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.billNo}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Preferred Doctor
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.preferredDoctorName}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Medical Support Name
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.medicalSupportUserName}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Appointment Created On
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {formattedDate}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Booked By
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.bookedBy}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Status
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.consultationType}
-
-                                    </div>
-
-                                </div>
-
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                    <div className="text-base text-gray-300">
-
-                                        Treatment Status
-
-                                    </div>
-
-                                    <div className="text-lg">
-                                        
-                                        {patientData.treatmentDone ? (
-
-                                            <span> Done </span>
-
-                                        ) : (
-
-                                            <span> Not Done </span>
-
-                                        )}
-
-                                    </div>
-
-                                </div>
-
-                                {patientData.teleSupportUserName && (
+                                <div className="ml-10 grid grid-cols-3 gap-x-5 gap-y-5">
 
                                     <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                         <div className="text-base text-gray-300">
 
-                                            Tele Support User
+                                            Name
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.name}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Patient ID
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.patientId}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Phone No
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.contact}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Age
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.age}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Gender
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.gender}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Reason for visit
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.reasonForVisit}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Bill No
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.billNo}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Preferred Doctor
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.preferredDoctorName}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Medical Support Name
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.medicalSupportUserName}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Booked By
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.bookedBy}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Status
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.consultationType}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Treatment Status
+
+                                        </div>
+
+                                        <div className="text-lg">
+                                            
+                                            {patientData.treatmentDone ? (
+
+                                                <span> Done </span>
+
+                                            ) : (
+
+                                                <span> Not Done </span>
+
+                                            )}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Tele Counsellor
 
                                         </div>
 
@@ -672,234 +684,290 @@ const MyJobsProfile = () => {
 
                                     </div>
 
-                                )}
-
-                                {patientData.consultationType === 'COMPLETED' && (
-
                                     <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                         <div className="text-base text-gray-300">
 
-                                            Application Completed On
+                                            Surgery Docs Status
 
                                         </div>
 
                                         <div className="text-lg">
                                             
-                                            {appointmentCompletedFormattedDate}
+                                            {patientData.teleSupportSurgeryDocumentsAccept ? 'Accepting Surgery Docs' : 'Not Accepting'}
 
                                         </div>
 
                                     </div>
 
-                                )}
+                                    {patientData.consultationType === 'COMPLETED' && (
 
-                                {patientData.consultationType === 'COMPLETED' && (
+                                        <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                            <div className="text-base text-gray-300">
+
+                                                Application Completed On
+
+                                            </div>
+
+                                            <div className="text-lg">
+                                                
+                                                {appointmentCompletedFormattedDate}
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                    {patientData.consultationType === 'COMPLETED' && (
+
+                                        <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                            <div className="text-base text-gray-300">
+
+                                                Payment Status
+
+                                            </div>
+
+                                            <div className="text-lg">
+                                                
+                                                Done
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
 
                                     <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                         <div className="text-base text-gray-300">
 
-                                            Payment Status
+                                            Counselling Status
 
                                         </div>
 
                                         <div className="text-lg">
-                                            
-                                            Done
+
+                                            {patientData.teleSupportConsellingDone ? (
+
+                                                <span>Done</span>
+
+                                            ) : (
+
+                                                <span>Not Done</span>
+
+                                            )}
 
                                         </div>
 
                                     </div>
 
-                                )}
+                                </div> 
 
-                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            </div>
 
-                                    <div className="text-base text-gray-300">
+                            {patientData.consultationType === `SURGERYCARE` && (
 
-                                        Counselling Status
+                                <>
+
+                                    <div 
+                                        className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer mx-10"
+                                        onClick={sendLinkFunction}
+                                    >
+
+                                        <div 
+                                            className="text-base text-gray-300"
+                                        >
+
+                                            Send Link
+
+                                        </div>
 
                                     </div>
 
-                                    <div className="text-lg">
+                                    <div 
+                                        className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                        onClick={copyLinkFunction}    
+                                    >
 
-                                        {patientData.teleSupportConsellingDone ? (
+                                        <div 
+                                            className="text-base text-gray-300"
+                                        >
 
-                                            <span>Done</span>
+                                            Copy Link
 
-                                        ) : (
-
-                                            <span>Not Done</span>
-
-                                        )}
+                                        </div>
 
                                     </div>
 
-                                </div>
+                                   {patientData.teleSupportSurgeryDocumentsAccept ? (
+                                    
+                                        <div 
+                                            className="inline-block items-start bg-red-500 ml-10 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                            onClick={dontAcceptUploads}
+                                        >
 
-                            </div> 
+                                            <div 
+                                                className="text-base text-gray-300"
+                                            >
 
-                            {!patientData.teleSupportUserName && (
+                                                Dont Accept
 
-                                <button
-                                    className='bg-green-800 px-2 py-1 rounded-md mx-10 my-10 hover:opacity-60 active:opacity-40'
-                                    onClick={takeJobFunction}
-                                >Take Job</button>
+                                            </div>
+
+                                        </div>
+                                        
+                                    ) : (
+
+                                        <div 
+                                            className="inline-block items-start bg-green-800 ml-10 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                            onClick={acceptUploads}
+                                        >
+
+                                            <div 
+                                                className="text-base text-gray-300"
+                                            >
+
+                                                Accept Uploads
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                </>
 
                             )}
 
-                        </div>
+                            {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length > 0 && (
 
-                        {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length === 0 && (
+                                <>
 
-                            <>
+                                    <div className="flex mt-5">
 
-                                <div 
-                                    className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer mx-10"
-                                    onClick={sendLinkFunction}
-                                >
+                                        <div className="ml-10">
 
-                                    <div 
-                                        className="text-base text-gray-300"
-                                    >
+                                            <button
+                                                onClick={fetchImages}
+                                                className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                            >
 
-                                        Send Link
+                                                Show Documents
 
-                                    </div>
+                                            </button>
 
-                                </div>
+                                        </div>
 
-                                <div 
-                                    className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer "
-                                    onClick={copyLinkFunction}    
-                                >
+                                        <div className="mx-5">
 
-                                    <div 
-                                        className="text-base text-gray-300"
-                                    >
+                                            <button
+                                                onClick={downloadImage}
+                                                className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                            >
 
-                                        Copy Link
+                                                Download Documents
 
-                                    </div>
+                                            </button>
 
-                                </div>
+                                        </div>
 
-                            </>
-
-                        )}
-
-                        {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length > 0 && (
-
-                            <>
-
-                                <div className="flex">
-
-                                    <div className="ml-10">
-
-                                        <button
-                                            onClick={fetchImages}
+                                        <div 
                                             className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                            onClick={counsellingDone}
                                         >
 
-                                            Show Documents
+                                            <div 
+                                                className="text-base text-gray-300"
+                                            >
 
-                                        </button>
+                                                Counselling Done
 
-                                    </div>
+                                            </div>
 
-                                    <div className="mx-5">
-
-                                        <button
-                                            onClick={downloadImage}
-                                            className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
-                                        >
-
-                                            Download Documents
-
-                                        </button>
+                                        </div>
 
                                     </div>
 
-                                </div>
-
-                                {fetchedImageVisible && (
+                                    {fetchedImageVisible && (
+                                            
+                                        <div className="fixed top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm z-50">
                                         
-                                    <div className="absolute top-0 right-0 bottom-0 left-0 flex backdrop-blur-sm">
-                                    
-                                        <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
+                                            <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
 
-                                        <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
+                                            <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
 
-                                            {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
+                                                {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
 
-                                                return mimeType === 'application/pdf' ? (
-                                                    <object
-                                                        key={index}
-                                                        data={blobUrl}
-                                                        type="application/pdf"
-                                                        width="100%"
-                                                        height="400px"
-                                                        aria-label={`Prescription PDF ${index + 1}`}
-                                                        className='transition-transform duration-300 ease-in-out transform'
-                                                    >
-                                                        <p>PDF Preview Not Available</p>
-                                                    </object>
-                                                ) : (
-                                                    <img
-                                                        key={index}
-                                                        src={blobUrl}
-                                                        alt={`Prescription ${index + 1}`}
-                                                        className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
-                                                    />
-                                                );
-                                            }) : (
-                                    
-                                                <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
-                                                
-                                                    <div className="flex items-center space-x-2 text-xl">
-                                                
-                                                        <div className="animate-spin">
-                                                
-                                                            <CgLoadbar />
-                                                
+                                                    return mimeType === 'application/pdf' ? (
+                                                        <object
+                                                            key={index}
+                                                            data={blobUrl}
+                                                            type="application/pdf"
+                                                            width="100%"
+                                                            height="400px"
+                                                            aria-label={`Prescription PDF ${index + 1}`}
+                                                            className='transition-transform duration-300 ease-in-out transform'
+                                                        >
+                                                            <p>PDF Preview Not Available</p>
+                                                        </object>
+                                                    ) : (
+                                                        <img
+                                                            key={index}
+                                                            src={blobUrl}
+                                                            alt={`Prescription ${index + 1}`}
+                                                            className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
+                                                        />
+                                                    );
+                                                }) : (
+                                        
+                                                    <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
+                                                    
+                                                        <div className="flex items-center space-x-2 text-xl">
+                                                    
+                                                            <div className="animate-spin">
+                                                    
+                                                                <CgLoadbar />
+                                                    
+                                                            </div>
+                                                    
+                                                            <div className="animate-pulse">
+                                                    
+                                                                Fetching ...
+                                                    
+                                                            </div>
+                                                    
                                                         </div>
-                                                
-                                                        <div className="animate-pulse">
-                                                
-                                                            Fetching ...
-                                                
-                                                        </div>
-                                                
+                                                    
                                                     </div>
                                                 
-                                                </div>
-                                            
-                                            )}
+                                                )}
 
-                                            <IoCloseCircle
-                                                className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
-                                                onClick={() => {
+                                                <IoCloseCircle
+                                                    className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                                    onClick={() => {
+                                                        
+                                                        setFetchedImageVisible(false);
+                                                        setImages([]);
                                                     
-                                                    setFetchedImageVisible(false);
-                                                    setImages([]);
-                                                
-                                                }}
-                                            />
+                                                    }}
+                                                />
+                                            
+                                            </div>
                                         
                                         </div>
-                                    
-                                    </div>
-                            
-                                )}
+                                
+                                    )}
 
-                            </>
+                                </>
 
-                        )}
+                            )}
 
-                    </>
+                        </>
 
-                )}
+                    )}
 
                 </>
 

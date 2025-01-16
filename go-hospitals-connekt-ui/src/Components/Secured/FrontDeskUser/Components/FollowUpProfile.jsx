@@ -118,6 +118,8 @@ const FollowUpProfile = () => {
 
                 const appointmentData = response.data;
 
+                console.log(appointmentData);
+
                 setPatientData(appointmentData);
 
             }
@@ -732,6 +734,8 @@ const FollowUpProfile = () => {
         
                     }
 
+                    navigate(`/front-desk-new-patient-on-board`);
+
                 }
 
             }
@@ -898,7 +902,27 @@ const FollowUpProfile = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.consultationType === 'CASECLOSED' ? (
+                                
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Case Closed by                                        
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {patientData.medicalSupportUserName}
+
+                                    </div>
+
+                                </div>
+                            
+                            ) : (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -913,6 +937,8 @@ const FollowUpProfile = () => {
                                 </div>
 
                             </div>
+
+                            )}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -946,9 +972,31 @@ const FollowUpProfile = () => {
 
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for nurse'}
+
                                 </div>
 
                             </div>
+
+                            {patientData.consultationType === 'CASECLOSED' && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Completed On
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {format(patientData.applicationCompletedTime, 'MMMM dd yyyy')}
+
+                                    </div>
+
+                                </div>
+
+                            )}
 
                             {patientData.pharmacyMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 

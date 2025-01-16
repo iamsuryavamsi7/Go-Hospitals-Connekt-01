@@ -22,7 +22,7 @@ public class PublicController {
             @PathVariable("applicationId") Long applicationId,
             @PathVariable("userId") Long userId,
             @RequestParam("imageFile") List<MultipartFile> imageFile
-    ) throws ApplicationNotFoundException, IOException {
+    ) throws ApplicationNotFoundException, IOException, Exception {
 
         String successMessage = publicService.uploadSurgeryDocuments(applicationId, imageFile, userId);
 

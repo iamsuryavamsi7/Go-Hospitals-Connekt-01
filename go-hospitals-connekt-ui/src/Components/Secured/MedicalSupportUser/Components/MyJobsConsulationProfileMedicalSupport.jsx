@@ -5,20 +5,20 @@ import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { IoCloseCircleSharp } from 'react-icons/io5';
+// import { IoCloseCircleSharp } from 'react-icons/io5';
 
 const MyJobsConsulationProfileMedicalSupport = () => {
 
-// JWT Token
-const access_token = Cookies.get('access_token');
+    // JWT Token
+    const access_token = Cookies.get('access_token');
 
-// GoHospitals BackEnd API environment variable
-const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
-// Use Navigate Hook
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -78,7 +78,7 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
     const formattedDate = appointmentDate.toLocaleString('en-US', options);
     
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -157,51 +157,52 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
     }
 
-    const takeJobFunction = async (applicationid) => {
+    // const takeJobFunction = async (applicationid) => {
 
-        const applicationId = applicationid;
+    //     const applicationId = applicationid;
 
-        const medicalSupportUserId = userObject.id
+    //     const medicalSupportUserId = userObject.id
 
-        try{
+    //     try{
 
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
+    //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/assignApplication/${applicationId}/ToMedicalSupportUser/${medicalSupportUserId}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${access_token}`
+    //             }
+    //         })
 
-            if ( response.status === 200 ){
+    //         if ( response.status === 200 ){
 
-                toast.success("Job Taken", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-right'
-                });
+    //             toast.success("Job Taken", {
+    //                 duration: 1000,
+    //                 style: {
+    //                     backgroundColor: '#1f2937', // Tailwind bg-gray-800
+    //                     color: '#fff', // Tailwind text-white
+    //                     fontWeight: '600', // Tailwind font-semibold
+    //                     borderRadius: '0.5rem', // Tailwind rounded-lg
+    //                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+    //                     marginTop: '2.5rem' // Tailwind mt-10,
+    //                 },
+    //                 position: 'top-right'
+    //             });
 
-                setTimeout(() => {
+    //             setTimeout(() => {
 
-                    navigate('/medical-support-current-job');
+    //                 navigate('/medical-support-current-job');
                     
-                }, 1600);
+    //             }, 1600);
 
-            }
+    //         }
 
-        }catch(error){
+    //     }catch(error){
 
-            handleError(error);
+    //         handleError(error);
 
-        }
+    //     }
 
-    }
+    // }
 
+    // Function to update consultation type
     const consulationTypeUpdateFunction = async (consultation) => {
 
         const applicationId = id;
@@ -313,6 +314,7 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
     const [caseCloseInput, setCaseCloseInput] = useState(``);
 
+    // Function to close the case
     const caseClosedFunction = async (e) => {
 
         e.preventDefault();
@@ -338,7 +340,17 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                     const booleavValue = response.data;
     
                     if ( booleavValue ){
-    
+
+                        if ( stompClient !== null ){
+
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                        }
+
                         navigate('/medical-support-consulation-queue');
     
                     }
@@ -460,6 +472,8 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
     // State to toggle the caseClosed 
     const [caseClosedActivated, setCaseClosedActivated] = useState(false);
+
+    const [onSiteMoreOptionsActivated, setOnSiteMoreOptionsActivated] = useState(false);
 
     return (
 
@@ -697,11 +711,13 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                                     {patientData.consultationType === 'PHARMACY' && 'In Pharmacy'}
 
+                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
                                 </div>
 
                             </div>
 
-                            {!patientData.medicalSupportUserName && (
+                            {/* {!patientData.medicalSupportUserName && (
 
                                 <div className="rounded-lg flex justify-center items-center">
 
@@ -716,7 +732,7 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
                                 </div>
 
-                            )}
+                            )} */}
                             
                         </div>
 
@@ -794,7 +810,8 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                             
                                 <div 
                                     className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
-                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
+                                    // onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSite)}
+                                    onClick={() => setOnSiteMoreOptionsActivated(true)}
                                 >
 
                                     <button>On Site Treatment</button>
@@ -920,6 +937,55 @@ const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
                                 </div>
 
                             </form>
+
+                        </div>
+
+                    )}
+
+                    {onSiteMoreOptionsActivated && (
+
+                        <div 
+                            className="fixed top-0 right-0 left-0 bottom-0 z-50 backdrop-blur-[2px] flex justify-center items-center"
+                            onClick={() => setOnSiteMoreOptionsActivated(false)}    
+                        >
+
+                            <div 
+                                className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800"
+                            >
+
+                                <div 
+                                    className="hover:bg-gray-700 py-5 rounded-t-2xl px-10 transition-all duration-200 cursor-pointer"
+                                >
+
+                                    <button>One Time Dressing</button>
+
+                                </div>
+
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                >
+
+                                    <button>Multiple Dressings</button>
+
+                                </div>
+
+                                <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                >
+
+                                    <button>One Time Injection</button>
+
+                                </div>
+
+                                <div    
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                >
+
+                                    <button>Multiple Injections</button>
+
+                                </div>
+
+                            </div>
 
                         </div>
 

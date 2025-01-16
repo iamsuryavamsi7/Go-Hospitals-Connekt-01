@@ -2,7 +2,6 @@ package com.Go_Work.Go_Work.Service.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
-import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
@@ -20,14 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -90,6 +83,13 @@ public class TeleSupportService {
 
                     }
 
+                    if ( application.getTeleSupportUser() != null ){
+
+                        application1.setTeleSupportUserId(application.getTeleSupportUser().getId());
+                        application1.setTeleSupportUserName(application.getTeleSupportUser().getFirstName());
+
+                    }
+
                     return application1;
 
                 })
@@ -146,7 +146,7 @@ public class TeleSupportService {
 
     }
 
-    public String assignTeleSupportUser(Long id, HttpServletRequest request) throws ApplicationNotFoundException {
+    public String assignTeleSupportUser(Long applicationId, HttpServletRequest request) throws ApplicationNotFoundException {
 
         String jwtToken = request.getHeader("Authorization").substring(7);
 
@@ -156,19 +156,19 @@ public class TeleSupportService {
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
-        Applications fetchedApplication = applicationsRepo.findById(id).orElseThrow(
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedUser.getTeleSupportApplications().add(fetchedApplication);
+        fetchedApplication.setTeleSupportSurgeryDocumentsAccept(false);
 
         fetchedApplication.setTeleSupportUser(fetchedUser);
 
         fetchedApplication.setTeleSupportUserAssignedTime(new Date(System.currentTimeMillis()));
 
-        userRepo.save(fetchedUser);
+        fetchedUser.getTeleSupportApplications().add(fetchedApplication);
 
-        applicationsRepo.save(fetchedApplication);
+        userRepo.save(fetchedUser);
 
         return "Assignment Successfully";
 
@@ -193,6 +193,19 @@ public class TeleSupportService {
                     TeleSupportResponseModel newApplication1 = new TeleSupportResponseModel();
 
                     BeanUtils.copyProperties(application, newApplication1);
+
+                    if ( !application.getBills().isEmpty() ){
+
+                        Bills latestBill = application.getBills()
+                                        .stream()
+                                        .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                        .findFirst()
+                                        .orElse(null);
+
+
+                        newApplication1.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     User fetchedMedicalSupportUser = application.getMedicalSupportUser();
 
@@ -327,6 +340,35 @@ public class TeleSupportService {
         notificationRepo.save(fetchedNotification);
 
         return "Notification Read Updated Successfully";
+
+    }
+
+    public Boolean acceptSurgeryCareDocs(Long applicationID) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setTeleSupportSurgeryDocumentsAccept(true);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return true;
+
+    }
+
+    public Boolean rejectSurgeryCareDocs(Long applicationID) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setTeleSupportSurgeryDocumentsAccept(false);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return true;
+
 
     }
 

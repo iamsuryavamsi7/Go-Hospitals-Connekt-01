@@ -430,6 +430,24 @@ const access_token = Cookies.get('access_token');
 
                                     )}
 
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && (
+
+                                        <span>DMO check completed</span>
+
+                                    )}
+
+                                    {patientData.consultationType === 'CASECLOSED' && (
+
+                                        <span>Case was</span>
+
+                                    )}
+
+                                    {patientData.consultationType === 'SURGERYCARE' && (
+
+                                        <span>In Surgery Care</span>
+
+                                    )}
+
                                 </div>
 
                             </div>

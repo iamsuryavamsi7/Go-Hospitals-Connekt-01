@@ -549,6 +549,24 @@ public class MedicalSupportService {
 
             applicationsRepo.save(fetchedApplication);
 
+            userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                    .forEach(fetchedUser -> {
+
+                        Notification notification = new Notification();
+
+                        notification.setApplicationId(fetchedApplication.getId());
+                        notification.setRead(false);
+                        notification.setMessage("Cross Consultation Request");
+                        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+                        notification.setUser(fetchedUser);
+                        notification.setNotificationStatus(NotificationStatus.CROSSCONSULTATIONNEEDED);
+
+                        notificationRepo.save(notification);
+
+                    });
+
             return "Consultation Type updated";
 
         }
@@ -628,6 +646,22 @@ public class MedicalSupportService {
         }
 
         applicationsRepo.save(fetchedApplication);
+
+        // Notify pharmacy users
+        userRepo.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(pharmacyUser -> {
+                    Notification newNotification = new Notification();
+                    newNotification.setMessage("Case Closed for this application !");
+                    newNotification.setTimeStamp(new Date());
+                    newNotification.setApplicationId(applicationId);
+                    newNotification.setUser(pharmacyUser);
+                    newNotification.setNotificationStatus(NotificationStatus.CASECLOSED);
+
+                    notificationRepo.save(newNotification);
+                    pharmacyUser.getNotifications().add(newNotification);
+                    userRepo.save(pharmacyUser);
+                });
 
         return true;
 
@@ -718,7 +752,9 @@ public class MedicalSupportService {
         userRepo.findAll().stream()
                 .filter(user -> user.getRole().equals(Role.PHARMACYCARE))
                 .forEach(pharmacyUser -> {
+
                     Notification newNotification = new Notification();
+
                     newNotification.setMessage("Treatment done and need medicines");
                     newNotification.setTimeStamp(new Date());
                     newNotification.setApplicationId(applicationId);
@@ -726,8 +762,7 @@ public class MedicalSupportService {
                     newNotification.setNotificationStatus(NotificationStatus.PHARMACYPROFILE);
 
                     notificationRepo.save(newNotification);
-                    pharmacyUser.getNotifications().add(newNotification);
-                    userRepo.save(pharmacyUser);
+
                 });
 
         return "Prescription Uploaded Successfully";

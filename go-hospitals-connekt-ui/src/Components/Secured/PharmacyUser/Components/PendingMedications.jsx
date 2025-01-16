@@ -66,7 +66,9 @@ const PendingMedications = () => {
     
             if (response.status === 200) {
 
-                let appointmentsData = response.data;
+                const appointmentsData = response.data;
+
+                console.log(appointmentsData);
 
                 if ( appointmentsData.length === 0 ){
 
@@ -293,6 +295,8 @@ const PendingMedications = () => {
                                         className='text-left border-b-[.5px] border-gray-800 text-gray-400'
                                     >
 
+                                        <th>No Data</th>
+                                        <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>
                                         <th>No Data</th>

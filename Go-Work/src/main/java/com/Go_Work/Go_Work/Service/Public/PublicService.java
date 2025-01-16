@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Service.Public;
 
 import com.Go_Work.Go_Work.Entity.Applications;
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.SurgeryDocumentsUrls;
 import com.Go_Work.Go_Work.Entity.User;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -61,70 +63,78 @@ public class PublicService {
 
     }
 
-    public String uploadSurgeryDocuments(Long applicationId, List<MultipartFile> imageFiles, Long userId) throws ApplicationNotFoundException {
+    @Transactional
+    public String uploadSurgeryDocuments(Long applicationId, List<MultipartFile> imageFiles, Long userId) throws Exception {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
 
-        // Clear the previous URLs
-        deleteS3Object(fetchedApplication);
+        if ( fetchedApplication.isTeleSupportSurgeryDocumentsAccept() ){
 
-        // Upload each image file and collect URLs
-        List<SurgeryDocumentsUrls> uploadedFilenames = imageFiles.stream()
-                .map(imageFile -> {
-                    try {
-                        String originalFileName = imageFile.getOriginalFilename();
-                        if (originalFileName != null) {
-                            originalFileName = originalFileName.replace(" ", "_");
+            // Clear the previous URLs
+            deleteS3Object(fetchedApplication);
+
+            // Upload each image file and collect URLs
+            List<SurgeryDocumentsUrls> uploadedFilenames = imageFiles.stream()
+                    .map(imageFile -> {
+                        try {
+                            String originalFileName = imageFile.getOriginalFilename();
+                            if (originalFileName != null) {
+                                originalFileName = originalFileName.replace(" ", "_");
+                            }
+                            String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+                            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                                    .bucket(bucketName)
+                                    .key(fileName)
+                                    .build();
+                            s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+
+                            SurgeryDocumentsUrls surgeryDocumentsUrl = new SurgeryDocumentsUrls();
+
+                            surgeryDocumentsUrl.setSurgeryDocumentsUrl(fileName);
+
+                            surgeryDocumentsUrl.setApplication(fetchedApplication);
+
+                            return surgeryDocumentsUrlsRepo.save(surgeryDocumentsUrl);
+
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to upload image to S3", e);
                         }
-                        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+                    })
+                    .toList();
 
-                        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(fileName)
-                                .build();
-                        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+            fetchedApplication.getSurgeryDocumentsUrls().forEach(surgeryDocumentsUrlsRepo::delete);
 
-                        SurgeryDocumentsUrls surgeryDocumentsUrl = new SurgeryDocumentsUrls();
+            fetchedApplication.getSurgeryDocumentsUrls().clear();
+            fetchedApplication.getSurgeryDocumentsUrls().addAll(uploadedFilenames);
 
-                        surgeryDocumentsUrl.setSurgeryDocumentsUrl(fileName);
+            applicationsRepo.save(fetchedApplication);
 
-                        surgeryDocumentsUrl.setApplication(fetchedApplication);
+            // Notify pharmacy users
+            User fetchedTeleSupportUser = userRepo.findById(userId).orElseThrow(
+                    () -> new UsernameNotFoundException("User Not Found")
+            );
 
-                        return surgeryDocumentsUrlsRepo.save(surgeryDocumentsUrl);
+            Notification newNotification = new Notification();
 
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to upload image to S3", e);
-                    }
-                })
-                .toList();
+            newNotification.setMessage("Documents Uploaded Successfully");
+            newNotification.setTimeStamp(new Date());
+            newNotification.setApplicationId(applicationId);
+            newNotification.setUser(fetchedTeleSupportUser);
+            newNotification.setNotificationStatus(NotificationStatus.TELESUPPORTUSERPROFILE);
 
-        // Update the fetched application's surgery documents URL list
-        fetchedApplication.getSurgeryDocumentsUrls().clear();
-        fetchedApplication.getSurgeryDocumentsUrls().addAll(uploadedFilenames);
-        fetchedApplication.setTeleSupportConsellingDone(true);
+            notificationRepo.save(newNotification);
 
-        applicationsRepo.save(fetchedApplication);
+            fetchedTeleSupportUser.getNotifications().add(newNotification);
 
-        // Notify pharmacy users
-        User fetchedTeleSupportUser = userRepo.findById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("User Not Found")
-        );
+            userRepo.save(fetchedTeleSupportUser);
 
-        Notification newNotification = new Notification();
+            return "Prescription Uploaded Successfully";
 
-        newNotification.setMessage("Documents Uploaded Successfully");
-        newNotification.setTimeStamp(new Date());
-        newNotification.setApplicationId(applicationId);
-        newNotification.setUser(fetchedTeleSupportUser);
+        }
 
-        notificationRepo.save(newNotification);
-
-        fetchedTeleSupportUser.getNotifications().add(newNotification);
-
-        userRepo.save(fetchedTeleSupportUser);
-
-        return "Prescription Uploaded Successfully";
+        throw new Exception("Not Permitted");
 
     }
 

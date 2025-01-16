@@ -67,4 +67,15 @@ public class TestController {
 
     }
 
+    @GetMapping("/fetchUserDetailsById/{userId}")
+    public ResponseEntity<User> fetchUserDetailsById(
+            @PathVariable("userId") Long userId
+    ){
+
+        return ResponseEntity.ok(userRepo.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found")
+        ));
+
+    }
+
 }
