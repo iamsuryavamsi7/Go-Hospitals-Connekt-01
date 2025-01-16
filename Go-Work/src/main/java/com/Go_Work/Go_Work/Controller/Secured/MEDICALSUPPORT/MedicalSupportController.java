@@ -295,15 +295,14 @@ public class MedicalSupportController {
 
     }
 
-    @PostMapping("/uploadPrescription/{applicationId}")
-    public ResponseEntity<String> uploadPrescription(
+    @PostMapping("/medicationPlusFollowUpTreatmentDone/{applicationId}")
+    public ResponseEntity<String> medicationPlusFollowUpTreatmentDone(
             @PathVariable("applicationId") Long applicationId,
-            @RequestParam("imageFile") List<MultipartFile> imageFiles,
             @RequestParam(value = "prescriptionMessage", required = false) String prescriptionMessage,
             @RequestParam("nextMedicationDate") Date nextMedicationDate
     ) throws ApplicationNotFoundException, IOException {
 
-        String successMessage = medicalSupportService.uploadPrescription(applicationId, imageFiles, prescriptionMessage, nextMedicationDate);
+        String successMessage = medicalSupportService.medicationPlusFollowUpTreatmentDone(applicationId, prescriptionMessage, nextMedicationDate);
 
         return ResponseEntity.ok(successMessage);
 
@@ -350,6 +349,19 @@ public class MedicalSupportController {
     public ResponseEntity<Boolean> checkWaitingPatientsAreAvailableOrNot(){
 
         Boolean status = medicalSupportService.checkWaitingPatientsAreAvailableOrNot();
+
+        return ResponseEntity.ok(status);
+
+    }
+
+    @PostMapping("/sendPrescriptionToPharmacy")
+    public ResponseEntity<Boolean> sendPrescriptionToPharmacy(
+            @RequestParam("applicationId") Long applicationId,
+            @RequestParam("imageFile") List<MultipartFile> imageFiles,
+            @RequestParam(value = "pharmacyMessage", required = false) String prescriptionMessage
+    ) throws ApplicationNotFoundException {
+
+        Boolean status = medicalSupportService.sendPrescriptionToPharmacy(applicationId, imageFiles, prescriptionMessage);
 
         return ResponseEntity.ok(status);
 

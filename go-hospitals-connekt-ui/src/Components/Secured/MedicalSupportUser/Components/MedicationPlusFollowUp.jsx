@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { Toaster, toast } from 'react-hot-toast';
+// import { Toaster, toast } from 'react-hot-toast';
 
 const MedicalPlusFollowUp = () => {
 
@@ -92,7 +92,7 @@ const MedicalPlusFollowUp = () => {
 
             if ( response.status === 200 ){
 
-                let onsiteData = response.data;
+                const onsiteData = response.data;
 
                 if ( onsiteData.length === 0 ){
 
@@ -101,11 +101,6 @@ const MedicalPlusFollowUp = () => {
                 }
 
                 setIsLastPage(onsiteData.length < pageSize);
-
-                // Sort data to put items with treatmentDone: false at the top
-                onsiteData = onsiteData.sort((a, b) => {
-                    return a.treatmentDone === b.treatmentDone ? 0 : a.treatmentDone ? 1 : -1;
-                });
 
                 setMedicalPlusFollowUpData(onsiteData);
 
@@ -117,17 +112,17 @@ const MedicalPlusFollowUp = () => {
 
             handleError(error);
 
-            toast.error("Something went wrong", {
-                duration: 1000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                }
-            });
+            // toast.error("Something went wrong", {
+            //     duration: 1000,
+            //     style: {
+            //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+            //         color: '#fff', // Tailwind text-white
+            //         fontWeight: '600', // Tailwind font-semibold
+            //         borderRadius: '0.5rem', // Tailwind rounded-lg
+            //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+            //         marginTop: '2.5rem' // Tailwind mt-10,
+            //     }
+            // });
 
             return false;
 
@@ -189,7 +184,7 @@ const MedicalPlusFollowUp = () => {
 
         <>
 
-            <Toaster />
+            {/* <Toaster /> */}
         
             {role === roles.medicalSupport && (
 

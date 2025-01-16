@@ -13,6 +13,7 @@ import com.Go_Work.Go_Work.Repo.ImageUrlsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
+import io.jsonwebtoken.lang.Strings;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -117,6 +118,15 @@ public class MedicalSupportService {
         ApplicationsResponseModel application1 = new ApplicationsResponseModel();
 
         BeanUtils.copyProperties(fetchedApplication, application1);
+
+        fetchedApplication.getPharmacyMessages()
+                .stream()
+                .sorted(Comparator.comparing(PharmacyMessage::getTimeStamp).reversed())
+                .forEach(pharmacyMessageObject -> {
+
+                    application1.getPharmacyMessages().add(pharmacyMessageObject);
+
+                });
 
         if ( !fetchedApplication.getBills().isEmpty() ){
 
@@ -667,29 +677,28 @@ public class MedicalSupportService {
 
     }
 
-    private void deleteS3Object(Applications application){
+//    private void deleteS3Object(Applications application){
+//
+//        if ( application != null && application.getPrescriptionUrl() != null){
+//
+//            application.getPrescriptionUrl()
+//                    .forEach(application1 -> {
+//
+//                        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+//                                .bucket(bucketName)
+//                                .key(application1.getPrescriptionURL())
+//                                .build();
+//
+//                        DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
+//
+//                    });
+//
+//        }
+//
+//    }
 
-        if ( application != null && application.getPrescriptionUrl() != null){
-
-            application.getPrescriptionUrl()
-                    .forEach(application1 -> {
-
-                        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(application1.getPrescriptionURL())
-                                .build();
-
-                        DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
-
-                    });
-
-        }
-
-    }
-
-    public String uploadPrescription(
+    public String medicationPlusFollowUpTreatmentDone(
             Long applicationId,
-            List<MultipartFile> imageFiles,
             String prescriptionMessage,
             Date nextMedicationDate) throws ApplicationNotFoundException
     {
@@ -697,46 +706,14 @@ public class MedicalSupportService {
         Applications fetchedApplication = applicationsRepo.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
 
-        // Clear the previous URLs
-        deleteS3Object(fetchedApplication);
+        if ( !prescriptionMessage.isEmpty() && !prescriptionMessage.isBlank() ){
 
-        // Upload each image file and collect URLs
-        List<ImageUrls> uploadedFilenames = imageFiles.stream()
-                .map(imageFile -> {
-                    try {
-                        String originalFileName = imageFile.getOriginalFilename();
-                        if (originalFileName != null) {
-                            originalFileName = originalFileName.replace(" ", "_");
-                        }
-                        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+            fetchedApplication.setTreatmentDoneMessage(prescriptionMessage);
 
-                        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(fileName)
-                                .build();
-                        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+        }
 
-                        ImageUrls imageUrl = new ImageUrls();
-
-                        imageUrl.setPrescriptionURL(fileName);
-
-                        imageUrl.setApplication(fetchedApplication);
-
-                        return imageUrlsRepo.save(imageUrl);
-
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to upload image to S3", e);
-                    }
-                })
-                .toList();
-
-        // Update the fetched application's prescription URL list
-        fetchedApplication.getPrescriptionUrl().clear();
-        fetchedApplication.getPrescriptionUrl().addAll(uploadedFilenames);
-        fetchedApplication.setTreatmentDoneMessage(prescriptionMessage);
         fetchedApplication.setTreatmentDone(true);
-        fetchedApplication.setConsultationType(ConsultationType.PHARMACY);
-        fetchedApplication.setPharmacyGoingTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
 
         NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
 
@@ -750,22 +727,23 @@ public class MedicalSupportService {
 
         // Notify pharmacy users
         userRepo.findAll().stream()
-                .filter(user -> user.getRole().equals(Role.PHARMACYCARE))
-                .forEach(pharmacyUser -> {
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(frontDeskUser -> {
 
                     Notification newNotification = new Notification();
 
-                    newNotification.setMessage("Treatment done and need medicines");
+                    newNotification.setMessage("New Follow Up Added !");
                     newNotification.setTimeStamp(new Date());
                     newNotification.setApplicationId(applicationId);
-                    newNotification.setUser(pharmacyUser);
-                    newNotification.setNotificationStatus(NotificationStatus.PHARMACYPROFILE);
+                    newNotification.setUser(frontDeskUser);
+                    newNotification.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
 
                     notificationRepo.save(newNotification);
 
                 });
 
         return "Prescription Uploaded Successfully";
+
     }
 
 
@@ -790,6 +768,18 @@ public class MedicalSupportService {
                     ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(application1, applicationNew);
+
+                    if ( !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        applicationNew.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     if ( !application1.getBills().isEmpty() ){
 
@@ -1000,9 +990,7 @@ public class MedicalSupportService {
                                 .stream()
                                 .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
                                 .findFirst()
-                                .orElseThrow(
-                                        () -> new UsernameNotFoundException("Application Not Found")
-                                );
+                                .orElse(null);
 
                         application.setBillNo(fetchedBills.getBillNo());
 
@@ -1115,4 +1103,84 @@ public class MedicalSupportService {
         return false;
 
     }
+
+    public Boolean sendPrescriptionToPharmacy(Long applicationId , List<MultipartFile> imageFiles, String prescriptionMessage) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
+
+        // Upload each image file and collect URLs
+        List<String> uploadedFilenames = imageFiles.stream()
+                .map(imageFile -> {
+
+                    try {
+
+                        String originalFileName = imageFile.getOriginalFilename();
+
+                        if (originalFileName != null) {
+
+                            originalFileName = originalFileName.replace(" ", "_");
+
+                        }
+
+                        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+                        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(fileName)
+                                .build();
+                        s3.putObject(objectRequest, RequestBody.fromInputStream(imageFile.getInputStream(), imageFile.getSize()));
+
+                        return fileName;
+
+                    } catch (IOException e) {
+
+                        throw new RuntimeException("Failed to upload image to S3", e);
+
+                    }
+
+                })
+                .toList();
+
+        ImageUrls imageUrlObject = new ImageUrls();
+        imageUrlObject.setPrescriptionMessage(prescriptionMessage);
+
+        uploadedFilenames.forEach(file1 -> {
+
+            imageUrlObject.getPrescriptionURL().add(file1);
+
+        });
+
+        imageUrlObject.setApplication(fetchedApplication);
+        imageUrlObject.setTimeStamp(new Date(System.currentTimeMillis()));
+
+        fetchedApplication.setNeedMedicines(true);
+        fetchedApplication.getPrescriptionUrl().add(imageUrlObject);
+        fetchedApplication.setPharmacyGoingTime(new Date(System.currentTimeMillis()));
+
+        applicationsRepo.save(fetchedApplication);
+
+        // Notify pharmacy users
+        userRepo.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.PHARMACYCARE))
+                .forEach(pharmacyUser -> {
+
+                    Notification newNotification = new Notification();
+
+                    newNotification.setMessage("Need Medicines");
+                    newNotification.setTimeStamp(new Date());
+                    newNotification.setApplicationId(applicationId);
+                    newNotification.setUser(pharmacyUser);
+                    newNotification.setNotificationStatus(NotificationStatus.PHARMACYPROFILE);
+
+                    pharmacyUser.getNotifications().add(newNotification);
+
+                    userRepo.save(pharmacyUser);
+
+                });
+
+        return true;
+
+    }
+
 }

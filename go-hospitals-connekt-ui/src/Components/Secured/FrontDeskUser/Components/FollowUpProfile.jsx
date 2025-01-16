@@ -978,6 +978,22 @@ const FollowUpProfile = () => {
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Treatment Done Message
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.treatmentDoneMessage}
+
+                                </div>
+
+                            </div>
+
                             {patientData.consultationType === 'CASECLOSED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">

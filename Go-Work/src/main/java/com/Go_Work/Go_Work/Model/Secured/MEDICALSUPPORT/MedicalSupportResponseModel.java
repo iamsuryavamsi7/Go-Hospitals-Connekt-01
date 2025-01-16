@@ -31,6 +31,8 @@ public class MedicalSupportResponseModel {
     private Date appointmentCreatedOn;
     private String bookedBy;
     private ConsultationType consultationType;
+    private Boolean needMedicines;
+
     private String treatmentDoneMessage;
     private boolean treatmentDone;
     private boolean paymentDone;

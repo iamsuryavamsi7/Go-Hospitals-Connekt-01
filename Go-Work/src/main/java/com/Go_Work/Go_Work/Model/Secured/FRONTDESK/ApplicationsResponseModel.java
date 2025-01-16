@@ -2,6 +2,10 @@ package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
+import com.Go_Work.Go_Work.Entity.PharmacyMessage;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +42,8 @@ public class ApplicationsResponseModel {
     private Date nextFollowUpDate;
     private String pharmacyMessage;
 
+    private Boolean needMedicines;
+
     private boolean isPatientGotApproved;
 
     private boolean isForCrossConsultation;
@@ -52,5 +58,7 @@ public class ApplicationsResponseModel {
     private String medicalSupportUserName;
 
     private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
+
+    private List<PharmacyMessage> pharmacyMessages = new ArrayList<>();
 
 }

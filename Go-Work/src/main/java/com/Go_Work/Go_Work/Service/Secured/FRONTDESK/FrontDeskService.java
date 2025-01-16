@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Service.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.*;
+import com.Go_Work.Go_Work.Entity.Enum.BillType;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
@@ -75,6 +76,7 @@ public class FrontDeskService {
         Bills bill = new Bills();
         bill.setBillNo(applications.getTempororyBillNo());
         bill.setTimeStamp(new Date(System.currentTimeMillis()));
+        bill.setBillType(BillType.FRONTDESKBILL);
         bill.setApplications(applications);  // Automatically links the bill to the application
 
         // Add bill to the application (this is handled by CascadeType.ALL)

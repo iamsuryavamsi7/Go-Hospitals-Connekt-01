@@ -43,25 +43,25 @@ public class PublicService {
     @Value("${cloud.aws.bucket-name}")
     private String bucketName;
 
-    private void deleteS3Object(Applications application){
-
-        if ( application != null && application.getPrescriptionUrl() != null){
-
-            application.getPrescriptionUrl()
-                    .forEach(application1 -> {
-
-                        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(application1.getPrescriptionURL())
-                                .build();
-
-                        DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
-
-                    });
-
-        }
-
-    }
+//    private void deleteS3Object(Applications application){
+//
+//        if ( application != null && application.getPrescriptionUrl() != null){
+//
+//            application.getPrescriptionUrl()
+//                    .forEach(application1 -> {
+//
+//                        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+//                                .bucket(bucketName)
+//                                .key(application1.getPrescriptionURL())
+//                                .build();
+//
+//                        DeleteObjectResponse deleteObjectResponse = s3.deleteObject(objectRequest);
+//
+//                    });
+//
+//        }
+//
+//    }
 
     @Transactional
     public String uploadSurgeryDocuments(Long applicationId, List<MultipartFile> imageFiles, Long userId) throws Exception {
@@ -71,8 +71,8 @@ public class PublicService {
 
         if ( fetchedApplication.isTeleSupportSurgeryDocumentsAccept() ){
 
-            // Clear the previous URLs
-            deleteS3Object(fetchedApplication);
+//            // Clear the previous URLs
+//            deleteS3Object(fetchedApplication);
 
             // Upload each image file and collect URLs
             List<SurgeryDocumentsUrls> uploadedFilenames = imageFiles.stream()

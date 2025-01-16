@@ -139,4 +139,17 @@ public class PharmacyController {
 
     }
 
+    @PostMapping("/medicinesTaken/{applicationId}")
+    public ResponseEntity<Boolean> medicinesTaken(
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam(value = "pharmacyMessage", required = false) String pharmacyMessage,
+            @RequestParam(value = "billNo", required = false) String billNo
+    ) throws ApplicationNotFoundException {
+
+        Boolean successMessage = pharmacyService.medicinesTaken(applicationId, pharmacyMessage, billNo);
+
+        return ResponseEntity.ok(successMessage);
+
+    }
+
 }

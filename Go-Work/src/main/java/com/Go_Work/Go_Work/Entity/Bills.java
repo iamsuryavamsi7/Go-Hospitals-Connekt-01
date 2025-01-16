@@ -1,5 +1,6 @@
 package com.Go_Work.Go_Work.Entity;
 
+import com.Go_Work.Go_Work.Entity.Enum.BillType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class Bills {
     private Long id;
     private String BillNo;
     private Date timeStamp;
+    private BillType billType;
 
     // Many Bills - One Application
     @ManyToOne

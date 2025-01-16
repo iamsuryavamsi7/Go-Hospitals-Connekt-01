@@ -28,13 +28,15 @@ const MedicalPlusFollowUpProfile = () => {
 
     const [image, setImage] = useState([]);
 
+    const [pharmacyMessage, setPharmacyMessage] = useState(``);
+
     const imagesLength = image.length;
 
     const {id} = useParams();
 
     const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
 
-    const [treatmentDone, steTreatmentDone] = useState(``);
+    const [treatmentDone, setTreatmentDone] = useState(``);
 
     const [nextMedicationDate, setNextMedicationDate] = useState(new Date());
 
@@ -146,7 +148,7 @@ const MedicalPlusFollowUpProfile = () => {
 
                 const appointmentData = response.data;
 
-                // console.log(appointmentData);
+                setPharmacyMessage(appointmentData.pharmacyMessages[0].pharmacyMessage);
 
                 setPatientData(appointmentData);
 
@@ -174,7 +176,7 @@ const MedicalPlusFollowUpProfile = () => {
 
     const calendarRef = useRef();
 
-    const handleSubmit = async (e) => {
+    const treatmentCompleted = async (e) => {
         
         e.preventDefault();
 
@@ -183,21 +185,21 @@ const MedicalPlusFollowUpProfile = () => {
         // Create FormData object
         const formData = new FormData();
 
-        image.forEach((file) => {
+        // image.forEach((file) => {
 
-            formData.append("imageFile", file);
+        //     formData.append("imageFile", file);
 
-        });
+        // });
 
         formData.append("prescriptionMessage", treatmentDone);
         formData.append("nextMedicationDate", nextMedicationDate);
 
-        if ( imagesLength > 0 && nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
+        if ( nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
 
             try {
 
                 // Send the form data to the backend
-                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/medicationPlusFollowUpTreatmentDone/${applicationId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`,
                         'Content-Type': `multipart/form-data`
@@ -219,9 +221,9 @@ const MedicalPlusFollowUpProfile = () => {
                     //     position: 'top-right'
                     // });
         
-                    steTreatmentDone(``);
+                    setTreatmentDone(``);
         
-                    setImage([]);
+                    // setImage([]);
         
                     setTreatMentDoneVisible(false);
         
@@ -230,7 +232,7 @@ const MedicalPlusFollowUpProfile = () => {
                     if ( stompClient !== null ){
                     
                         const notificationTypeModel = {
-                            notificationType: `PendingMedicationsRefresh`
+                            notificationType: `RefreshFrontDeskCaseClosed`
                         }
             
                         stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
@@ -320,6 +322,76 @@ const MedicalPlusFollowUpProfile = () => {
         }
 
     }, []);
+
+    const [sendPrescriptionActivated, setSendPrescriptionActivated] = useState(false);
+
+    const sendPrescriptionFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( imagesLength > 0 ){
+
+            const applicationId = id;
+
+            // Create FormData object
+            const formData = new FormData();
+
+            formData.append("applicationId", applicationId);
+
+            image.forEach((file) => {
+
+                formData.append("imageFile", file);
+
+            });
+
+            if ( pharmacyMessage !== null && pharmacyMessage !== `` ){
+
+                formData.append("pharmacyMessage", pharmacyMessage);
+
+            }
+
+            try{
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/sendPrescriptionToPharmacy`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+
+                if ( response.status === 200 ){
+
+                    const responseData = response.data;
+
+                    if ( responseData ){
+
+                        if ( stompClient !== null ){
+                    
+                            const notificationTypeModel = {
+                                notificationType: `PendingMedicationsRefresh`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+            
+                        }
+
+                        setImage([]);
+                        setPharmacyMessage(``);
+
+                        setSendPrescriptionActivated(false);
+
+                    }
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
 
     return (
 
@@ -550,24 +622,56 @@ const MedicalPlusFollowUpProfile = () => {
                                 </div>
 
                             </div>
-                            
+
+                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                                
+                                <div className="text-base text-gray-300">
+
+                                    Pharmacy Message
+
+                                </div>
+
+                                <div className="text-lg max-h-[100px] h-[100px] overflow-y-scroll w-full scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700">
+
+                                    {pharmacyMessage}
+
+                                </div>
+
+                            </div>
 
                         </div>
 
                         {!patientData.treatmentDone && (
 
-                            <div
-                                className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
-                                onClick={() => {
+                            <>
 
-                                    setTreatMentDoneVisible(true);
+                                <div
+                                    className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
 
-                                }}
-                            >
+                                        setTreatMentDoneVisible(true);
 
-                                Treatment Done
+                                    }}
+                                >
 
-                            </div>
+                                    Treatment Done
+
+                                </div>
+
+                                <div
+                                    className='bg-[#238636] my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
+
+                                        setSendPrescriptionActivated(true);
+
+                                    }}
+                                >
+
+                                    Send Prescription
+
+                                </div>
+
+                            </>
 
                         )}
 
@@ -579,31 +683,31 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 <form 
                                     className="block relative bg-gray-900 rounded-2xl border-[1px] border-gray-800 py-5"
-                                    onSubmit={handleSubmit}
+                                    onSubmit={treatmentCompleted}
                                 >
                                 
                                     <div 
-                                        className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                        className="py-2 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
                                     >
                                         
                                         <label className='text-xs'>Write any feed (Optional)</label><br />
 
                                         <textarea 
                                             type='text'
-                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
                                             value={treatmentDone}
                                             onChange={(e) => {
 
                                                 const value = e.target.value;
 
-                                                steTreatmentDone(value);
+                                                setTreatmentDone(value);
 
                                             }}
                                         />
                                     
                                     </div>
 
-                                    <div 
+                                    {/* <div 
                                         className="px-10 transition-all duration-200 cursor-pointer"
                                     >
 
@@ -631,10 +735,10 @@ const MedicalPlusFollowUpProfile = () => {
 
                                         </div>
 
-                                    </div>
+                                    </div> */}
 
                                     <div 
-                                        className="mt-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                        className="px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
                                     >
                                         
                                         <label className='text-xs'>Next Consultation Date</label><br />
@@ -672,6 +776,100 @@ const MedicalPlusFollowUpProfile = () => {
                                         onClick={() => {
 
                                             setTreatMentDoneVisible(false);
+
+                                        }}
+                                    />
+
+                                </form>
+
+                            </div>
+
+                        )}
+
+                        {sendPrescriptionActivated && (
+
+                            <div 
+                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
+                            >
+
+                                <form 
+                                    className="block relative bg-gray-900 rounded-2xl border-[1px] border-gray-800 py-5"
+                                    onSubmit={sendPrescriptionFunction}
+                                >
+                                
+                                    <div 
+                                        className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                    >
+                                        
+                                        <label className='text-xs'>Write any feed (Optional)</label><br />
+
+                                        <textarea 
+                                            type='text'
+                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
+                                            value={pharmacyMessage}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setPharmacyMessage(value);
+
+                                            }}
+                                            onKeyDown={(e) => {
+
+                                                if ( e.key === 'Enter' ){
+
+                                                    e.preventDefault();
+
+                                                }
+
+                                            }}
+                                        />
+                                    
+                                    </div>
+
+                                    <div 
+                                        className="px-10 transition-all duration-200 cursor-pointer"
+                                    >
+
+                                        <label className='text-xs'>Upload prescription <span className='text-red-400'>*</span></label><br />
+
+                                        <div className="mt-3">
+
+                                            <input 
+                                                type="file"
+                                                accept="image/*"
+                                                capture="environment" // opens the camera on mobile devices
+                                                onChange={(e) => handleCapture(e)}
+                                                multiple // Allows multiple file selection
+                                                className='mt-2 mb-5 cursor-pointer hidden'
+                                                id='fileInput'
+                                            />
+
+                                            <label 
+                                                htmlFor='fileInput'
+                                                className="cursor-pointer bg-gray-800 text-sm text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
+                                                    Upload
+                                            </label>
+
+                                            <span className='ml-3'>{imagesLength} Files Selected</span>
+
+                                        </div>
+
+                                    </div>
+
+                                    <button 
+                                        className='bg-[#238636] mx-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        type='submit'
+                                    >
+                                        Submit
+
+                                    </button>
+
+                                    <IoCloseCircleSharp 
+                                        className='absolute z-50 top-5 right-5 cursor-pointer'
+                                        onClick={() => {
+
+                                            setSendPrescriptionActivated(false);
 
                                         }}
                                     />

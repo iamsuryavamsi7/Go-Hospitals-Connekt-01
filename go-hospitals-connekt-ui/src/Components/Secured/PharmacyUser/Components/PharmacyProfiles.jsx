@@ -47,7 +47,7 @@ const PharmacyProfiles = () => {
         pharmacy: 'PHARMACYCARE',
     }
 
-    const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
+    // const [patientPrescriptionSrc, setPatientPrescriptionSrc] = useState([]);
 
     const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
 
@@ -92,6 +92,7 @@ const PharmacyProfiles = () => {
 
     }
 
+    // Function to fetch appointment data
     const fetchAppointmentData = async () => {
 
         try{
@@ -106,9 +107,15 @@ const PharmacyProfiles = () => {
 
                 const appointmentData = response.data;
 
+                console.log(appointmentData);
+
                 setPatientData(appointmentData);
 
-                console.log(response.data);
+                if ( appointmentData.prescriptionsUrls[0].prescriptionMessage !== null && appointmentData.prescriptionsUrls[0].prescriptionMessage !== `` ){
+
+                    setNurseMessage(appointmentData.prescriptionsUrls[0].prescriptionMessage);
+
+                }
 
             }
 
@@ -120,6 +127,7 @@ const PharmacyProfiles = () => {
 
     }
 
+    // Function to fetch userObject
     const fetchUserObject = async () => {
 
         const formData = new FormData();
@@ -152,6 +160,7 @@ const PharmacyProfiles = () => {
 
     }    
 
+    // Function to run after payment done
     const paymentDoneFunction = async () => {
 
         const applicationId = id; 
@@ -162,11 +171,13 @@ const PharmacyProfiles = () => {
 
         formData.append('pharmacyMessage', pharmacyMessage);
 
-        if ( checkedStatus ){
+        formData.append(`billNo`, billNo);
+
+        if ( checkedStatus && billNo !== null && billNo !== `` ){
 
             try{
 
-                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/consultationCompleted/${applicationId}`, formData, {
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/medicinesTaken/${applicationId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -174,25 +185,21 @@ const PharmacyProfiles = () => {
     
                 if ( response.status === 200 ){
     
-                    console.log(response.data);
-
-                    toast.success("Application Completed", {
-                        duration: 1000,
-                        style: {
-                            backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                            color: '#fff', // Tailwind text-white
-                            fontWeight: '600', // Tailwind font-semibold
-                            borderRadius: '0.5rem', // Tailwind rounded-lg
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                            marginTop: '2.5rem' // Tailwind mt-10,
-                        },
-                        position: 'top-center'
-                    });
-
-                    fetchAppointmentData();
+                    // toast.success("Application Completed", {
+                    //     duration: 1000,
+                    //     style: {
+                    //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                    //         color: '#fff', // Tailwind text-white
+                    //         fontWeight: '600', // Tailwind font-semibold
+                    //         borderRadius: '0.5rem', // Tailwind rounded-lg
+                    //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                    //         marginTop: '2.5rem' // Tailwind mt-10,
+                    //     },
+                    //     position: 'top-center'
+                    // });
 
                     const webSocketNotificationTypeModel = {
-                        notificationType: `RefreshMedicationPlusFollowUpPage`
+                        notificationType: `MedicinesGiven`
                     }
 
                     if ( stompClient ){
@@ -200,6 +207,8 @@ const PharmacyProfiles = () => {
                         stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
 
                     }
+
+                    fetchAppointmentData();
                     
                 }
     
@@ -228,41 +237,52 @@ const PharmacyProfiles = () => {
 
     }
 
+    // State to store the images
     const [images, setImages] = useState([]);
 
+    // Functin to fetch images
     const fetchImages = async () => {
 
-        const imageSrc = patientData.prescriptionsUrls;
+        const imageSrc = patientData.prescriptionsUrls[0];
+
+        const mainImageSrc = imageSrc.prescriptionURL;
 
         setFetchedImageVisible(true);
     
-        const imagePromises = imageSrc.map(async (imgSrc) => {
+        const imagePromises = mainImageSrc.map(async (imgSrc) => {
 
-            const imageSrc1 = imgSrc.prescriptionURL;
-    
-            console.log("Started...");
-    
+            const imageUrl = imgSrc;
+
             try {
-                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageSrc1, {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageUrl, {
                     responseType: 'blob',
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     }
                 });
     
-                const value = response.data;
-                const mimeType = response.headers['content-type'];
-                const blobUrl = URL.createObjectURL(value);
-    
-                console.log("Finished...");
-    
-                return { blobUrl, mimeType };
+                if ( response.status === 200 ){
+
+                    const value = response.data;
+
+                    const mimeType = response.headers['content-type'];
+                    const blobUrl = URL.createObjectURL(value);
+
+                    console.log(blobUrl);
+
+                    return { blobUrl, mimeType };
+
+                }
     
             } catch (error) {
+
                 handleError(error);
+
             }
+
         });
-    
+
         const blobs = await Promise.all(imagePromises);
     
         setImages(
@@ -270,23 +290,23 @@ const PharmacyProfiles = () => {
         );
         
     };
-    
 
+    // Function to download images
     const downloadImage = async () => {
 
-        setPatientPrescriptionSrc(null);
+        const imageSrc = patientData.prescriptionsUrls[0];
 
-        const fileName = patientData.prescriptionsUrls;
+        const mainImageSrc = imageSrc.prescriptionURL;
 
-        fileName.map( async (file1) => {
-            
-            const fileName1 = file1.prescriptionURL;
+        mainImageSrc.map(async (imgSrc) => {
 
-            console.log("Started");
+            const imageUrl = imgSrc;
 
-            try{
+            console.log(imageUrl);
 
-                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${fileName1}`, {
+            try {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${imgSrc}`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     },
@@ -295,41 +315,25 @@ const PharmacyProfiles = () => {
 
                 if ( response.status === 200 ){
 
-                    fetchAppointmentData();
-
                     const url = window.URL.createObjectURL(new Blob([response.data]));
 
                     const link = document.createElement('a');
 
                     link.href = url;
 
-                    link.setAttribute('download', fileName1);
+                    link.setAttribute('download', imageUrl);
+
                     document.body.appendChild(link);
                     link.click();
 
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
 
-                    console.log("Finished");
-
                 }
-
-            }catch(error){
+    
+            } catch (error) {
 
                 handleError(error);
-
-                toast.error("Download Error", {
-                    duration: 2000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-center'
-                });
 
             }
 
@@ -392,6 +396,10 @@ const PharmacyProfiles = () => {
         }
 
     }, []);
+
+    const [nurseMessage, setNurseMessage] = useState(``);
+
+    const [billNo, setBillNo] = useState(``);
 
     return (
 
@@ -458,22 +466,6 @@ const PharmacyProfiles = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.age}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Next Follow Up
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.nextFollowUpDate && format(patientData.nextFollowUpDate, 'MMMM dd')}
 
                                 </div>
 
@@ -591,6 +583,22 @@ const PharmacyProfiles = () => {
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Messasge from Nurse
+
+                                </div>
+
+                                <div className="text-lg max-h-[100px] h-[100px] overflow-y-scroll w-full scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700">
+                                    
+                                    {nurseMessage}
+
+                                </div>
+
+                            </div>
+
                             {patientData.treatmentDoneMessage && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
@@ -683,29 +691,51 @@ const PharmacyProfiles = () => {
 
                         </div>
 
-                        {patientData.consultationType !== 'COMPLETED' && patientData.consultationType !== 'FOLLOWUPCOMPLETED' && (
+                        { patientData.needMedicines && (
 
-                            <div className="mx-10 my-5">
+                            <>
 
-                                <label className='text-xs'>Write any feed (Optional)</label><br />
+                                <div className="mx-10 my-5">
 
-                                <textarea
-                                    className='mt-2 h-[80px] border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg'
-                                    value={ifNeededData}
-                                    onChange={(e) => {
+                                    <label className='text-xs'>Write any feed (Optional)</label><br />
 
-                                        const value = e.target.value;
+                                    <textarea
+                                        className='mt-2 h-[80px] border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg'
+                                        value={ifNeededData}
+                                        onChange={(e) => {
 
-                                        setIfNeededData(value);
+                                            const value = e.target.value;
 
-                                    }}
-                                />
+                                            setIfNeededData(value);
 
-                            </div>
+                                        }}
+                                    />
+
+                                </div>
+
+                                <div className="mx-10 my-5">
+
+                                    <label className='text-xs'>Bill No <span>( Optional )</span></label><br />
+
+                                    <input
+                                        className='mt-2 border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg'
+                                        value={billNo}
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setBillNo(value);
+
+                                        }}
+                                    />
+
+                                </div>
+
+                            </>
 
                         )}
 
-                        {patientData.consultationType !== 'COMPLETED' && patientData.consultationType !== 'FOLLOWUPCOMPLETED' && (
+                        { patientData.needMedicines && (
 
                             <div className="ml-10">
 
@@ -753,6 +783,7 @@ const PharmacyProfiles = () => {
                                 {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
 
                                     return mimeType === 'application/pdf' ? (
+
                                         <object
                                             key={index}
                                             data={blobUrl}
@@ -762,15 +793,20 @@ const PharmacyProfiles = () => {
                                             aria-label={`Prescription PDF ${index + 1}`}
                                             className='transition-transform duration-300 ease-in-out transform'
                                         >
+
                                             <p>PDF Preview Not Available</p>
+
                                         </object>
+
                                     ) : (
+
                                         <img
                                             key={index}
                                             src={blobUrl}
                                             alt={`Prescription ${index + 1}`}
                                             className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
                                         />
+
                                     );
                                 }) : (
                         

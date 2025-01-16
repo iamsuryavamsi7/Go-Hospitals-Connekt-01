@@ -7,32 +7,29 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(
-        name = "image_urls_table"
+        name = "pharmacy_message_table"
 )
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImageUrls {
+public class PharmacyMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String prescriptionMessage;
-    private List<String> prescriptionURL = new ArrayList<>();
+    private String pharmacyMessage;
     private Date timeStamp;
 
     @ManyToOne
     @JoinColumn(
             name = "application_id"
     )
-    @JsonBackReference
+    @JsonBackReference("pharmacyMessage")
     private Applications application;
 
 }

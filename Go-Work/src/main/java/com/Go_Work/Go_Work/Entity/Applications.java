@@ -33,7 +33,6 @@ public class Applications {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String tempororyBillNo;
     private int age;
     private String contact;
     private String location;
@@ -42,13 +41,13 @@ public class Applications {
     private String preferredDoctorName;
     private Date appointmentCreatedOn;
     private String bookedBy;
-
     private String patientId;
+    private String tempororyBillNo;
 
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType;
+
     private String treatmentDoneMessage;
-    private String pharmacyMessage;
 
     @OneToMany(
             mappedBy = "application",
@@ -95,6 +94,15 @@ public class Applications {
     private boolean teleSupportSurgeryDocumentsAccept;
 
     private Date pharmacyGoingTime;
+
+    @OneToMany(
+            mappedBy = "application",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference("pharmacyMessage")
+    private List<PharmacyMessage> pharmacyMessages = new ArrayList<>();
+
+    private Boolean needMedicines;
 
     @OneToMany(
             mappedBy = "application",

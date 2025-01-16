@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Service.Secured.PHARMACY;
 
 import com.Go_Work.Go_Work.Entity.*;
+import com.Go_Work.Go_Work.Entity.Enum.BillType;
 import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
@@ -11,6 +12,7 @@ import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseMo
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.NotificationRepo;
+import com.Go_Work.Go_Work.Repo.PharmacyRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -39,6 +42,8 @@ public class PharmacyService {
     private final NotificationRepo notificationRepo;
 
     private final JwtService jwtService;
+
+    private final PharmacyRepo pharmacyRepo;
 
     public MedicalSupportResponseModel fetchApplicationById(Long id) throws AppointmentNotFoundException {
 
@@ -88,7 +93,10 @@ public class PharmacyService {
 
         }
 
-        List<ImageUrls> imageUrls = fetchedApplication.getPrescriptionUrl();
+        List<ImageUrls> imageUrls = fetchedApplication.getPrescriptionUrl()
+                        .stream()
+                        .sorted(Comparator.comparing(ImageUrls::getTimeStamp).reversed())
+                        .toList();
 
         application1.setPrescriptionsUrls(imageUrls);
 
@@ -116,7 +124,7 @@ public class PharmacyService {
 
         }
 
-        fetchedApplication.setPharmacyMessage(pharmacyMessage);
+//        fetchedApplication.setPharmacyMessage(pharmacyMessage);
 
         applicationsRepo.save(fetchedApplication);
 
@@ -225,7 +233,7 @@ public class PharmacyService {
 
         List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
                             .stream()
-                            .filter(applications -> applications.getConsultationType().equals(ConsultationType.PHARMACY))
+                            .filter(Applications::getNeedMedicines)
                             .sorted(Comparator.comparing(Applications::getPharmacyGoingTime).reversed())
                             .map(application1 -> {
 
@@ -233,7 +241,7 @@ public class PharmacyService {
 
                                 BeanUtils.copyProperties(application1, application);
 
-                                if ( !application1.getBills().isEmpty() ){
+                                if ( application1.getBills() != null && !application1.getBills().isEmpty() ){
 
                                     Bills latestBill = application1.getBills()
                                             .stream()
@@ -321,6 +329,57 @@ public class PharmacyService {
                 .sorted(Comparator.comparing(Notification::getTimeStamp).reversed())
                 .limit(50)
                 .toList();
+
+    }
+
+    @Transactional
+    public Boolean medicinesTaken(Long applicationId, String pharmacyMessage, String billNo) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        PharmacyMessage pharmacyMessageObject = new PharmacyMessage();
+
+        pharmacyMessageObject.setTimeStamp(new Date(System.currentTimeMillis()));
+        pharmacyMessageObject.setApplication(fetchedApplication);
+
+        if ( !pharmacyMessage.isEmpty() ){
+
+            pharmacyMessageObject.setPharmacyMessage(pharmacyMessage);
+
+        }
+
+        fetchedApplication.getPharmacyMessages().add(pharmacyMessageObject);
+
+        Bills newBill = new Bills();
+
+        newBill.setTimeStamp(new Date(System.currentTimeMillis()));
+        newBill.setBillType(BillType.PHARMACYBILL);
+        newBill.setBillNo(billNo);
+        newBill.setApplications(fetchedApplication);
+
+        fetchedApplication.getBills().add(newBill);
+        fetchedApplication.setNeedMedicines(false);
+
+        applicationsRepo.save(fetchedApplication);
+
+        User fetchedMedicalSupportUser = fetchedApplication.getMedicalSupportUser();
+
+        Notification notification = new Notification();
+
+        notification.setMessage("Medicines Given !");
+        notification.setUser(fetchedMedicalSupportUser);
+        notification.setRead(false);
+        notification.setTimeStamp(new Date(System.currentTimeMillis()));
+        notification.setApplicationId(fetchedApplication.getId());
+        notification.setNotificationStatus(NotificationStatus.PHARMACYMEDICINESGIVEN);
+
+        fetchedMedicalSupportUser.getNotifications().add(notification);
+
+        userRepo.save(fetchedMedicalSupportUser);
+
+        return true;
 
     }
 

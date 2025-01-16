@@ -62,7 +62,7 @@ const CurrentJob = () => {
     
             if (response.status === 200) {
                 
-                let myJobsData = response.data;
+                const myJobsData = response.data;
 
                 console.log(myJobsData);
 

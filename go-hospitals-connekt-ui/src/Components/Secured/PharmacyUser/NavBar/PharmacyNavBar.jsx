@@ -143,8 +143,6 @@ const PharmacyNavBar = () => {
 
                 const notificationData = response.data;
 
-                console.log(notificationData);
-
                 setNotificationArray(notificationData);
 
             }
@@ -182,8 +180,6 @@ const PharmacyNavBar = () => {
         const notificationID = notificationObject.id;
 
         const notificationStatus = notificationObject.notificationStatus;
-
-        console.log(notificationStatus);
 
         if ( notificationStatus === 'PHARMACYPROFILE' ){
 
@@ -268,9 +264,7 @@ const PharmacyNavBar = () => {
 
                             const audio = new Audio(`/Notifications/notification_count.mp4`);
         
-                            audio.play().catch((error) => {
-                                console.log("Audio play failed", error);
-                            });
+                            audio.play();
         
                         }, i * 800); 
 
@@ -295,11 +289,7 @@ const PharmacyNavBar = () => {
 
         const messageobject = JSON.parse(message.body);
 
-        console.log(messageobject);
-
         if ( messageobject.notificationType === `PendingMedicationsRefresh` ){
-
-            console.log("\n\n\nNotification Type :" + messageobject.notificationType);
 
             fetchNotifications();
 
@@ -316,8 +306,6 @@ const PharmacyNavBar = () => {
         client.connect(
             {},
             () => {
-
-                console.log(`Connection Successfull`);
 
                 client.subscribe(`/common/commonFunction`, (message) => newNotificationFunction(message));
 

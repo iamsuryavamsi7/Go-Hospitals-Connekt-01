@@ -82,7 +82,7 @@ const LeftNavBarFrontDesk = () => {
     // Function to copy the link for frontend
     const copyMyLinkFunction = () => {
 
-        const textToCopy = `http://localhost:7778/patient-self-filling-page`;
+        const textToCopy = `${goHospitalsFRONTENDBASEURL}/patient-self-filling-page`;
 
         // Check if `navigator.clipboard` is supported
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -150,7 +150,7 @@ const LeftNavBarFrontDesk = () => {
 
         }else {
 
-            // window.open(`${goHospitalsFRONTENDBASEURL}`, '_self');
+            window.open(`${goHospitalsFRONTENDBASEURL}`, '_self');
 
         }
 

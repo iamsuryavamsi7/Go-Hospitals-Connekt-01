@@ -448,6 +448,12 @@ const access_token = Cookies.get('access_token');
 
                                     )}
 
+                                    {patientData.consultationType === "MEDICATIONPLUSFOLLOWUP" && (
+
+                                        <span>In Medication Plus Follow Up</span>
+
+                                    )}
+
                                 </div>
 
                             </div>

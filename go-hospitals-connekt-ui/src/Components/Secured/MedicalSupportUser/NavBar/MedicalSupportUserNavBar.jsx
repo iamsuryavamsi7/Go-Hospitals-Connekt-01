@@ -184,7 +184,9 @@ const MedicalSupportUserNavBar = () => {
 
         const notificationStatus = notificationObject.notificationStatus;
 
-        if ( notificationStatus === 'BOOKAPPOINTMENT' ){
+        console.log(notificationStatus);
+
+        if ( notificationStatus === 'BOOKAPPOINTMENT' || 'PHARMACYMEDICINESGIVEN' ){
 
             navigate(`/medical-support-consultation-queue/${applicationID}`);
 
@@ -323,7 +325,7 @@ const MedicalSupportUserNavBar = () => {
 
                     const messageObject = JSON.parse(message.body);
 
-                    if ( messageObject.notificationType === `FollowUpPatientCame` ){
+                    if ( messageObject.notificationType === `FollowUpPatientCame` || messageObject.notificationType === `MedicinesGiven` ){
 
                         fetchNotifications();
 
