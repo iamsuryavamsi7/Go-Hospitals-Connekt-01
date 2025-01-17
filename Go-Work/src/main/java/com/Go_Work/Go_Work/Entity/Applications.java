@@ -30,7 +30,7 @@ import java.util.List;
 public class Applications {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private int age;
@@ -56,14 +56,14 @@ public class Applications {
     @JsonManagedReference
     private List<ImageUrls> prescriptionUrl = new ArrayList<>();
 
-    private boolean isPatientGotApproved;
+    private boolean isPatientGotApproved = false;
 
     private String caseCloseInput;
 
-    private Boolean isMedicationPlusFollow;
+    private Boolean isMedicationPlusFollow = false;
 
-    private boolean treatmentDone;
-    private Boolean paymentDone;
+    private boolean treatmentDone = false;
+    private Boolean paymentDone = false;
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
 
@@ -89,9 +89,9 @@ public class Applications {
 
     private Date teleSupportUserAssignedTime;
 
-    private boolean teleSupportConsellingDone;
+    private boolean teleSupportConsellingDone = false;
 
-    private boolean teleSupportSurgeryDocumentsAccept;
+    private boolean teleSupportSurgeryDocumentsAccept = false;
 
     private Date pharmacyGoingTime;
 
@@ -102,7 +102,7 @@ public class Applications {
     @JsonManagedReference("pharmacyMessage")
     private List<PharmacyMessage> pharmacyMessages = new ArrayList<>();
 
-    private Boolean needMedicines;
+    private Boolean needMedicines = false;
 
     @OneToMany(
             mappedBy = "application",

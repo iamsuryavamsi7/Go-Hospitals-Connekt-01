@@ -15,7 +15,7 @@ const MedicalSupportUserNavBar = () => {
     // Use Navigate Hook
     const navigate = useNavigate();
 
-    // State to store the medical support user role
+    // State to store the Nurse role
     const medicalSupportUser = 'MEDICALSUPPORT';
 
     // GoHospitals BackEnd API environment variable

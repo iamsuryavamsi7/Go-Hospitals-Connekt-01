@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -167,6 +168,35 @@ public class FrontDeskService {
                     .orElse(null);
 
             application1.setBillNo(latestBill.getBillNo());
+
+            List<Bills> billsObject = fetchedApplication.getBills()
+                    .stream()
+                    .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                    .toList();
+
+            application1.setBills(billsObject);
+
+        }
+
+        if ( !fetchedApplication.getPharmacyMessages().isEmpty() ){
+
+            List<PharmacyMessage> pharmacyMessages = fetchedApplication.getPharmacyMessages()
+                    .stream()
+                    .sorted(Comparator.comparing(PharmacyMessage::getTimeStamp).reversed())
+                    .toList();
+
+            application1.setPharmacyMessages(pharmacyMessages);
+
+        }
+
+        if ( !fetchedApplication.getPrescriptionUrl().isEmpty() ){
+
+            List<ImageUrls> imageUrls = fetchedApplication.getPrescriptionUrl()
+                    .stream()
+                    .sorted(Comparator.comparing(ImageUrls::getTimeStamp).reversed())
+                    .toList();
+
+            application1.setPrescriptionUrl(imageUrls);
 
         }
 
@@ -726,7 +756,7 @@ public class FrontDeskService {
     }
 
     @Transactional
-    public Boolean forwardToNurse(Long applicationID) throws ApplicationNotFoundException {
+    public Boolean forwardToNurse(Long applicationID, String billNo) throws ApplicationNotFoundException {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
                 () -> new ApplicationNotFoundException("Application Not Found")
@@ -739,22 +769,40 @@ public class FrontDeskService {
         fetchedApplication.setIsMedicationPlusFollow(false);
         fetchedApplication.setMedicalSupportUser(null);
 
+        if ( billNo != null && !billNo.isBlank() ){
+
+            Bills newBillObject = new Bills();
+
+            newBillObject.setBillType(BillType.FRONTDESKBILL);
+            newBillObject.setBillNo(billNo);
+            newBillObject.setApplications(fetchedApplication);
+            newBillObject.setTimeStamp(new Date(System.currentTimeMillis()));
+
+            fetchedApplication.getBills().add(newBillObject);
+
+        }
+
+        applicationsRepo.save(fetchedApplication);
+
         // Save notifications for medical support users
         userRepo.findAll()
                 .stream()
                 .filter(user -> user.getRole().equals(Role.MEDICALSUPPORT))
                 .forEach(medicalUser -> {
                     Notification newNotification = new Notification();
-                    newNotification.setMessage("Follow Up Patient Joined");
+                    newNotification.setMessage("New Patient Added");
                     newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
                     newNotification.setApplicationId(fetchedApplication.getId());
                     newNotification.setRead(false);
                     newNotification.setUser(medicalUser);
                     newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
 
-                    notificationRepo.save(newNotification);
+//                    notificationRepo.save(newNotification);
+
                     medicalUser.getNotifications().add(newNotification);
+
                     userRepo.save(medicalUser);
+
                 });
 
         return true;
@@ -862,6 +910,29 @@ public class FrontDeskService {
         int end = Math.min(start + size, fetchedApplications.size());
 
         return fetchedApplications.subList(start, end);
+
+    }
+
+    public Boolean caseCloseById(Long applicationID, String caseCloseInput) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+        fetchedApplication.setPaymentDone(true);
+        fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
+
+        if ( !caseCloseInput.isEmpty() ){
+
+            fetchedApplication.setCaseCloseInput(caseCloseInput);
+
+        }
+
+        applicationsRepo.save(fetchedApplication);
+
+        return true;
 
     }
 

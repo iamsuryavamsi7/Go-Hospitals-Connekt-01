@@ -397,7 +397,7 @@ const PharmacyProfiles = () => {
 
     }, []);
 
-    const [nurseMessage, setNurseMessage] = useState(``);
+    const [NurseMessage, setNurseMessage] = useState(``);
 
     const [billNo, setBillNo] = useState(``);
 
@@ -539,7 +539,7 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 
@@ -593,7 +593,7 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-lg max-h-[100px] h-[100px] overflow-y-scroll w-full scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700">
                                     
-                                    {nurseMessage}
+                                    {NurseMessage}
 
                                 </div>
 

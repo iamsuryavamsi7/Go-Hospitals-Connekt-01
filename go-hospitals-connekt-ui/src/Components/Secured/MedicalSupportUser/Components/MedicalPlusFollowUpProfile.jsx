@@ -11,7 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format, isAfter, isBefore } from 'date-fns';
 
 const MedicalPlusFollowUpProfile = () => {
-
+ 
     // JWT Token
     const access_token = Cookies.get('access_token');
 
@@ -148,9 +148,15 @@ const MedicalPlusFollowUpProfile = () => {
 
                 const appointmentData = response.data;
 
-                setPharmacyMessage(appointmentData.pharmacyMessages[0].pharmacyMessage);
+                console.log(appointmentData);
 
                 setPatientData(appointmentData);
+
+                if ( appointmentData.pharmacyMessages && appointmentData.pharmacyMessages[0].pharmacyMessage ){
+
+                    setPharmacyMessage(appointmentData.pharmacyMessages[0].pharmacyMessage);
+
+                }
 
             }
 
@@ -325,6 +331,8 @@ const MedicalPlusFollowUpProfile = () => {
 
     const [sendPrescriptionActivated, setSendPrescriptionActivated] = useState(false);
 
+    const [pharmacyMessageDuplicated, setPharmacyMessageDuplicated] = useState(``);
+
     const sendPrescriptionFunction = async (e) => {
 
         e.preventDefault();
@@ -344,9 +352,9 @@ const MedicalPlusFollowUpProfile = () => {
 
             });
 
-            if ( pharmacyMessage !== null && pharmacyMessage !== `` ){
+            if ( pharmacyMessageDuplicated !== null && pharmacyMessageDuplicated !== `` ){
 
-                formData.append("pharmacyMessage", pharmacyMessage);
+                formData.append("pharmacyMessage", pharmacyMessageDuplicated);
 
             }
 
@@ -375,7 +383,7 @@ const MedicalPlusFollowUpProfile = () => {
                         }
 
                         setImage([]);
-                        setPharmacyMessage(``);
+                        setPharmacyMessageDuplicated(``);
 
                         setSendPrescriptionActivated(false);
 
@@ -547,7 +555,7 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 
@@ -623,7 +631,7 @@ const MedicalPlusFollowUpProfile = () => {
 
                             </div>
 
-                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {pharmacyMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
                                 
                                 <div className="text-base text-gray-300">
 
@@ -637,7 +645,7 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 </div>
 
-                            </div>
+                            </div>}
 
                         </div>
 
@@ -806,12 +814,12 @@ const MedicalPlusFollowUpProfile = () => {
                                         <textarea 
                                             type='text'
                                             className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
-                                            value={pharmacyMessage}
+                                            value={pharmacyMessageDuplicated}
                                             onChange={(e) => {
 
                                                 const value = e.target.value;
 
-                                                setPharmacyMessage(value);
+                                                setPharmacyMessageDuplicated(value);
 
                                             }}
                                             onKeyDown={(e) => {

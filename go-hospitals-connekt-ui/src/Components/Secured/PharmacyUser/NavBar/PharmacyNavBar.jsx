@@ -16,7 +16,7 @@ const PharmacyNavBar = () => {
     // Use Navigate Hook
     const navigate = useNavigate();
 
-    // State to store the medical support user role
+    // State to store the Nurse role
     const pharmacy = 'PHARMACYCARE';
 
     // GoHospitals BackEnd API environment variable

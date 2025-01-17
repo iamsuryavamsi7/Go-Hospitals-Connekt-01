@@ -24,7 +24,7 @@ const TeleSupportLeftNavBar = () => {
     // State to store the role
     const [role, setRole] = useState(``);
 
-    // Medical Support User Variable value
+    // Nurse Variable value
     const teleSupport = 'TELESUPPORT'
 
     // Function to fetch user role

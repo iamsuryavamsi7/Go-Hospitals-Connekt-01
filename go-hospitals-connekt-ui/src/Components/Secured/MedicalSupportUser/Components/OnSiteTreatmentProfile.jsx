@@ -412,7 +412,7 @@ const OnSiteTreatmentProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 

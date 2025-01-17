@@ -354,7 +354,7 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 
@@ -426,7 +426,7 @@ const access_token = Cookies.get('access_token');
                                     
                                     {patientData.consultationType === 'WAITING' && (
 
-                                        <span>Waiting for nurse</span>
+                                        <span>Waiting for Nurse</span>
 
                                     )}
 

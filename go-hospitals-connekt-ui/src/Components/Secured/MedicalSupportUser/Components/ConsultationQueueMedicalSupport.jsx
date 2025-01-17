@@ -337,7 +337,7 @@ const ConsultationQueueMedicalSupport = () => {
                                         <th>Patient Name</th>
                                         <th>Doctors Name</th>
                                         <th>Bill No</th>
-                                        <th>Medical Support User</th>
+                                        <th>Nurse</th>
 
                                     </tr>
 

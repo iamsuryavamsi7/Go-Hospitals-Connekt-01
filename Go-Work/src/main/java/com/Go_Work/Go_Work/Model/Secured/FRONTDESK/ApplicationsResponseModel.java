@@ -1,6 +1,8 @@
 package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
+import com.Go_Work.Go_Work.Entity.Bills;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.ImageUrls;
 import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
 import com.Go_Work.Go_Work.Entity.PharmacyMessage;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -42,6 +44,8 @@ public class ApplicationsResponseModel {
     private Date nextFollowUpDate;
     private String pharmacyMessage;
 
+    private String caseCloseInput;
+
     private Boolean needMedicines;
 
     private boolean isPatientGotApproved;
@@ -60,5 +64,9 @@ public class ApplicationsResponseModel {
     private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
 
     private List<PharmacyMessage> pharmacyMessages = new ArrayList<>();
+
+    private List<Bills> bills = new ArrayList<>();
+
+    private List<ImageUrls> prescriptionUrl = new ArrayList<>();
 
 }

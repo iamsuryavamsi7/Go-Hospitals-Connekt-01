@@ -691,7 +691,7 @@ const LeftNavBarFrontDesk = () => {
 
                         </div>
 
-                        <div 
+                        {/* <div 
                             className={`${completedAppointment1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-completed-appointments')}
                         >
@@ -711,7 +711,7 @@ const LeftNavBarFrontDesk = () => {
 
                             </div>
 
-                        </div>
+                        </div> */}
                         
                         <div 
                             className={`${caseClosed1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}

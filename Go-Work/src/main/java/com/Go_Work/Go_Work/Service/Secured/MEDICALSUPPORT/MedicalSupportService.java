@@ -644,7 +644,7 @@ public class MedicalSupportService {
         );
 
         fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
-        fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+//        fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDone(true);
         fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));

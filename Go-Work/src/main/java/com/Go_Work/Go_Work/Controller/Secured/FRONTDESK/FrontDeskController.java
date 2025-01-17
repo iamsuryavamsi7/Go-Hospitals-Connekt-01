@@ -311,12 +311,13 @@ public class FrontDeskController {
 
     }
 
-    @GetMapping("/forwardToNurse/{applicationID}")
+    @PostMapping("/forwardToNurse/{applicationID}")
     public ResponseEntity<Boolean> forwardToNurse(
-            @PathVariable("applicationID") Long applicationID
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam(value = "billNo", required = false) String billNo
     ) throws ApplicationNotFoundException {
 
-        Boolean fetchedBooleanValue = frontDeskService.forwardToNurse(applicationID);
+        Boolean fetchedBooleanValue = frontDeskService.forwardToNurse(applicationID, billNo);
 
         return ResponseEntity.ok(fetchedBooleanValue);
 
@@ -344,6 +345,18 @@ public class FrontDeskController {
         List<ApplicationsResponseModel> fetchedApplications = frontDeskService.fetchCompletedAppointments(pageNumber, size);
 
         return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @PostMapping("/caseCloseById/{applicationID}")
+    public ResponseEntity<Boolean> caseCloseById(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam("caseCloseInput") String caseCloseInput
+    ) throws ApplicationNotFoundException {
+
+        Boolean fetchedBooleanValue = frontDeskService.caseCloseById(applicationID, caseCloseInput);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
 
     }
 

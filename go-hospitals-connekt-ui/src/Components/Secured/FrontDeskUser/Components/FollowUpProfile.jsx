@@ -12,6 +12,8 @@ import { GiCancel } from 'react-icons/gi';
 import "react-datepicker/dist/react-datepicker.css";
 import { format, isAfter } from 'date-fns';
 import DatePicker from 'react-datepicker';
+import { IoCloseCircle } from 'react-icons/io5';
+import { CgLoadbar } from 'react-icons/cg';
 
 const FollowUpProfile = () => { 
 
@@ -31,6 +33,8 @@ const FollowUpProfile = () => {
 
     // GoHospitals BASE URL environment variable
     const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
+
+    const [pharmacyMessage, setPharmacyMessage] = useState(``);
 
     const {id} = useParams();
 
@@ -52,7 +56,8 @@ const FollowUpProfile = () => {
         nextFollowUpDate: new Date(),
         updatableNextFollowUpDate: ``,
         noteData: ``,
-        nextAppointmentDate: []
+        nextAppointmentDate: [],
+        prescriptionUrl: []
     });
 
     const roles = {
@@ -121,6 +126,12 @@ const FollowUpProfile = () => {
                 console.log(appointmentData);
 
                 setPatientData(appointmentData);
+
+                if ( appointmentData.pharmacyMessages && appointmentData.pharmacyMessages[0].pharmacyMessage ){
+
+                    setPharmacyMessage(appointmentData.pharmacyMessages[0].pharmacyMessage);
+
+                }
 
             }
 
@@ -705,12 +716,26 @@ const FollowUpProfile = () => {
 
     }
 
+    const [billNo, setBillNo] = useState(``);
+
+    const [bookAppointmentFieldActivated, setBookAppointmentFieldActivated] = useState(false);
+
     // Function to book appointment
-    const bookAppointmentFunction = async () => {
+    const bookAppointmentFunction = async (e) => {
+
+        e.preventDefault();
+
+        const formData = new FormData();
+
+        if ( billNo !== `` && billNo !== null ){
+
+            formData.append("billNo", billNo.trim());
+
+        }
 
         try{
 
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/forwardToNurse/${id}`, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/forwardToNurse/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${access_token}`
                 }
@@ -745,6 +770,169 @@ const FollowUpProfile = () => {
             console.error(error);
 
         }
+
+    }
+
+    const [caseCloseButtonActivated, setCaseCloseButtonActivated] = useState(false);
+
+    const [caseCloseInputValue, setCaseCloseInputValue] = useState(``);
+
+    const caseClosedFunction = async (e) => {
+
+        e.preventDefault();
+
+        const applicationID = id;
+
+        const caseCloseInput = caseCloseInputValue;
+
+        const formData = new FormData();
+
+        if ( caseCloseInputValue !== `` && caseCloseInputValue !== null ){
+
+            formData.append("caseCloseInput", caseCloseInput);
+
+        }
+
+        try{
+
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/caseCloseById/${applicationID}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const booleanValue = response.data;
+
+                if ( booleanValue ){
+
+                    setCaseCloseButtonActivated(false);
+
+                    fetchAppointmentData();
+
+                }
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+        
+    }
+
+    const [pharmacyMessageViewMoreActivated, setPharmacyMessageViewMoreActivated] = useState(false);
+
+    const [billNoViewMoreActivated, setBillNoViewMoreActivated] = useState(false);
+
+    const [prescriptionURLData, setPrescriptionURLData] = useState(false);
+
+    const [images, setImages] = useState(null);
+
+    const [fetchedImageVisible, setFetchedImageVisible] = useState(false);
+
+    // Functin to fetch images
+    const fetchImages = async (e, index) => {
+
+        const imageSrc = patientData.prescriptionUrl[index];
+
+        const mainImageSrc = imageSrc.prescriptionURL;
+
+        setPrescriptionURLData(false);
+
+        setFetchedImageVisible(true);
+    
+        const imagePromises = mainImageSrc.map(async (imgSrc) => {
+
+            const imageUrl = imgSrc;
+
+            try {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageUrl, {
+                    responseType: 'blob',
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+    
+                if ( response.status === 200 ){
+
+                    const value = response.data;
+
+                    const mimeType = response.headers['content-type'];
+                    const blobUrl = URL.createObjectURL(value);
+
+                    console.log(blobUrl);
+
+                    return { blobUrl, mimeType };
+
+                }
+    
+            } catch (error) {
+
+                handleError(error);
+
+            }
+
+        });
+
+        const blobs = await Promise.all(imagePromises);
+    
+        setImages(
+            [...blobs.filter((blob) => blob !== null)]
+        );
+        
+    };
+
+    // Function to download images
+    const downloadImage = async (e, index) => {
+
+        const imageSrc = patientData.prescriptionUrl[index];
+
+        const mainImageSrc = imageSrc.prescriptionURL;
+
+        mainImageSrc.map(async (imgSrc) => {
+
+            const imageUrl = imgSrc;
+
+            console.log(imageUrl);
+
+            try {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${imgSrc}`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    },
+                    responseType: 'blob'
+                })
+
+                if ( response.status === 200 ){
+
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+
+                    const link = document.createElement('a');
+
+                    link.href = url;
+
+                    link.setAttribute('download', imageUrl);
+
+                    document.body.appendChild(link);
+                    link.click();
+
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                }
+    
+            } catch (error) {
+
+                handleError(error);
+
+            }
+
+        });
 
     }
 
@@ -822,6 +1010,22 @@ const FollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Contact
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.contact}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Gender
 
                                 </div>
@@ -850,7 +1054,7 @@ const FollowUpProfile = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg relative">
 
                                 <div className="text-base text-gray-300">
 
@@ -863,6 +1067,11 @@ const FollowUpProfile = () => {
                                     {patientData.billNo}
 
                                 </div>
+
+                                <div 
+                                    className="text-xs text-gray-200 absolute top-4 right-3 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                    onClick={() => setBillNoViewMoreActivated(true)}    
+                                >View More</div>
 
                             </div>
 
@@ -926,7 +1135,7 @@ const FollowUpProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Medical Support Name
+                                    Nurse
 
                                 </div>
 
@@ -972,13 +1181,13 @@ const FollowUpProfile = () => {
 
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for nurse'}
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
 
                                 </div>
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.treatmentDoneMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -992,7 +1201,7 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                            </div>
+                            </div>}
 
                             {patientData.consultationType === 'CASECLOSED' && (
 
@@ -1000,7 +1209,7 @@ const FollowUpProfile = () => {
 
                                     <div className="text-base text-gray-300">
 
-                                        Completed On
+                                        Closed On
 
                                     </div>
 
@@ -1014,7 +1223,23 @@ const FollowUpProfile = () => {
 
                             )}
 
-                            {patientData.pharmacyMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.caseCloseInput && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Case Closed Message
+
+                                </div>
+
+                                <div className="text-lg max-h-[100px] overflow-y-scroll custom-scrollbar">
+                                    
+                                    {patientData.caseCloseInput}
+
+                                </div>
+
+                            </div>}
+
+                            {pharmacyMessage && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg relative">
 
                                 <div className="text-base text-gray-300">
 
@@ -1022,11 +1247,25 @@ const FollowUpProfile = () => {
 
                                 </div>
 
-                                <div className="text-lg max-h-[100px] overflow-y-scroll custom-scrollbar">
+                                <div className="text-lg whitespace-nowrap overflow-hidden max-w-[250px text-ellipsis]">
                                     
-                                    {patientData.pharmacyMessage}
+                                    {pharmacyMessage}
 
                                 </div>
+
+                                <div 
+                                    className="text-xs text-gray-200 absolute top-4 right-3 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                    onClick={() => setPharmacyMessageViewMoreActivated(true)}    
+                                >View More</div>
+
+                            </div>}
+
+                            {patientData.prescriptionUrl.length > 0 && <div className="bg-gray-800 px-5 py-3 rounded-lg flex items-center justify-center">
+
+                                <div 
+                                    className="hover:opacity-60 active:opacity-80 cursor-pointer"
+                                    onClick={() => setPrescriptionURLData(true)}    
+                                >View All Presciptions</div>
 
                             </div>}
 
@@ -1117,10 +1356,27 @@ const FollowUpProfile = () => {
 
                                     <button
                                         className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
-                                        onClick={bookAppointmentFunction}
+                                        onClick={() => {
+
+                                            setBookAppointmentFieldActivated(true);
+
+                                        }}
                                     >
 
                                         Book Appointment
+
+                                    </button>
+
+                                    <button
+                                        className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        onClick={() => {
+
+                                            setCaseCloseButtonActivated(true);
+
+                                        }}
+                                    >
+
+                                        Case Closed
 
                                     </button>
 
@@ -1554,6 +1810,124 @@ const FollowUpProfile = () => {
 
                         )}
 
+                        {caseCloseButtonActivated && (
+
+                            <form
+                                className='absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm'
+                                onSubmit={(e) => caseClosedFunction(e)}
+                            >
+
+                                <div className="bg-gray-900 py-10 rounded-lg">
+
+                                    <div className="flex flex-col mx-10">
+
+                                        <label className='text-xs mb-2'>Case Close Note <span className='text-red-500'>*</span></label>
+
+                                        <textarea 
+                                            className='bg-[#0d1117] min-h-[100px] max-h-[100px] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg h-[80px] px-3 w-[300px] max-sm:w-full'
+                                            value={caseCloseInputValue}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setCaseCloseInputValue(value);
+
+                                            }}
+                                        />
+
+                                    </div>
+
+                                    <div className="">
+
+                                        <button 
+                                            className='bg-[#238636] ml-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                        >
+                                            Submit
+
+                                        </button>
+
+                                        <button 
+                                            className='bg-red-500 ml-5 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            onClick={(e) => {
+
+                                                e.preventDefault();
+
+                                                setCaseCloseButtonActivated(false);
+                                                
+                                            }}
+                                        >
+                                            Cancel
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        )}
+
+                        {bookAppointmentFieldActivated && (
+
+                            <form
+                                className='absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm'
+                                onSubmit={(e) => bookAppointmentFunction(e)}
+                            >
+
+                                <div className="bg-gray-900 py-10 rounded-lg">
+
+                                    <div className="flex flex-col mx-10">
+
+                                        <label className='text-xs mb-2'> Bill No <span className=''>( Optional )</span></label>
+
+                                        <input 
+                                            className='bg-[#0d1117] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full'
+                                            value={billNo}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setBillNo(value);
+
+                                            }}
+                                        />
+
+                                    </div>
+
+                                    <div className="">
+
+                                        <button 
+                                            className='bg-[#238636] ml-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                        >
+                                            Submit
+
+                                        </button>
+
+                                        <button 
+                                            className='bg-red-500 ml-5 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            onClick={(e) => {
+
+                                                e.preventDefault();
+
+                                                setBookAppointmentFieldActivated(false);
+                                                
+                                            }}
+                                        >
+                                            Cancel
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        )}
+
                     </div>
 
                     {/* Hidden page for printing patient details */}
@@ -1589,6 +1963,208 @@ const FollowUpProfile = () => {
                         </div>
 
                     </div>
+
+                    {pharmacyMessageViewMoreActivated && <div className="fixed top-0 right-0 left-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-[2px]">
+
+                        <div className="bg-gray-900 p-10 rounded-lg max-h-[600px] overflow-y-scroll custom-scrollbar relative">
+
+                            <div className="mb-5 font-xl text-center font-semibold">Pharmacy Messages</div>
+
+                            {patientData.pharmacyMessages.map((item, index) => (
+
+                                <div 
+                                    className="flex space-x-2"
+                                    key={index}    
+                                >
+
+                                    <div className="">{index + 1}{')'}</div>
+
+                                    <div className="flex items-center space-x-2 mb-2">
+
+                                        <div className="max-w-[400px]"> {item.pharmacyMessage ? item.pharmacyMessage : 'No Data'} </div>
+                                        <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                            <GiCancel 
+                                className='absolute top-3 right-2 cursor-pointer'
+                                onClick={() => {
+
+                                    setPharmacyMessageViewMoreActivated(false);
+
+                                }}
+                            />
+
+                        </div>
+
+                    </div>}
+
+                    {billNoViewMoreActivated && <div className="fixed top-0 right-0 left-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-[2px]">
+
+                        <div className="bg-gray-900 p-10 rounded-2xl max-h-[600px] overflow-y-scroll custom-scrollbar relative">
+
+                            <div className="mb-5 font-xl text-center font-semibold">Bill History</div>
+
+                            {patientData.bills.map((item, index) => (
+
+                                <div 
+                                    className="flex space-x-2"
+                                    key={index}    
+                                >
+
+                                    <div className="">{index + 1}{')'}</div>
+
+                                    <div className="flex items-center space-x-2 mb-2">
+
+                                        <div className="max-w-[400px]"> {item.billNo} </div>
+                                        <div className="max-w-[400px]"> {item.billType === 'FRONTDESKBILL' ? 'Front Desk Bill' : 'Pharmacy Bill'} </div>
+                                        <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                            <GiCancel 
+                                className='absolute top-3 right-2 cursor-pointer'
+                                onClick={() => {
+
+                                    setBillNoViewMoreActivated(false);
+
+                                }}
+                            />
+
+                        </div>
+
+                    </div>}
+
+                    {prescriptionURLData && <div className="fixed top-0 right-0 left-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-[2px]">
+
+                        <div className="bg-gray-900 p-10 rounded-2xl max-h-[600px] overflow-y-scroll custom-scrollbar relative">
+
+                            <div className="mb-5 font-xl text-center font-semibold">Prescription History</div>
+
+                            {patientData.prescriptionUrl.map((item, index) => (
+
+                                <div 
+                                    className="flex space-x-2"
+                                    key={index}    
+                                >
+
+                                    <div className="">{index + 1}{')'}</div>
+
+                                    <div className="flex items-center space-x-2 mb-2">
+
+                                        <div className="max-w-[400px]"> {item.prescriptionMessage ? item.prescriptionMessage : 'No Data'} </div>
+                                        <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={(e, ind) => fetchImages(e, index)}    
+                                        >View Prescriptions</div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={(e, ind) => downloadImage(e, index)}    
+                                        >Download Prescriptions</div>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                            <GiCancel 
+                                className='absolute top-3 right-2 cursor-pointer'
+                                onClick={() => {
+
+                                    setPrescriptionURLData(false);
+
+                                }}
+                            />
+
+                        </div>
+
+                    </div>}
+
+                    {fetchedImageVisible && (
+                                                
+                        <div className="fixed top-0 right-0 bottom-0 left-0 z-50 flex backdrop-blur-sm">
+                        
+                            <div className="absolute mx-20 mt-10 text-xl font-semibold">Preview Mode</div>
+
+                            <div className="mx-20 my-20 grid grid-cols-6 gap-4 overflow-hidden">
+
+                                {images && images.length > 0 ? images.map(({ blobUrl, mimeType }, index) => {
+
+                                    return mimeType === 'application/pdf' ? (
+
+                                        <object
+                                            key={index}
+                                            data={blobUrl}
+                                            type="application/pdf"
+                                            width="100%"
+                                            height="400px"
+                                            aria-label={`Prescription PDF ${index + 1}`}
+                                            className='transition-transform duration-300 ease-in-out transform'
+                                        >
+
+                                            <p>PDF Preview Not Available</p>
+
+                                        </object>
+
+                                    ) : (
+
+                                        <img
+                                            key={index}
+                                            src={blobUrl}
+                                            alt={`Prescription ${index + 1}`}
+                                            className='transition-transform duration-300 ease-in-out transform hover:scale-105 h-[400px] w-auto'
+                                        />
+
+                                    );
+                                }) : (
+                        
+                                    <div className='absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center'>
+                                    
+                                        <div className="flex items-center space-x-2 text-xl">
+                                    
+                                            <div className="animate-spin">
+                                    
+                                                <CgLoadbar />
+                                    
+                                            </div>
+                                    
+                                            <div className="animate-pulse">
+                                    
+                                                Fetching ...
+                                    
+                                            </div>
+                                    
+                                        </div>
+                                    
+                                    </div>
+                                
+                                )}
+
+                                <IoCloseCircle
+                                    className='absolute top-10 right-10 text-2xl hover:opacity-60 active:opacity-40 cursor-pointer'
+                                    onClick={() => {
+                                        
+                                        setFetchedImageVisible(false);
+                                        setImages([]);
+                                    
+                                    }}
+                                />
+                            
+                            </div>
+                        
+                        </div>
+                        
+                    )}
 
                 </>
 
