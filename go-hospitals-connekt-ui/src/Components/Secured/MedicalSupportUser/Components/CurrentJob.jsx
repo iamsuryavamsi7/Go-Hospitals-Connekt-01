@@ -247,19 +247,27 @@ const CurrentJob = () => {
                                             <th>{job.preferredDoctorName}</th>
                                             <th>
 
-                                                {job.consultationType === 'WAITING' && 'Waiting for DMO'}
+                                                {job.consultationType === 'WAITING' && 'Waiting for Nurse'}
 
                                                 {job.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                                {job.consultationType === 'ONSITETREATMENT' && 'On Site Treatment'}
+                                                {job.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
 
-                                                {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                                {job.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
 
-                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medication Plus Follow Up'}
+                                                {job.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
 
-                                                {job.consultationType === 'PHARMACY' && 'In Pharmacy'}
+                                                {job.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+
+                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
 
                                                 {job.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
+                                                {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                                
+                                                {job.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                                {job.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                             </th>
                                             <th>{job.billNo}</th>

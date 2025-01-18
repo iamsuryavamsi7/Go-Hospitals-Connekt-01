@@ -42,6 +42,10 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
     const consultationType = ({
         onSite: 'ONSITETREATMENT',
+        onSiteReviewPatientTreatment: 'ONSITEREVIEWPATIENTTREATMENT',
+        onSiteVascularInjections: 'ONSITEVASCULARINJECTIONS',
+        onSiteQuickTreatment: 'ONSITEQUICKTREATMENT',
+        onSiteCasvalityPatient: 'ONSITECASCUALITYPATIENT',
         medication: 'MEDICATIONPLUSFOLLOWUP',
         surgery: 'SURGERYCARE',
         pharmacy: 'PHARMACY',
@@ -223,18 +227,18 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
             if ( response.status === 200 ){
 
-                toast.success("Consultation Status Updated", {
-                    duration: 1000,
-                    style: {
-                        backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                        color: '#fff', // Tailwind text-white
-                        fontWeight: '600', // Tailwind font-semibold
-                        borderRadius: '0.5rem', // Tailwind rounded-lg
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                        marginTop: '2.5rem' // Tailwind mt-10,
-                    },
-                    position: 'top-right'
-                });
+                // toast.success("Consultation Status Updated", {
+                //     duration: 1000,
+                //     style: {
+                //         backgroundColor: '#1f2937', // Tailwind bg-gray-800
+                //         color: '#fff', // Tailwind text-white
+                //         fontWeight: '600', // Tailwind font-semibold
+                //         borderRadius: '0.5rem', // Tailwind rounded-lg
+                //         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
+                //         marginTop: '2.5rem' // Tailwind mt-10,
+                //     },
+                //     position: 'top-right'
+                // });
 
                 setTimeout(() => {
 
@@ -299,8 +303,14 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                         navigate('/medical-support-patient-admit');
 
                     }
+
+                    if ( consultationType1 === consultationType.onSiteQuickTreatment ) {
+
+                        navigate('');
+
+                    }
                     
-                }, 1600);
+                }, 1000);
 
             }
 
@@ -699,19 +709,27 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITETREATMENT' && 'On Site Treatment'}
+                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medication Plus Follow Up'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
 
-                                    {patientData.consultationType === 'PHARMACY' && 'In Pharmacy'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
 
                                     {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                    
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                    {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                 </div>
 
@@ -867,6 +885,14 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                                 </div>
 
+                                {/* { patientData.reasonForVisit === 'Go Hospitals' && <div    
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                >
+
+                                    <button>Casuality Patient</button>
+
+                                </div>} */}
+
                             </div>
 
                         </div>
@@ -953,37 +979,46 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                                 className="block bg-gray-900 text-center text-xl rounded-2xl border-[1px] border-gray-800"
                             >
 
-                                <div 
-                                    className="hover:bg-gray-700 py-5 rounded-t-2xl px-10 transition-all duration-200 cursor-pointer"
+                                { patientData.reasonForVisit === 'Go Vascular' && (
+
+                                    <>
+                                    
+                                        <div 
+                                            className="hover:bg-gray-700 py-5 rounded-t-2xl px-10 transition-all duration-200 cursor-pointer"
+                                        >
+
+                                            <button>Review Patient Dressing</button>
+
+                                        </div>
+
+                                        <div 
+                                            className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                        >
+
+                                            <button>Vascular Injection</button>
+
+                                        </div>
+                                    
+                                    </>
+                            
+                                )}
+
+                                { (patientData.reasonForVisit === 'Go Hospitals' || patientData.reasonForVisit === 'Go Vascular') && <div 
+                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSiteQuickTreatment)}    
                                 >
 
-                                    <button>One Time Dressing</button>
+                                    <button>Quick Treatment</button>
 
-                                </div>
+                                </div>}
 
-                                <div 
-                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                >
-
-                                    <button>Multiple Dressings</button>
-
-                                </div>
-
-                                <div 
-                                    className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
-                                >
-
-                                    <button>One Time Injection</button>
-
-                                </div>
-
-                                <div    
+                                { patientData.reasonForVisit === 'Go Hospitals' && <div    
                                     className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
                                 >
 
-                                    <button>Multiple Injections</button>
+                                    <button>Casuality Patient</button>
 
-                                </div>
+                                </div>}
 
                             </div>
 

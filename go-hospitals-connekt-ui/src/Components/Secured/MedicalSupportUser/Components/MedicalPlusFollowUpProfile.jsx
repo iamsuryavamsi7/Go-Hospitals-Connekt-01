@@ -34,7 +34,7 @@ const MedicalPlusFollowUpProfile = () => {
 
     const {id} = useParams();
 
-    const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
+    // const [treatMentDoneVisible, setTreatMentDoneVisible] = useState(false);
 
     const [treatmentDone, setTreatmentDone] = useState(``);
 
@@ -691,7 +691,27 @@ const MedicalPlusFollowUpProfile = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType}
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+
+                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                    
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                    {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                 </div>
 
@@ -778,7 +798,7 @@ const MedicalPlusFollowUpProfile = () => {
                                 </div>
 
                                 <div
-                                    className='bg-[#238636] my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    className='bg-red-500 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
                                     onClick={() => {
 
                                         setCaseCloseButtonActivated(true);

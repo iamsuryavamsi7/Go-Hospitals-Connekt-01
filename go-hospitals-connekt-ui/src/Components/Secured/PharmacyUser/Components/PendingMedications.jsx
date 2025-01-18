@@ -355,6 +355,12 @@ const PendingMedications = () => {
 
                                                     )}
 
+                                                    {application.consultationType === 'ONSITEQUICKTREATMENT' && (
+
+                                                    <span>Onsite Quick Treatment</span>
+
+                                                    )}
+
                                                 </th>
                                                 <th
                                                     className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'

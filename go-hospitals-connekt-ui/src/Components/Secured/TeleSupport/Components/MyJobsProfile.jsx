@@ -638,7 +638,27 @@ const MyJobsProfile = () => {
 
                                         <div className="text-lg">
                                             
-                                            {patientData.consultationType}
+                                            {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+
+                                            {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
+                                            {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+
+                                            {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+
+                                            {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+
+                                            {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+
+                                            {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+
+                                            {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
+                                            {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                            
+                                            {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                            {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                         </div>
 

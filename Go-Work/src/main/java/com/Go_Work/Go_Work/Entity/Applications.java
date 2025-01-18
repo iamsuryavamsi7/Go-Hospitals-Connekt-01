@@ -45,7 +45,7 @@ public class Applications {
     private String tempororyBillNo;
 
     @Enumerated(EnumType.STRING)
-    private ConsultationType consultationType;
+    private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
 
     private String treatmentDoneMessage;
 

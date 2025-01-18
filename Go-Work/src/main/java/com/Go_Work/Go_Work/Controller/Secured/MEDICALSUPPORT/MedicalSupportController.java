@@ -152,10 +152,11 @@ public class MedicalSupportController {
     @PostMapping("/makeConsultationTypeCaseClose/{applicationId}")
     public ResponseEntity<Boolean> makeConsultationTypeCaseClose(
             @PathVariable("applicationId") Long applicationId,
-            @RequestParam(value = "caseCloseInput", required = false) String caseCloseInput
+            @RequestParam(value = "caseCloseInput", required = false) String caseCloseInput,
+            @RequestParam(value = "treatmentDoneMessage", required = false) String treatmentDoneMessage
     ) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
-        Boolean message = medicalSupportService.makeConsultationTypeCaseClose(applicationId, caseCloseInput);
+        Boolean message = medicalSupportService.makeConsultationTypeCaseClose(applicationId, caseCloseInput, treatmentDoneMessage);
 
         return ResponseEntity.ok(message);
 

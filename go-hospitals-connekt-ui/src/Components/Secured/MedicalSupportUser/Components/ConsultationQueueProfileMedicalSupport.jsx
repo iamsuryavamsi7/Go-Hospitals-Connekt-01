@@ -424,35 +424,27 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'WAITING' && (
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
 
-                                        <span>Waiting for Nurse</span>
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    )}
+                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'DMOCARECOMPLETED' && (
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
 
-                                        <span>DMO check completed</span>
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
 
-                                    )}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
 
-                                    {patientData.consultationType === 'CASECLOSED' && (
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
 
-                                        <span>Case was</span>
+                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
 
-                                    )}
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                    
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && (
-
-                                        <span>In Surgery Care</span>
-
-                                    )}
-
-                                    {patientData.consultationType === "MEDICATIONPLUSFOLLOWUP" && (
-
-                                        <span>In Medication Plus Follow Up</span>
-
-                                    )}
+                                    {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                 </div>
 

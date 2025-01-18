@@ -239,7 +239,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplicationModels =  fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.ONSITETREATMENT))
+                .filter(application -> application.getConsultationType().equals(ConsultationType.ONSITEREVIEWPATIENTTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS) || application.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT) )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -248,6 +248,18 @@ public class MedicalSupportService {
                     ApplicationsResponseModel applicationNew = new ApplicationsResponseModel();
 
                     BeanUtils.copyProperties(application1, applicationNew);
+
+                    if ( application1.getBills() != null && !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        applicationNew.setBillNo(latestBill.getBillNo());
+
+                    }
 
                     applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
 
@@ -633,23 +645,47 @@ public class MedicalSupportService {
 
         }
 
+        // For On Site Quick Treatment Consultation Type
+        if ( consultationType.equals(ConsultationType.ONSITEQUICKTREATMENT)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(ConsultationType.ONSITEQUICKTREATMENT);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type Updated";
+
+        }
+
         throw new ConsultationTypeNotFoundException("Consultation Not Found");
 
     }
 
-    public Boolean makeConsultationTypeCaseClose(Long applicationId, String caseCloseInput) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
+    public Boolean makeConsultationTypeCaseClose(Long applicationId, String caseCloseInput, String treatmentDoneMessage) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
         fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
-//        fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+
+        if ( treatmentDoneMessage != null && !treatmentDoneMessage.isBlank() ){
+
+            fetchedApplication.setTreatmentDoneMessage(treatmentDoneMessage);
+
+        }
+
+        fetchedApplication.setTreatmentDone(true);
         fetchedApplication.setPaymentDone(true);
         fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
 
-        if ( !caseCloseInput.isEmpty() ){
+        if ( caseCloseInput != null && !caseCloseInput.isBlank() ){
 
             fetchedApplication.setCaseCloseInput(caseCloseInput);
 
@@ -769,17 +805,17 @@ public class MedicalSupportService {
 
                     BeanUtils.copyProperties(application1, applicationNew);
 
-                    if ( !application1.getBills().isEmpty() ){
-
-                        Bills latestBill = application1.getBills()
-                                .stream()
-                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
-                                .findFirst()
-                                .orElse(null);
-
-                        applicationNew.setBillNo(latestBill.getBillNo());
-
-                    }
+//                    if ( !application1.getBills().isEmpty() ){
+//
+//                        Bills latestBill = application1.getBills()
+//                                .stream()
+//                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+//                                .findFirst()
+//                                .orElse(null);
+//
+//                        applicationNew.setBillNo(latestBill.getBillNo());
+//
+//                    }
 
                     if ( !application1.getBills().isEmpty() ){
 

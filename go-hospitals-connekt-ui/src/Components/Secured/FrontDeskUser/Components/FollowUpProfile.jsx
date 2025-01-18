@@ -1174,14 +1174,28 @@ const FollowUpProfile = () => {
                                 </div>
 
                                 <div className="text-lg">
+
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+
+                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+
+                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     
                                     {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
-                                    {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
-
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
-
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
 
                                 </div>
 
@@ -1346,7 +1360,7 @@ const FollowUpProfile = () => {
                                 <div className="my-10 mx-10 relative">
 
                                     <button
-                                        className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                        className={`bg-[#947400] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
                                         onClick={() => setFollowUpRescheduleActivated(true)}
                                     >
 
@@ -1368,7 +1382,7 @@ const FollowUpProfile = () => {
                                     </button>
 
                                     <button
-                                        className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
                                         onClick={() => {
 
                                             setCaseCloseButtonActivated(true);
@@ -1981,7 +1995,7 @@ const FollowUpProfile = () => {
 
                                     <div className="flex items-center space-x-2 mb-2">
 
-                                        <div className="max-w-[400px]"> {item.pharmacyMessage ? item.pharmacyMessage : 'No Data'} </div>
+                                        <div className="w-[300px]"> {item.pharmacyMessage ? item.pharmacyMessage : 'No Data'} </div>
                                         <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
 
                                     </div>
@@ -2016,12 +2030,12 @@ const FollowUpProfile = () => {
                                     key={index}    
                                 >
 
-                                    <div className="">{index + 1}{')'}</div>
+                                    <div className="max-w-[100px]">{index + 1}{')'}</div>
 
-                                    <div className="flex items-center space-x-2 mb-2">
+                                    <div className="flex items-center space-x-5 mb-2">
 
-                                        <div className="max-w-[400px]"> {item.billNo} </div>
-                                        <div className="max-w-[400px]"> {item.billType === 'FRONTDESKBILL' ? 'Front Desk Bill' : 'Pharmacy Bill'} </div>
+                                        <div className="w-[100px]"> {item.billNo} </div>
+                                        <div className=""> {item.billType === 'FRONTDESKBILL' ? 'Front Desk Bill' : 'Pharmacy Bill'} </div>
                                         <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
 
                                     </div>
@@ -2058,9 +2072,9 @@ const FollowUpProfile = () => {
 
                                     <div className="">{index + 1}{')'}</div>
 
-                                    <div className="flex items-center space-x-2 mb-2">
+                                    <div className="flex items-center space-x-5 mb-2">
 
-                                        <div className="max-w-[400px]"> {item.prescriptionMessage ? item.prescriptionMessage : 'No Data'} </div>
+                                        <div className="w-[300px]"> {item.prescriptionMessage ? item.prescriptionMessage : 'No Data'} </div>
                                         <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
                                         <div   
                                             className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
