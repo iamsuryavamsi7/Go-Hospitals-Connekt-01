@@ -379,6 +379,26 @@ public class PharmacyService {
 
         userRepo.save(fetchedMedicalSupportUser);
 
+        userRepo.findAll()
+                .stream()
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(user1 -> {
+
+                    Notification notification2 = new Notification();
+
+                    notification2.setMessage("Medicines Given !");
+                    notification2.setUser(user1);
+                    notification2.setRead(false);
+                    notification2.setTimeStamp(new Date(System.currentTimeMillis()));
+                    notification2.setApplicationId(fetchedApplication.getId());
+                    notification2.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
+
+                    user1.getNotifications().add(notification2);
+
+                    userRepo.save(user1);
+
+                });
+
         return true;
 
     }

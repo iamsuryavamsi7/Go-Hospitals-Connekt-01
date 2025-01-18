@@ -706,7 +706,7 @@ public class MedicalSupportService {
         Applications fetchedApplication = applicationsRepo.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
 
-        if ( !prescriptionMessage.isEmpty() && !prescriptionMessage.isBlank() ){
+        if ( prescriptionMessage != null && !prescriptionMessage.isBlank() ){
 
             fetchedApplication.setTreatmentDoneMessage(prescriptionMessage);
 
@@ -1143,7 +1143,12 @@ public class MedicalSupportService {
                 .toList();
 
         ImageUrls imageUrlObject = new ImageUrls();
-        imageUrlObject.setPrescriptionMessage(prescriptionMessage);
+
+        if ( prescriptionMessage != null && !prescriptionMessage.isBlank() ){
+
+            imageUrlObject.setPrescriptionMessage(prescriptionMessage);
+
+        }
 
         uploadedFilenames.forEach(file1 -> {
 

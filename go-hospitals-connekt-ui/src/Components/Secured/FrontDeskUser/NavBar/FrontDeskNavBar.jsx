@@ -320,9 +320,7 @@ const FrontDeskNavBar = () => {
 
         const messageObject = JSON.parse(message.body);
 
-        console.log(messageObject);
-
-        if ( messageObject.notificationType === `RefreshMedicationPlusFollowUpPage` || messageObject.notificationType === `RefreshFrontDeskCaseClosed` ){
+        if ( messageObject.notificationType === `RefreshMedicationPlusFollowUpPage` || messageObject.notificationType === `RefreshFrontDeskCaseClosed` || messageObject.notificationType === `MedicinesGiven` ){
 
             fetchNotifications();
 

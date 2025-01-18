@@ -583,7 +583,7 @@ const PharmacyProfiles = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {/* <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -597,7 +597,7 @@ const PharmacyProfiles = () => {
 
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             {patientData.treatmentDoneMessage && (
 
