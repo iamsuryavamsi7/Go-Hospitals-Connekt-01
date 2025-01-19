@@ -158,4 +158,29 @@ public class TeleSupportController {
 
     }
 
+    @PostMapping("/updatePaymentTypeSurgeryCareFunction/{applicationID}")
+    public ResponseEntity<Boolean> updatePaymentTypeSurgeryCareFunction(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam("surgeryPaymentType") String surgeryPaymentType
+    ) throws ApplicationNotFoundException {
+
+        Boolean booleanValue = teleSupportService.updatePaymentTypeSurgeryCareFunction(applicationID, surgeryPaymentType);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @PostMapping("/counsellingDone/{applicationID}")
+    public ResponseEntity<Boolean> counsellingDone(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam("surgeryCounsellorMessage") String surgeryCounsellorMessage,
+            @RequestParam("consultationType") String consultationType
+    ) throws ApplicationNotFoundException {
+
+        Boolean booleanValue = teleSupportService.counsellingDone(applicationID, surgeryCounsellorMessage, consultationType);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
 }

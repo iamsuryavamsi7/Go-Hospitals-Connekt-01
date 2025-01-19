@@ -42,7 +42,7 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
     const consultationType = ({
         onSite: 'ONSITETREATMENT',
-        onSiteReviewPatientTreatment: 'ONSITEREVIEWPATIENTTREATMENT',
+        onSiteReviewPatientDressing: 'ONSITREVIEWPATIENTDRESSING',
         onSiteVascularInjections: 'ONSITEVASCULARINJECTIONS',
         onSiteQuickTreatment: 'ONSITEQUICKTREATMENT',
         onSiteCasvalityPatient: 'ONSITECASCUALITYPATIENT',
@@ -304,9 +304,9 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                     }
 
-                    if ( consultationType1 === consultationType.onSiteQuickTreatment ) {
+                    if ( consultationType1 === consultationType.onSiteQuickTreatment || consultationType1 === consultationType.onSiteReviewPatientDressing || consultationType1 === consultationType.onSiteVascularInjections ) {
 
-                        navigate('');
+                        navigate('/medical-support-on-site-treatement');
 
                     }
                     
@@ -708,22 +708,24 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                                 </div>
 
                                 <div className="text-lg">
+
+                                    {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
                                     
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Onsite - Review Treatment'}
 
-                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     
@@ -985,6 +987,7 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                                     
                                         <div 
                                             className="hover:bg-gray-700 py-5 rounded-t-2xl px-10 transition-all duration-200 cursor-pointer"
+                                            onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSiteReviewPatientDressing)}    
                                         >
 
                                             <button>Review Patient Dressing</button>
@@ -993,6 +996,7 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                                         <div 
                                             className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer"
+                                            onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSiteVascularInjections)}    
                                         >
 
                                             <button>Vascular Injection</button>

@@ -325,41 +325,29 @@ const PendingMedications = () => {
                                                 <th>{application.medicalSupportUserName}</th>
                                                 <th>
                                                     
-                                                    {application.consultationType === 'ONSITETREATMENT' && (
+                                                    {application.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                                    {application.consultationType === 'WAITING' && 'Waiting for DMO'}
 
-                                                    <span>On Site Treatment</span>
+                                                    {application.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                                    )}
+                                                    {application.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                                    {application.consultationType === 'MEDICATIONPLUSFOLLOWUP' && (
+                                                    {application.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                                    <span>Medication Plus Follow Up</span>
+                                                    {application.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                                    )}
+                                                    {application.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                                    {application.consultationType === 'SURGERYCARE' && (
+                                                    {application.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                                    <span>Surgery Care</span>
+                                                    {application.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
-                                                    )}
+                                                    {application.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                                    
+                                                    {application.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
-                                                    {application.consultationType === 'PHARMACY' && (
-
-                                                    <span>Pharmacy</span>
-
-                                                    )}
-
-                                                    {application.consultationType === 'PATIENTADMIT' && (
-
-                                                    <span>Patient Admit</span>
-
-                                                    )}
-
-                                                    {application.consultationType === 'ONSITEQUICKTREATMENT' && (
-
-                                                    <span>Onsite Quick Treatment</span>
-
-                                                    )}
+                                                    {application.consultationType === 'CASECLOSED' && 'Case Closed'}                    
 
                                                 </th>
                                                 <th

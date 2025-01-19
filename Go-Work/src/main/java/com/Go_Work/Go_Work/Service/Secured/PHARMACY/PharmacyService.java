@@ -333,7 +333,7 @@ public class PharmacyService {
     }
 
     @Transactional
-    public Boolean medicinesTaken(Long applicationId, String pharmacyMessage, String billNo) throws ApplicationNotFoundException {
+    public Boolean medicinesTaken(Long applicationId, String pharmacyMessage, String billNo, String consultationType) throws ApplicationNotFoundException {
 
         Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
                 () -> new ApplicationNotFoundException("Application Not Found")
@@ -379,25 +379,29 @@ public class PharmacyService {
 
         userRepo.save(fetchedMedicalSupportUser);
 
-        userRepo.findAll()
-                .stream()
-                .filter(user -> user.getRole().equals(Role.FRONTDESK))
-                .forEach(user1 -> {
+        if ( consultationType.equals(ConsultationType.FOLLOWUPCOMPLETED.name()) ) {
 
-                    Notification notification2 = new Notification();
+            userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                    .forEach(user1 -> {
 
-                    notification2.setMessage("Medicines Given !");
-                    notification2.setUser(user1);
-                    notification2.setRead(false);
-                    notification2.setTimeStamp(new Date(System.currentTimeMillis()));
-                    notification2.setApplicationId(fetchedApplication.getId());
-                    notification2.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
+                        Notification notification2 = new Notification();
 
-                    user1.getNotifications().add(notification2);
+                        notification2.setMessage("Medicines Given !");
+                        notification2.setUser(user1);
+                        notification2.setRead(false);
+                        notification2.setTimeStamp(new Date(System.currentTimeMillis()));
+                        notification2.setApplicationId(fetchedApplication.getId());
+                        notification2.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
 
-                    userRepo.save(user1);
+                        user1.getNotifications().add(notification2);
 
-                });
+                        userRepo.save(user1);
+
+                    });
+
+        }
 
         return true;
 

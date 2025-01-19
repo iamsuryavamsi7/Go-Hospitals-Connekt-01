@@ -173,6 +173,8 @@ const PharmacyProfiles = () => {
 
         formData.append(`billNo`, billNo);
 
+        formData.append(`consultationType`, patientData.consultationType);
+
         if ( checkedStatus && billNo !== null && billNo !== `` ){
 
             try{
@@ -198,13 +200,31 @@ const PharmacyProfiles = () => {
                     //     position: 'top-center'
                     // });
 
-                    const webSocketNotificationTypeModel = {
-                        notificationType: `MedicinesGiven`
+                    if ( patientData.consultationType === 'FOLLOWUPCOMPLETED' ) {
+
+                        const webSocketNotificationTypeModel = {
+                            notificationType: `MedicinesGiven`
+                        }
+
+                        if ( stompClient ){
+
+                            stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+
+                        }
+
                     }
 
-                    if ( stompClient ){
+                    if ( patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' ) {
 
-                        stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+                        const webSocketNotificationTypeModel = {
+                            notificationType: `MedicinesGivenMedicalSupport`
+                        }
+
+                        if ( stompClient ){
+
+                            stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+
+                        }
 
                     }
 
@@ -577,21 +597,23 @@ const PharmacyProfiles = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                    {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                    {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     

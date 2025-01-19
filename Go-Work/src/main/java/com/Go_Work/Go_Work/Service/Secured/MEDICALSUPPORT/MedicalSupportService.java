@@ -239,7 +239,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplicationModels =  fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType().equals(ConsultationType.ONSITEREVIEWPATIENTTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS) || application.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT) )
+                .filter(application -> application.getConsultationType().equals(ConsultationType.ONSITREVIEWPATIENTDRESSING) || application.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS) || application.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT) )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -662,6 +662,57 @@ public class MedicalSupportService {
 
         }
 
+        // For On Site Review Patient Dressing Consultation Type
+        if ( consultationType.equals(ConsultationType.ONSITREVIEWPATIENTDRESSING)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(ConsultationType.ONSITREVIEWPATIENTDRESSING);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type Updated";
+
+        }
+
+        // For On Site Review Patient Dressing Consultation Type
+        if ( consultationType.equals(ConsultationType.ONSITEVASCULARINJECTIONS)){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(ConsultationType.ONSITEVASCULARINJECTIONS);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
+            fetchedApplication.setCounsellingIsInProgress(true);
+
+            applicationsRepo.save(fetchedApplication);
+
+            // Notify pharmacy users
+            userRepo.findAll().stream()
+                    .filter(user -> user.getRole().equals(Role.TELESUPPORT))
+                    .forEach(pharmacyUser -> {
+                        Notification newNotification = new Notification();
+                        newNotification.setMessage("Review Counselling Requested !");
+                        newNotification.setTimeStamp(new Date());
+                        newNotification.setApplicationId(applicationId);
+                        newNotification.setUser(pharmacyUser);
+                        newNotification.setNotificationStatus(NotificationStatus.TELESUPPORTUSERPROFILE);
+
+                        notificationRepo.save(newNotification);
+                        pharmacyUser.getNotifications().add(newNotification);
+                        userRepo.save(pharmacyUser);
+                    });
+
+            return "Consultation Type Updated";
+
+        }
+
         throw new ConsultationTypeNotFoundException("Consultation Not Found");
 
     }
@@ -870,6 +921,18 @@ public class MedicalSupportService {
 
                     BeanUtils.copyProperties(application1, applicationNew);
 
+                    if ( application1.getBills() != null && !application1.getBills().isEmpty() ){
+
+                        Bills latestBill = application1.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        applicationNew.setBillNo(latestBill.getBillNo());
+
+                    }
+
                     applicationNew.setMedicalSupportUserId(medicalSupportUser.getId());
 
                     applicationNew.setMedicalSupportUserName(medicalSupportUser.getFirstName() + " " + medicalSupportUser.getLastName());
@@ -1012,7 +1075,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplications = fetchedUser.getApplications()
                 .stream()
-                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED && applications.getConsultationType() != ConsultationType.CASECLOSED)
+                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED && applications.getConsultationType() != ConsultationType.CASECLOSED && applications.getConsultationType() != ConsultationType.PATIENTDROPOUT)
                 .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
                 .map(fetchedApplication -> {
 
@@ -1219,6 +1282,107 @@ public class MedicalSupportService {
                     userRepo.save(pharmacyUser);
 
                 });
+
+        return true;
+
+    }
+
+    public Boolean onSiteTreatmentReviewPatient(Long applicationId, String treatmentDoneMessage, Date nextMedicationDate) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("Application Not Found Exception"));
+
+        if ( treatmentDoneMessage != null && !treatmentDoneMessage.isBlank() ){
+
+            fetchedApplication.setTreatmentDoneMessage(treatmentDoneMessage);
+
+        }
+
+        fetchedApplication.setTreatmentDone(true);
+        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
+
+        nextAppointmentDate.setNextFollowUpDate(nextMedicationDate);
+        nextAppointmentDate.setNote("First Default Note");
+        nextAppointmentDate.setApplication(fetchedApplication);
+
+        fetchedApplication.getNextAppointmentDate().add(nextAppointmentDate);
+
+        applicationsRepo.save(fetchedApplication);
+
+        // Notify pharmacy users
+        userRepo.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(frontDeskUser -> {
+
+                    Notification newNotification = new Notification();
+
+                    newNotification.setMessage("New Follow Up Added !");
+                    newNotification.setTimeStamp(new Date());
+                    newNotification.setApplicationId(applicationId);
+                    newNotification.setUser(frontDeskUser);
+                    newNotification.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
+
+                    notificationRepo.save(newNotification);
+
+                });
+
+        return true;
+
+    }
+
+    public Boolean patientDropOutById(Long applicationId, String patientDropOutMessage, String consultationType) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setConsultationType(ConsultationType.PATIENTDROPOUT);
+
+        fetchedApplication.setTreatmentDone(true);
+        fetchedApplication.setPaymentDone(true);
+        fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
+        fetchedApplication.setPatientDropOutMessage(patientDropOutMessage);
+
+        applicationsRepo.save(fetchedApplication);
+
+        // Notify pharmacy users
+        userRepo.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                .forEach(pharmacyUser -> {
+                    Notification newNotification = new Notification();
+                    newNotification.setMessage("Patient Dropped Out !");
+                    newNotification.setTimeStamp(new Date());
+                    newNotification.setApplicationId(applicationId);
+                    newNotification.setUser(pharmacyUser);
+                    newNotification.setNotificationStatus(NotificationStatus.DROPOUTPATIENT);
+
+                    notificationRepo.save(newNotification);
+                    pharmacyUser.getNotifications().add(newNotification);
+                    userRepo.save(pharmacyUser);
+                });
+
+        User fetchedMedicalUser = fetchedApplication.getMedicalSupportUser();
+
+        if ( consultationType.equals(ConsultationType.CROSSCONSULTATION.name()) ){
+
+            Notification newNotification = new Notification();
+            newNotification.setMessage("New Patient Added");
+            newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
+            newNotification.setApplicationId(fetchedApplication.getId());
+            newNotification.setRead(false);
+            newNotification.setUser(fetchedMedicalUser);
+            newNotification.setNotificationStatus(NotificationStatus.CASECLOSED);
+
+            notificationRepo.save(newNotification);
+
+            fetchedMedicalUser.getNotifications().add(newNotification);
+
+            userRepo.save(fetchedMedicalUser);
+
+        }
 
         return true;
 

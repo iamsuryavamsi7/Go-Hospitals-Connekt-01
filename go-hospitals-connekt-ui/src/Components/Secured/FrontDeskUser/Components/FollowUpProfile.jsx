@@ -57,7 +57,8 @@ const FollowUpProfile = () => {
         updatableNextFollowUpDate: ``,
         noteData: ``,
         nextAppointmentDate: [],
-        prescriptionUrl: []
+        prescriptionUrl: [],
+        patientDropOutMessage: ``
     });
 
     const roles = {
@@ -791,6 +792,8 @@ const FollowUpProfile = () => {
 
             formData.append("caseCloseInput", caseCloseInput);
 
+            formData.append("consultationType", patientData.consultationType);
+
             try{
 
                 const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/caseCloseById/${applicationID}`, formData, {
@@ -806,9 +809,23 @@ const FollowUpProfile = () => {
                     if ( booleanValue ){
     
                         setCaseCloseButtonActivated(false);
+
+                        if ( patientData.consultationType === 'CROSSCONSULTATION' ){
+
+                            if ( stompClient ){
+
+                                const notificationTypeModel = {
+                                    notificationType: `CrossConsultationCaseClosed`
+                                }
+                    
+                                stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+    
+                            }
+
+                        }
     
                         fetchAppointmentData();
-    
+
                     }
     
                 }
@@ -933,6 +950,78 @@ const FollowUpProfile = () => {
             }
 
         });
+
+    }
+
+    const [patientDropOutVisible, setPatientDropOutVisible] = useState(false);
+
+    const [patientDropOutMessage, setPatientDropOutMessage] = useState(``);
+
+    const patientDropOutFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( patientDropOutMessage.trim() !== null && patientDropOutMessage.trim !== `` ){
+
+            try{
+
+                const formData = new FormData();
+
+                formData.append('patientDropOutMessage', patientDropOutMessage.trim());
+
+                formData.append('consultationType', patientData.consultationType);
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/patientDropOutById/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+
+                if ( response.status === 200 ){
+
+                    const booleanValue = response.data;
+
+                    if ( booleanValue ){
+
+                        if ( patientData.consultationType === '' ){
+
+                            if ( stompClient ){
+
+                                const notificationTypeModel = {
+                                    notificationType: `CrossConsultationDroppedOut`
+                                }
+                    
+                                stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+    
+                            }
+
+                        }
+
+                        fetchAppointmentData();
+
+                        setPatientDropOutVisible(false);
+
+                        if ( stompClient ){
+
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                        }
+
+                    }
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
 
     }
 
@@ -1175,27 +1264,31 @@ const FollowUpProfile = () => {
 
                                 <div className="text-lg">
 
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                    {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                    {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     
                                     {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
+
+                                    {patientData.consultationType === 'PATIENTDROPOUT' && 'Patient Dropped Out'}
 
                                 </div>
 
@@ -1323,6 +1416,26 @@ const FollowUpProfile = () => {
 
                             )}
 
+                            {(patientData.consultationType === 'PATIENTDROPOUT') && patientData.patientDropOutMessage.length > 0 && (
+
+                                <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                    <div className="text-base text-gray-300">
+
+                                        Patient Dropped out message
+
+                                    </div>
+
+                                    <div className="text-lg">
+                                        
+                                        {patientData.patientDropOutMessage}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
                             {patientData.consultationType === 'COMPLETED' && (
 
                                 <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
@@ -1353,7 +1466,7 @@ const FollowUpProfile = () => {
 
                         </div>
                         
-                        {patientData.consultationType === 'FOLLOWUPCOMPLETED' && (
+                        { patientData.consultationType === 'FOLLOWUPCOMPLETED' && (
 
                             <>
 
@@ -1391,6 +1504,19 @@ const FollowUpProfile = () => {
                                     >
 
                                         Case Closed
+
+                                    </button>
+
+                                    <button
+                                        className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        onClick={() => {
+
+                                            setCaseCloseButtonActivated(true);
+
+                                        }}
+                                    >
+
+                                        Patient Drop Out
 
                                     </button>
 
@@ -1703,6 +1829,32 @@ const FollowUpProfile = () => {
 
                                         }}  
                                     > Change Doctor </button>
+
+                                    <button
+                                        className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        onClick={() => {
+
+                                            setCaseCloseButtonActivated(true);
+
+                                        }}
+                                    >
+
+                                        Case Closed
+
+                                    </button>
+
+                                    <button
+                                        className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5`}
+                                        onClick={() => {
+
+                                            setCaseCloseButtonActivated(true);
+
+                                        }}
+                                    >
+
+                                        Patient Drop Out
+
+                                    </button>
 
                                 </div>
 
@@ -2178,6 +2330,65 @@ const FollowUpProfile = () => {
                         
                         </div>
                         
+                    )}
+
+                    {patientDropOutVisible && (
+
+                        <form
+                            className='absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm'
+                            onSubmit={(e) => patientDropOutFunction(e)}
+                        >
+
+                            <div className="bg-gray-900 py-10 rounded-lg">
+
+                                <div className="flex flex-col mx-10">
+
+                                    <label className='text-xs mb-2'>Patient Drop Out Message <span className='text-red-500'>*</span></label>
+
+                                    <textarea 
+                                        className='bg-[#0d1117] min-h-[100px] max-h-[100px] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg h-[80px] px-3 w-[300px] max-sm:w-full'
+                                        value={patientDropOutMessage}
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setPatientDropOutMessage(value);
+
+                                        }}
+                                    />
+
+                                </div>
+
+                                <div className="">
+
+                                    <button 
+                                        className='bg-[#238636] ml-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        type='submit'
+                                    >
+                                        Submit
+
+                                    </button>
+
+                                    <button 
+                                        className='bg-red-500 ml-5 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        onClick={(e) => {
+
+                                            e.preventDefault();
+
+                                            setPatientDropOutVisible(true);
+                                            
+                                        }}
+                                    >
+                                        Cancel
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
                     )}
 
                 </>

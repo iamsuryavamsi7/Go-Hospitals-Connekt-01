@@ -357,6 +357,8 @@ const FillTheSurgeryForm = () => {
                     });
 
                     setAllDocuments([]);
+
+                    setUploadingActivated(false);
                 
                 }
 

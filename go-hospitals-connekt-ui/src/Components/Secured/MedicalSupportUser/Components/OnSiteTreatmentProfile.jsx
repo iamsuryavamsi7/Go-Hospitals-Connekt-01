@@ -6,6 +6,8 @@ import { IoCloseCircleSharp } from 'react-icons/io5';
 import { Toaster, toast } from 'react-hot-toast';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import DatePicker from 'react-datepicker';
+import { format, isAfter } from 'date-fns';
 
 const OnSiteTreatmentProfile = () => {
 
@@ -19,7 +21,7 @@ const OnSiteTreatmentProfile = () => {
     const goHospitalsFRONTENDBASEURL = import.meta.env.VITE_GOHOSPITALS_MAIN_FRONTEND_URL;
 
     // State Management
-    const [role, setRole] = useState(null);
+    const [role, setRole] = useState(null); 
 
     const [userObject, setUserObject] = useState(null);
 
@@ -169,77 +171,114 @@ const OnSiteTreatmentProfile = () => {
     
     };
 
-    const handleSubmit = async (e) => {
+    const treatmentDoneFunction = async (e) => {
         
         e.preventDefault();
 
-        const applicationId = id;
-    
-        // Create FormData object
-        const formData = new FormData();
+        console.log('started');
 
-        image.forEach((file) => {
+        if ( (patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS') && nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
 
-            formData.append("imageFile", file);
+            const applicationId = id;
 
-        });
-
-        formData.append("prescriptionMessage", treatmentDone);
-
-        try {
-
-          // Send the form data to the backend
-          const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
-            headers: {
-                'Authorization': `Bearer ${access_token}`,
-                'Content-Type': `multipart/form-data`
-            },
-          });
-
-          if ( response.status === 200 ){
-
-            toast.success("Treatment Completed", {
-                duration: 1000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-right'
-            });
-
-            steTreatmentDone(``);
-
-            setImage([]);
-
-            setTreatMentDoneVisible(false);
-
-            fetchAppointmentData();
-
-          }
-
-        } catch (error) {
+            console.log('started Inside');
         
-            handleError(error);
+            // Create FormData object
+            const formData2 = new FormData();
 
-            toast.error("File size exceeded", {
-                duration: 2000,
-                style: {
-                    backgroundColor: '#1f2937', // Tailwind bg-gray-800
-                    color: '#fff', // Tailwind text-white
-                    fontWeight: '600', // Tailwind font-semibold
-                    borderRadius: '0.5rem', // Tailwind rounded-lg
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Tailwind shadow-lg
-                    marginTop: '2.5rem' // Tailwind mt-10,
-                },
-                position: 'top-center'
-            });
+            formData2.append('treatmentDoneMessage', treatmentDone);
 
-            setImage([]);
+            formData2.append("nextMedicationDate", nextMedicationDate);
+
+            try {
+
+                // Send the form data to the backend
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/onSiteTreatmentReviewPatient/${applicationId}`, formData2, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
         
+                if ( response.status === 200 ){
+        
+                    if ( response.data ){
+
+                        setTreatmentDone(``);
+        
+                        if ( stompClient !== null ){
+                        
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+            
+                        }
+
+                        fetchAppointmentData();
+
+                        setTreatMentDoneVisible(false);
+
+                    }
+                
+                }
+        
+            } catch (error) {
+            
+                handleError(error);
+
+            }
+
+        }
+
+        if ( patientData.consultationType === 'ONSITEQUICKTREATMENT' ){
+
+            const applicationId = id;
+        
+            // Create FormData object
+            const formData2 = new FormData();
+
+            formData2.append('treatmentDoneMessage', treatmentDone);
+
+            try {
+
+                // Send the form data to the backend
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/makeConsultationTypeCaseClose/${applicationId}`, formData2, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+        
+                if ( response.status === 200 ){
+        
+                    if ( response.data ){
+
+                        setTreatmentDone(``);
+        
+                        if ( stompClient !== null ){
+                        
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+            
+                        }
+
+                        fetchAppointmentData();
+
+                        setTreatMentDoneVisibleReviewPatient(false);
+
+                    }
+                
+                }
+        
+            } catch (error) {
+            
+                handleError(error);
+
+            }
+
         }
 
     };
@@ -305,59 +344,23 @@ const OnSiteTreatmentProfile = () => {
 
                         setImage([]);
 
-                        const applicationId = id;
-    
-                        // Create FormData object
-                        const formData2 = new FormData();
-
-                        formData2.append('treatmentDoneMessage', treatmentDone);
-
-                        try {
-
-                            // Send the form data to the backend
-                            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/makeConsultationTypeCaseClose/${applicationId}`, formData2, {
-                                headers: {
-                                    'Authorization': `Bearer ${access_token}`,
-                                },
-                            });
-                    
-                            if ( response.status === 200 ){
-                    
-                                setTreatmentDone(``);
-                    
-                                if ( stompClient !== null ){
-                                
-                                    const notificationTypeModel = {
-                                        notificationType: `RefreshFrontDeskCaseClosed`
-                                    }
-                        
-                                    stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
-                    
-                                }
-
-                                if ( stompClient !== null ){
-                    
-                                    const notificationTypeModel = {
-                                        notificationType: `PendingMedicationsRefresh`
-                                    }
-                        
-                                    stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
-                    
-                                }
-
-                                setSendPrescriptionActivated(false);
+                        setSendPrescriptionActivated(false);
                                         
-                                setPharmacyMessageDuplicated(``);
+                        setPharmacyMessageDuplicated(``);
 
-                                fetchAppointmentData();
-                            
-                            }
+                        fetchAppointmentData();
+
+                        if ( stompClient !== null ){
                     
-                        } catch (error) {
-                        
-                            handleError(error);
+                            const notificationTypeModel = {
+                                notificationType: `PendingMedicationsRefresh`
+                            }
                 
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+            
                         }
+
+                        
 
                     }
 
@@ -393,7 +396,7 @@ const OnSiteTreatmentProfile = () => {
 
             try{
 
-                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/caseCloseById/${applicationID}`, formData, {
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/makeConsultationTypeCaseClose/${applicationID}`, formData, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     }
@@ -407,7 +410,17 @@ const OnSiteTreatmentProfile = () => {
     
                         setCaseCloseButtonActivated(false);
     
-                        fetchAppointmentData();
+                        fetchAppointmentData(); 
+
+                        if ( stompClient !== null ){
+                    
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+            
+                        }
     
                     }
     
@@ -428,7 +441,7 @@ const OnSiteTreatmentProfile = () => {
     // State to store stompClient
     const [stompClient, setStompClient] = useState(null);
 
-    // Connect to websockets when the component mounts with useEffect hook
+    // Connect to websockets when the component mounts with useEffect hook 
     useEffect(() => {
 
         const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
@@ -462,6 +475,68 @@ const OnSiteTreatmentProfile = () => {
         }
 
     }, []);
+
+    const [currentDateValue, setCurrentDateValue] = useState(format(new Date(), 'MMMM dd yyyy')); 
+
+    const [nextMedicationDate, setNextMedicationDate] = useState(new Date());
+
+    const [TreatMentDoneVisibleReviewPatient, setTreatMentDoneVisibleReviewPatient] = useState(false);
+
+    const [patientDropOutVisible, setPatientDropOutVisible] = useState(false);
+
+    const [patientDropOutMessage, setPatientDropOutMessage] = useState(``);
+
+    const patientDropOutFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( patientDropOutMessage.trim() !== null && patientDropOutMessage.trim !== `` ){
+
+            try{
+
+                const formData = new FormData();
+
+                formData.append('patientDropOutMessage', patientDropOutMessage.trim());
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/patientDropOutById/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+
+                if ( response.status === 200 ){
+
+                    const booleanValue = response.data;
+
+                    if ( booleanValue ){
+
+                        fetchAppointmentData();
+
+                        setPatientDropOutVisible(false);
+
+                        if ( stompClient ){
+
+                            const notificationTypeModel = {
+                                notificationType: `RefreshFrontDeskCaseClosed`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                        }
+
+                    }
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
 
     return (
 
@@ -655,27 +730,31 @@ const OnSiteTreatmentProfile = () => {
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                    {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                    {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     
                                     {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
+
+                                    {patientData.consultationType === 'PATIENTDROPOUT' && 'Patient Dropped Out'}
 
                                 </div>
 
@@ -731,24 +810,88 @@ const OnSiteTreatmentProfile = () => {
 
                         </div>
 
-                        {!patientData.treatmentDone && patientData.consultationType !== 'CASECLOSED' && (
+                        {!patientData.treatmentDone && patientData.consultationType !== 'CASECLOSED' && !patientData.counsellingIsInProgress ? (
 
-                            <div
-                                className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
-                                onClick={() => {
+                            <>
 
-                                    setSendPrescriptionActivated(true);
+                                <div
+                                    className='bg-[#238636] ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
 
-                                }}
-                            >
+                                        setSendPrescriptionActivated(true);
 
-                                Uplaod Prescription
+                                    }}
+                                >
+
+                                    Upload Prescription
+
+                                </div>
+
+                                {(patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS') && <div
+                                    className='bg-[#238636] ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
+
+                                        setTreatMentDoneVisible(true);
+
+                                    }}
+                                >
+
+                                    Treatment Done
+
+                                </div>}
+
+                                {patientData.consultationType === 'ONSITEQUICKTREATMENT' && <div
+                                    className='bg-[#238636] my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
+
+                                        setTreatMentDoneVisibleReviewPatient(true);
+
+                                    }}
+                                >
+
+                                    Treatment Done
+
+                                </div>}
+
+                                <div
+                                    className='bg-red-500 ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
+
+                                        setCaseCloseButtonActivated(true);
+
+                                    }}
+                                >
+
+                                    Case Closed
+
+                                </div>
+
+                                <div
+                                    className='bg-red-500 ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    onClick={() => {
+
+                                        setPatientDropOutVisible(true);
+
+                                    }}
+                                >
+
+                                    Patient Drop Out
+
+                                </div>
+
+                            </>
+
+                        ) : (
+
+                            <div className="bg-green-800 inline-block px-5 py-2 rounded-lg m-10">
+
+                                In Counselling
 
                             </div>
 
                         )}
 
-                        {/* {treatMentDoneVisible && (
+                        {treatMentDoneVisible && (
 
                             <div 
                                 className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
@@ -756,10 +899,10 @@ const OnSiteTreatmentProfile = () => {
 
                                 <form 
                                     className="block relative bg-gray-900 text-xl rounded-2xl border-[1px] border-gray-800"
-                                    onSubmit={handleSubmit}
+                                    onSubmit={treatmentDoneFunction}
                                 >
                                 
-                                    <div 
+                                    {/* <div 
                                         className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
                                     >
                                         
@@ -773,7 +916,7 @@ const OnSiteTreatmentProfile = () => {
 
                                                 const value = e.target.value;
 
-                                                steTreatmentDone(value);
+                                                setTreatmentDone(value);
 
                                             }}
                                         />
@@ -800,6 +943,53 @@ const OnSiteTreatmentProfile = () => {
                                             Add More
                                         </label>
 
+                                    </div> */}
+
+                                    <div 
+                                        className="py-2 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block mt-5"
+                                    >
+                                        
+                                        <label className='text-xs'>Treatment Done Message (Optional)</label><br />
+
+                                        <textarea
+                                            type='text'
+                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
+                                            value={treatmentDone}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setTreatmentDone(value);
+
+                                            }}
+                                        />
+                                    
+                                    </div>
+
+                                    <div 
+                                        className="px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                    >
+                                        
+                                        <label className='text-xs'>Next Consultation Date</label><br />
+
+                                        <div className="relative inline-block">
+
+                                            <DatePicker 
+                                                className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                value={currentDateValue}
+                                                onChange={(date) => {
+
+                                                    const dateValue = format(date, 'MMMM dd yyyy');
+
+                                                    setCurrentDateValue(dateValue);
+
+                                                    setNextMedicationDate(date);
+
+                                                }}
+                                            />
+                                            
+                                        </div>
+
                                     </div>
 
                                     <button 
@@ -823,7 +1013,62 @@ const OnSiteTreatmentProfile = () => {
 
                             </div>
 
-                        )} */}
+                        )}
+
+                        {TreatMentDoneVisibleReviewPatient && (
+
+                            <div 
+                                className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
+                            >
+
+                                <form 
+                                    className="block relative bg-gray-900 text-xl rounded-2xl border-[1px] border-gray-800"
+                                    onSubmit={treatmentDoneFunction}
+                                >
+                                
+                                    <div 
+                                        className="py-2 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block mt-5"
+                                    >
+                                        
+                                        <label className='text-xs'>Treatment Done Message (Optional)</label><br />
+
+                                        <textarea
+                                            type='text'
+                                            className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
+                                            value={treatmentDone}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setTreatmentDone(value);
+
+                                            }}
+                                        />
+                                    
+                                    </div>
+
+                                    <button 
+                                        className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                        type='submit'
+                                    >
+                                        Submit
+
+                                    </button>
+
+                                    <IoCloseCircleSharp 
+                                        className='absolute z-50 top-5 right-5 cursor-pointer'
+                                        onClick={() => {
+
+                                            setTreatMentDoneVisibleReviewPatient(false);
+
+                                        }}
+                                    />
+
+                                </form>
+
+                            </div>
+
+                        )}
 
                         {sendPrescriptionActivated && (
                         
@@ -896,7 +1141,7 @@ const OnSiteTreatmentProfile = () => {
 
                                     </div>
 
-                                    <div 
+                                    {/* <div 
                                         className="py-2 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block mt-5"
                                     >
                                         
@@ -917,7 +1162,7 @@ const OnSiteTreatmentProfile = () => {
                                     
                                     </div>
 
-                                    {/* <div 
+                                    <div 
                                         className="px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
                                     >
                                         
@@ -1010,6 +1255,65 @@ const OnSiteTreatmentProfile = () => {
                                                 e.preventDefault();
 
                                                 setCaseCloseButtonActivated(false);
+                                                
+                                            }}
+                                        >
+                                            Cancel
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        )}
+
+                        {patientDropOutVisible && (
+
+                            <form
+                                className='absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm'
+                                onSubmit={(e) => patientDropOutFunction(e)}
+                            >
+
+                                <div className="bg-gray-900 py-10 rounded-lg">
+
+                                    <div className="flex flex-col mx-10">
+
+                                        <label className='text-xs mb-2'>Patient Drop Out Message <span className='text-red-500'>*</span></label>
+
+                                        <textarea 
+                                            className='bg-[#0d1117] min-h-[100px] max-h-[100px] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg h-[80px] px-3 w-[300px] max-sm:w-full'
+                                            value={patientDropOutMessage}
+                                            onChange={(e) => {
+
+                                                const value = e.target.value;
+
+                                                setPatientDropOutMessage(value);
+
+                                            }}
+                                        />
+
+                                    </div>
+
+                                    <div className="">
+
+                                        <button 
+                                            className='bg-[#238636] ml-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                        >
+                                            Submit
+
+                                        </button>
+
+                                        <button 
+                                            className='bg-red-500 ml-5 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            onClick={(e) => {
+
+                                                e.preventDefault();
+
+                                                setPatientDropOutVisible(true);
                                                 
                                             }}
                                         >

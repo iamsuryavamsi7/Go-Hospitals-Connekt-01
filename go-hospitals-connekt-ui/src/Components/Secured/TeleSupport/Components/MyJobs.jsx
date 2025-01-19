@@ -283,15 +283,33 @@ const MyJobs = () => {
 
                                             <th>{job.name}</th>
                                             <th>{job.preferredDoctorName}</th>
-                                            <th>{job.consultationType === null ? (
+                                            <th>
 
-                                                <span>Not Decided</span>
+                                                {job.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                                {job.consultationType === 'WAITING' && 'Waiting for DMO'}
 
-                                            ) : (
+                                                {job.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                                <span>{job.consultationType}</span>
+                                                {job.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                            )}</th>
+                                                {job.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
+
+                                                {job.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
+
+                                                {job.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
+
+                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
+
+                                                {job.consultationType === 'SURGERYCARE' && 'Surgery Care'}
+
+                                                {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                                
+                                                {job.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                                {job.consultationType === 'CASECLOSED' && 'Case Closed'}
+
+                                            </th>
                                             <th>{job.billNo}</th>
                                             <th
                                                 className='hover:opacity-60 active:opacity-80 cursor-pointer inline-block'

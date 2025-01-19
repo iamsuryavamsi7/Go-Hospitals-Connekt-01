@@ -336,6 +336,18 @@ public class FrontDeskController {
 
     }
 
+    @GetMapping("/fetchDropOutPatientsPaging/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchDropOutPatients(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = frontDeskService.fetchDropOutPatients(pageNumber, size);
+
+        return ResponseEntity.ok(fetchedApplications);
+
+    }
+
     @GetMapping("/fetchCompletedAppointmentsPaging/{pageNumber}/{defaultSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchCompletedAppointments(
             @PathVariable("pageNumber") int pageNumber,
@@ -351,10 +363,11 @@ public class FrontDeskController {
     @PostMapping("/caseCloseById/{applicationID}")
     public ResponseEntity<Boolean> caseCloseById(
             @PathVariable("applicationID") Long applicationID,
-            @RequestParam("caseCloseInput") String caseCloseInput
+            @RequestParam("caseCloseInput") String caseCloseInput,
+            @RequestParam("consultationType") String consultationType
     ) throws ApplicationNotFoundException {
 
-        Boolean fetchedBooleanValue = frontDeskService.caseCloseById(applicationID, caseCloseInput);
+        Boolean fetchedBooleanValue = frontDeskService.caseCloseById(applicationID, caseCloseInput, consultationType);
 
         return ResponseEntity.ok(fetchedBooleanValue);
 

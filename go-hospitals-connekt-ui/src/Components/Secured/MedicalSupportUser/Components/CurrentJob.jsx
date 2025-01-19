@@ -247,21 +247,23 @@ const CurrentJob = () => {
                                             <th>{job.preferredDoctorName}</th>
                                             <th>
 
-                                                {job.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                                {job.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                                {job.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                                 {job.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                                {job.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                                {job.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                                {job.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                                {job.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                                {job.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                                {job.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                                {job.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                                {job.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                                {job.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                                {job.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                                {job.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                                 {job.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                                 

@@ -403,7 +403,29 @@ const CrossConsultationProfile = () => {
 
                                 <div className="text-lg">
                                     
+                                    {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
+
+                                    {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
+
+                                    {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
+
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
+
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
+
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
+
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
+
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
+
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
+                                    
+                                    {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
+
+                                    {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
 
                                 </div>
 

@@ -206,7 +206,7 @@ const FrontDeskNavBar = () => {
 
             }
 
-        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' || notificationStatus === 'FOLLOWUPPATIENT' || notificationStatus === 'CASECLOSED' ){
+        if ( notificationStatus === 'CROSSCONSULTATIONNEEDED' || notificationStatus === 'FOLLOWUPPATIENT' || notificationStatus === 'CASECLOSED' || notificationStatus === 'DROPOUTPATIENT' ){
 
             navigate(`/front-desk-follow-up-profile/${applicationID}`);
 
@@ -316,7 +316,7 @@ const FrontDeskNavBar = () => {
 
     }
 
-    const commonNotificationReceived = (message) => {
+    const commonNotificationReceived = (message) => { 
 
         const messageObject = JSON.parse(message.body);
 

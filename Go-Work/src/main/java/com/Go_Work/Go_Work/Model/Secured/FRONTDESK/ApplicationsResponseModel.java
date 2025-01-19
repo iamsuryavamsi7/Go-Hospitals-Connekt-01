@@ -2,6 +2,7 @@ package com.Go_Work.Go_Work.Model.Secured.FRONTDESK;
 
 import com.Go_Work.Go_Work.Entity.Bills;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.SurgeryPaymentType;
 import com.Go_Work.Go_Work.Entity.ImageUrls;
 import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
 import com.Go_Work.Go_Work.Entity.PharmacyMessage;
@@ -43,6 +44,7 @@ public class ApplicationsResponseModel {
     private Date applicationCompletedTime;
     private Date nextFollowUpDate;
     private String pharmacyMessage;
+    private String patientDropOutMessage;
 
     private String caseCloseInput;
 
@@ -68,5 +70,9 @@ public class ApplicationsResponseModel {
     private List<Bills> bills = new ArrayList<>();
 
     private List<ImageUrls> prescriptionUrl = new ArrayList<>();
+
+    private SurgeryPaymentType surgeryPaymentType;
+
+    private Boolean counsellingIsInProgress = false;
 
 }

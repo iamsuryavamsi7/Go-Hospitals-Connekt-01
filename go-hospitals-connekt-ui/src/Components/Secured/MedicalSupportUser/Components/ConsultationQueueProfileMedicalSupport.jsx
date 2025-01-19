@@ -424,27 +424,31 @@ const access_token = Cookies.get('access_token');
 
                                 <div className="text-lg">
                                     
-                                    {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                    {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                     {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                    {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                    {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                    {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                    {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                    {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                    {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                    {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                    {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                     {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                     
                                     {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
                                     {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
+
+                                    {patientData.consultationType === 'PATIENTDROPOUT' && 'Patient Dropped Out'}
 
                                 </div>
 

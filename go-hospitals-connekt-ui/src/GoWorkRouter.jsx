@@ -57,6 +57,7 @@ import NewPatientOnBoardFronDeskFillingPage from './Components/Public/NewPatient
 import CrossConsultationApprovals from './Components/Secured/FrontDeskUser/Components/CrossConsultationApprovals'
 import ClosedCasesFrontDesk from './Components/Secured/FrontDeskUser/Components/ClosedCasesFrontDesk'
 import FrontDeskCompletedAppointments from './Components/Secured/FrontDeskUser/Components/FrontDeskCompletedAppointments'
+import FrontDeskPatientDropOut from './Components/Secured/FrontDeskUser/Components/FrontDeskPatientDropOut'
 
 function GoWorkRouter() {
 
@@ -108,7 +109,8 @@ function GoWorkRouter() {
 						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
 						<Route path='/front-desk-cross-consultation-approvals' element={<CrossConsultationApprovals />}/>
 						{/* <Route path='/front-desk-completed-appointments' element={<FrontDeskCompletedAppointments />}/> */}
-						<Route path='/front-desk-closed-cases' element={<ClosedCasesFrontDesk />}/> 
+						<Route path='/front-desk-closed-cases' element={<ClosedCasesFrontDesk />}/>
+						<Route path='/front-desk-patient-drop-out' element={<FrontDeskPatientDropOut />}/>
 					</Route>
 
 					{/* FRONTDESK ROUTING */} 
@@ -127,7 +129,7 @@ function GoWorkRouter() {
 						<Route path='/medical-support-surgery-care' element={<SurgeryCare />}/>
 						<Route path='/medical-support-cross-consultation' element={<CrossConsulation />}/>
 						<Route path='/medical-support-patient-admit' element={<PatientAdmit />}/>
-						<Route path='/medical-support-surgery-care-profile/:id' element={<SurgeryCareProfile />}/>
+						<Route path='/medical-support-surgery-care-profile/:id' element={<SurgeryCareProfile />}/> 
 						{/* <Route path='/medical-support-pharmacy-profile/:id' element={<PharmacyProfile />}/> */}
 						<Route path='/medical-support-patient-admit-profile/:id' element={<PatientAdmitProfile />}/>
 						<Route path='/medical-support-cross-consultation-profile/:id' element={<CrossConsultationProfile />}/>

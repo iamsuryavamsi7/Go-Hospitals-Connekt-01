@@ -432,7 +432,7 @@ const InCompletePatients = () => {
 
                                                     ) : (
 
-                                                        <span className='text-red-500'>Take Job</span>
+                                                        <span className='text-green-500'>Take Job</span>
 
                                                     )}
 

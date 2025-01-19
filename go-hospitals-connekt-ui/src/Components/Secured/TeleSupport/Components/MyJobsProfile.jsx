@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { CgLoadbar } from 'react-icons/cg';
 import { IoCloseCircle } from 'react-icons/io5';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const MyJobsProfile = () => {
 
@@ -334,33 +336,61 @@ const MyJobsProfile = () => {
 
     }, [id]);
 
-    const counsellingDone = async () => {
+    const [surgeryCounsellorMessage, setSurgeryCounsellorMessage] = useState(``);
 
-        try{
+    const counsellingDone = async (e) => {
 
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/consellingDone/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
+        e.preventDefault();
+
+        if ( surgeryCounsellorMessage !== null && surgeryCounsellorMessage !== `` ){
+
+            try{
+
+                const formData = new FormData();
+    
+                formData.append(`surgeryCounsellorMessage`, surgeryCounsellorMessage);
+
+                formData.append(`consultationType`, patientData.consultationType);
+    
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/tele-support/counsellingDone/${id}`, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`
+                    }
+                })
+    
+                if ( response.status === 200 ){
+    
+                    const booleavValue = response.data;
+    
+                    if ( booleavValue ){
+    
+                        fetchAppointmentData();
+    
+                        if ( stompClient ){
+    
+                            const webSocketNotificationTypeModel = {
+                                notificationType: `CounsellingDoneSurgeryCare`
+                            }
+    
+                            stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+    
+                        }
+    
+                        setSurgeryCounsellorMessage(``);
+
+                        setCounsellingDoneActivated(false);
+    
+                    }
+    
                 }
-            })
-
-            if ( response.status === 200 ){
-
-                const booleavValue = response.data;
-
-                if ( booleavValue ){
-
-                    fetchAppointmentData();
-
-                }
-
+    
+            }catch(error){
+    
+                console.error(error);
+    
+                setPatientData([]);
+    
             }
-
-        }catch(error){
-
-            console.error(error);
-
-            setPatientData([]);
 
         }
 
@@ -429,6 +459,86 @@ const MyJobsProfile = () => {
         }
 
     }
+    
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => commonNotificationReceived(message))
+
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
+
+    const [updatePaymentTypeActivated, setUpdatePaymentTypeActivated] = useState(false);
+
+    const updatePaymentTypeSurgeryCareFunction = async (surgeryMethodTypeValue) => {
+
+        if ( surgeryMethodTypeValue !== '' && surgeryMethodTypeValue !== null ){
+
+            const formData = new FormData();
+            
+            formData.append('surgeryPaymentType', surgeryMethodTypeValue);
+
+            try{
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/tele-support/updatePaymentTypeSurgeryCareFunction/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+    
+                if ( response.status === 200 ){
+    
+                    const booleanValue = response.data;
+    
+                    if ( booleanValue ){
+    
+                        fetchAppointmentData();
+    
+                    }
+    
+                }
+    
+            }catch(error){
+    
+                console.error(error);
+    
+            }
+
+        }
+
+    }
+
+    const [counsellingDoneActivated, setCounsellingDoneActivated] = useState(false);
 
     return (
 
@@ -638,27 +748,29 @@ const MyJobsProfile = () => {
 
                                         <div className="text-lg">
                                             
-                                            {patientData.consultationType === 'WAITING' && 'Waiting for Nurse'}
+                                            {patientData.consultationType === 'NOTASSIGNED' && 'Waiting for Nurse'}
+                                    
+                                            {patientData.consultationType === 'WAITING' && 'Waiting for DMO'}
 
                                             {patientData.consultationType === 'DMOCARECOMPLETED' && 'Waiting for Consultation'}
 
-                                            {patientData.consultationType === 'ONSITEREVIEWPATIENTTREATMENT' && 'Waiting for Consultation'}
+                                            {patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' && 'Onsite - Review Patient Dressing'}
 
-                                            {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'In Onsite Vascular Injection'}
+                                            {patientData.consultationType === 'ONSITEVASCULARINJECTIONS' && 'Onsite - Vascular Injection'}
 
-                                            {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'In Onsite Quick Treatment'}
+                                            {patientData.consultationType === 'ONSITEQUICKTREATMENT' && 'Onsite - Quick Treatment'}
 
-                                            {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'In Onsite Casuality Patient'}
+                                            {patientData.consultationType === 'ONSITECASCUALITYPATIENT' && 'Onsite - Casuality Patient'}
 
-                                            {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'In Medical Plus Follow UP'}
+                                            {patientData.consultationType === 'MEDICATIONPLUSFOLLOWUP' && 'Medical Plus Follow UP'}
 
-                                            {patientData.consultationType === 'SURGERYCARE' && 'In Surgery Care'}
+                                            {patientData.consultationType === 'SURGERYCARE' && 'Surgery Care'}
 
                                             {patientData.consultationType === 'CROSSCONSULTATION' && 'Cross Consultation'}
                                             
                                             {patientData.consultationType === 'FOLLOWUPCOMPLETED' && 'Follow-Up Scheduled'}
 
-                                            {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}
+                                            {patientData.consultationType === 'CASECLOSED' && 'Case Closed'}    
 
                                         </div>
 
@@ -784,11 +896,179 @@ const MyJobsProfile = () => {
 
                                     </div>
 
+                                    <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                        <div className="text-base text-gray-300">
+
+                                            Current Payment Type
+
+                                        </div>
+
+                                        <div className="text-lg">
+
+                                            {patientData.surgeryPaymentType === 'CASH' ? 'Cash' : 'Insurance'}
+
+                                        </div>
+
+                                    </div>
+
                                 </div> 
 
                             </div>
 
-                            {patientData.consultationType === `SURGERYCARE` && (
+                            {/* {patientData.surgeryPaymentType !== 'CASH' && (
+
+                                <>
+
+                                    <div 
+                                        className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer mx-10"
+                                        onClick={sendLinkFunction}
+                                    >
+
+                                        <div 
+                                            className="text-base text-gray-300"
+                                        >
+
+                                            Send Link
+
+                                        </div>
+
+                                    </div>
+
+                                    <div 
+                                        className="inline-block items-start bg-green-800 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                        onClick={copyLinkFunction}    
+                                    >
+
+                                        <div 
+                                            className="text-base text-gray-300"
+                                        >
+
+                                            Copy Link
+
+                                        </div>
+
+                                    </div>
+
+                                   {patientData.teleSupportSurgeryDocumentsAccept ? (
+                                    
+                                        <div 
+                                            className="inline-block items-start bg-red-500 ml-10 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                            onClick={dontAcceptUploads}
+                                        >
+
+                                            <div 
+                                                className="text-base text-gray-300"
+                                            >
+
+                                                Dont Accept
+
+                                            </div>
+
+                                        </div>
+                                        
+                                    ) : (
+
+                                        <div 
+                                            className="inline-block items-start bg-green-800 ml-10 px-3 py-2 rounded-lg hover:opacity-60 active:opacity-40 cursor-pointer"
+                                            onClick={acceptUploads}
+                                        >
+
+                                            <div 
+                                                className="text-base text-gray-300"
+                                            >
+
+                                                Accept Uploads
+
+                                            </div>
+
+                                        </div>
+
+                                    )}
+
+                                </>
+
+                            )} */}
+
+                            <div className="mb-5">
+
+                                <div 
+                                    className='mx-10 inline-block cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    onClick={() => {
+
+                                        setUpdatePaymentTypeActivated(true);
+
+                                    }}
+                                >
+
+                                    <div 
+                                        className="text-base text-gray-300"
+                                    >
+
+                                        Update Payment Type
+
+                                    </div>
+
+                                </div>
+
+                                {updatePaymentTypeActivated && (
+
+                                    <div 
+                                        className="fixed top-0 right-0 left-0 bottom-0 flex items-center justify-center backdrop-blur-[2px]"
+                                        onClick={() => setUpdatePaymentTypeActivated(false)}
+                                    >
+
+                                        <div className="bg-gray-900 rounded-2xl text-center text-lg cursor-pointer">
+
+                                            <div 
+                                                className="hover:bg-gray-800 active:bg-gray-700 px-10 py-5 rounded-t-2xl"
+                                                onClick={() => {
+
+                                                    const surgeryMethodTypeValue = 'CASH';
+
+                                                    updatePaymentTypeSurgeryCareFunction(surgeryMethodTypeValue);
+
+                                                }}
+                                            >Cash</div>
+                                            <div 
+                                                className="hover:bg-gray-800 active:bg-gray-700 px-10 py-5 rounded-b-2xl"
+                                                onClick={() => {
+
+                                                    const surgeryMethodTypeValue = 'INSURANCE';
+
+                                                    updatePaymentTypeSurgeryCareFunction(surgeryMethodTypeValue);
+
+                                                }}
+                                            >Insurance</div>
+
+                                        </div>
+
+                                    </div>
+
+                                )}
+
+                                <div 
+                                    className='inline-block cursor-pointer bg-green-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    onClick={() => {
+
+                                        setCounsellingDoneActivated(true);
+
+                                    }}
+                                >
+
+                                    <div 
+                                        className="text-base text-gray-300"
+                                    >
+
+                                        Counselling Done
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {patientData.surgeryPaymentType !== 'CASH' && (
 
                                 <>
 
@@ -862,11 +1142,11 @@ const MyJobsProfile = () => {
 
                             )}
 
-                            {patientData.surgeryDocumentsUrls && patientData.surgeryDocumentsUrls.length > 0 && (
+                            { patientData.surgeryPaymentType !== 'CASH' && (
 
                                 <>
 
-                                    <div className="flex mt-5">
+                                    <div className="flex mt-5 mb-40">
 
                                         <div className="ml-10">
 
@@ -894,7 +1174,7 @@ const MyJobsProfile = () => {
 
                                         </div>
 
-                                        <div 
+                                        {/* <div 
                                             className='cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
                                             onClick={counsellingDone}
                                         >
@@ -907,7 +1187,7 @@ const MyJobsProfile = () => {
 
                                             </div>
 
-                                        </div>
+                                        </div> */}
 
                                     </div>
 
@@ -982,6 +1262,58 @@ const MyJobsProfile = () => {
                                     )}
 
                                 </>
+
+                            )}
+
+                            {counsellingDoneActivated && (
+
+                                <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-[2px]">
+
+                                    <form
+                                        className='bg-gray-900 p-10 rounded-lg'
+                                        onSubmit={counsellingDone}
+                                    >
+
+                                        <div className="mb-5">
+
+                                            <label className='text-sm'>Counsellor Message<span className='text-red-400'>*</span></label><br />
+                                            <textarea 
+                                                required
+                                                type='text'
+                                                className='bg-[#0d1117] max-h-[100px] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 flex-1 w-[300px] max-sm:w-full mt-2 custom-scrollbar'
+                                                value={surgeryCounsellorMessage}
+                                                onChange={(e) => {
+
+                                                    e.preventDefault();
+
+                                                    const value = e.target.value;
+
+                                                    setSurgeryCounsellorMessage(value);
+
+                                                }}
+                                            /> 
+
+                                        </div>
+
+                                        <button
+                                            className={`bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                            type='submit'
+                                        > Counselling Done </button>
+
+                                        <button
+                                            className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-10`}
+                                            onClick={(e) => {
+
+                                                e.preventDefault();
+
+                                                setCounsellingDoneActivated(false);
+
+                                            }}
+                                        > Cancel </button>
+
+                                    </form>
+
+                                </div>
 
                             )}
 

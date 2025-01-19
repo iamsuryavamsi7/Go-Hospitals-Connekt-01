@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Model.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.SurgeryPaymentType;
 import com.Go_Work.Go_Work.Entity.ImageUrls;
 import com.Go_Work.Go_Work.Entity.NextAppointmentDate;
 import com.Go_Work.Go_Work.Entity.SurgeryDocumentsUrls;
@@ -57,5 +58,7 @@ public class TeleSupportResponseModel {
     private boolean teleSupportSurgeryDocumentsAccept;
 
     private List<SurgeryDocumentsUrls> surgeryDocumentsUrls = new ArrayList<>();
+
+    private SurgeryPaymentType surgeryPaymentType;
 
 }

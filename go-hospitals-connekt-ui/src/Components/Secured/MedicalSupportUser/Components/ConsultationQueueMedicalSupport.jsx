@@ -287,6 +287,18 @@ const ConsultationQueueMedicalSupport = () => {
             () => {
 
                 client.subscribe(`/medicalSupportUserNotification/newNotifications`, (message) => newNotificationReceived(message));
+
+                client.subscribe(``, (message) => {
+
+                    const messageBody = JSON.parse(message.body);
+
+                    if ( messageBody.notificationType === 'FollowUpPatientCame' ){
+
+                        fetchIncompleteApplications();
+
+                    }
+
+                });
         
             },
             () => {

@@ -10,6 +10,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { FaUserDoctor } from 'react-icons/fa6';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import { BsDropletHalf } from 'react-icons/bs';
 
 const LeftNavBarFrontDesk = () => {
 
@@ -192,6 +193,10 @@ const LeftNavBarFrontDesk = () => {
 
     const [caseClosed2, setCaseClosed2] = useState(`text-gray-400`);
 
+    const [dropOutPatients, setDropOutPatients] = useState(`text-gray-400`);
+
+    const [dropOutPatients2, setDropOutPatients2] = useState(`text-gray-400`);
+
     useEffect(() => {
 
         // FRONTDESK LEFTNAVBAR
@@ -290,6 +295,20 @@ const LeftNavBarFrontDesk = () => {
             setCaseClosed1(`text-gray-400`);
 
             setCaseClosed2(`text-gray-400`);
+
+        }
+
+        if ( pathName === `/front-desk-patient-drop-out`){
+
+            setDropOutPatients(`text-sky-500`);
+
+            setDropOutPatients2(`bg-sky-500 text-white`);
+
+        }else {
+
+            setDropOutPatients(`text-gray-400`);
+
+            setDropOutPatients2(`text-gray-400`);
 
         }
 
@@ -730,6 +749,30 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 Case Closed
+
+                            </div>
+
+                            {leftNavBarRedBall.patientApprovals && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+
+                        </div>
+
+                        <div 
+                            className={`${dropOutPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            onClick={() => navigate('/front-desk-patient-drop-out')}
+                        >
+
+
+                            <div className="">
+
+                                <BsDropletHalf 
+                                    className={`${dropOutPatients2} text-2xl  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Drop Out Patients 
 
                             </div>
 

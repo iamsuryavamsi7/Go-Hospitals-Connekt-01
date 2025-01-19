@@ -325,7 +325,7 @@ const MedicalSupportUserNavBar = () => {
 
                     const messageObject = JSON.parse(message.body);
 
-                    if ( messageObject.notificationType === `FollowUpPatientCame` || messageObject.notificationType === `MedicinesGiven` ){
+                    if ( messageObject.notificationType === `FollowUpPatientCame` || messageObject.notificationType === `MedicinesGiven` || messageObject.notificationType === `MedicinesGivenMedicalSupport` || messageObject.notificationType === `CrossConsultationCaseClosed` || messageObject.notificationType === `CrossConsultationDroppedOut` || messageObject.notificationType === `CounsellingDoneSurgeryCare` ){
 
                         fetchNotifications();
 

@@ -143,10 +143,11 @@ public class PharmacyController {
     public ResponseEntity<Boolean> medicinesTaken(
             @PathVariable("applicationId") Long applicationId,
             @RequestParam(value = "pharmacyMessage", required = false) String pharmacyMessage,
-            @RequestParam(value = "billNo", required = false) String billNo
+            @RequestParam(value = "billNo", required = false) String billNo,
+            @RequestParam("consultationType") String consultationType
     ) throws ApplicationNotFoundException {
 
-        Boolean successMessage = pharmacyService.medicinesTaken(applicationId, pharmacyMessage, billNo);
+        Boolean successMessage = pharmacyService.medicinesTaken(applicationId, pharmacyMessage, billNo, consultationType);
 
         return ResponseEntity.ok(successMessage);
 

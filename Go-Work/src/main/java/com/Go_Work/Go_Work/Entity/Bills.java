@@ -32,7 +32,7 @@ public class Bills {
     @JoinColumn(
             name = "application_id"
     )
-    @JsonBackReference
+    @JsonBackReference("patientBills")
     private Applications applications;
 
 }

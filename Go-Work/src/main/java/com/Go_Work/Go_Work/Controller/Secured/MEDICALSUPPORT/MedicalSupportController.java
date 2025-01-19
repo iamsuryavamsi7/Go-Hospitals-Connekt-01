@@ -368,4 +368,30 @@ public class MedicalSupportController {
 
     }
 
+    @PostMapping("/onSiteTreatmentReviewPatient/{applicationId}")
+    public ResponseEntity<Boolean> onSiteTreatmentReviewPatient(
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam(value = "treatmentDoneMessage", required = false) String treatmentDoneMessage,
+            @RequestParam(value = "nextMedicationDate", required = false) Date nextMedicationDate
+    ) throws ApplicationNotFoundException {
+
+        Boolean status = medicalSupportService.onSiteTreatmentReviewPatient(applicationId, treatmentDoneMessage, nextMedicationDate);
+
+        return ResponseEntity.ok(status);
+
+    }
+
+    @PostMapping("/patientDropOutById/{applicationId}")
+    public ResponseEntity<Boolean> patientDropOutById(
+            @PathVariable("applicationId") Long applicationId,
+            @RequestParam("patientDropOutMessage") String patientDropOutMessage,
+            @RequestParam("consultationType") String consultationType
+    ) throws ApplicationNotFoundException, ConsultationTypeNotFoundException {
+
+        Boolean message = medicalSupportService.patientDropOutById(applicationId, patientDropOutMessage, consultationType);
+
+        return ResponseEntity.ok(message);
+
+    }
+
 }

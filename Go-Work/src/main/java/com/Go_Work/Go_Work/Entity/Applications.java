@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Entity;
 
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.SurgeryPaymentType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -9,7 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +43,7 @@ public class Applications {
     private String bookedBy;
     private String patientId;
     private String tempororyBillNo;
+    private String patientDropOutMessage;
 
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
@@ -64,6 +65,9 @@ public class Applications {
 
     private boolean treatmentDone = false;
     private Boolean paymentDone = false;
+
+    private Boolean counsellingIsInProgress = false;
+
     private Date paymentDoneTime;
     private Date applicationCompletedTime;
 
@@ -114,10 +118,9 @@ public class Applications {
     // One Applications - Many Bills
     @OneToMany(
             mappedBy = "applications",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER
+            cascade = CascadeType.ALL
     )
-    @JsonManagedReference
+    @JsonManagedReference("patientBills")
     private List<Bills> bills = new ArrayList<>();
 
     // One Application - Many Appointment dates
@@ -127,5 +130,10 @@ public class Applications {
     )
     @JsonManagedReference("nextAppointmentDate")
     private List<NextAppointmentDate> nextAppointmentDate = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private SurgeryPaymentType surgeryPaymentType = SurgeryPaymentType.CASH;
+
+    private String surgeryCounsellorMessage;
 
 }

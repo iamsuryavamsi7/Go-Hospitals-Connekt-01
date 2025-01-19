@@ -2,6 +2,9 @@ package com.Go_Work.Go_Work.Service.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
+import com.Go_Work.Go_Work.Entity.Enum.SurgeryPaymentType;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
@@ -49,7 +52,7 @@ public class TeleSupportService {
 
         List<TeleSupportResponseModel> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && !applications.isTeleSupportConsellingDone() )
+                .filter(applications -> applications.getCounsellingIsInProgress() )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application -> {
 
@@ -369,6 +372,70 @@ public class TeleSupportService {
 
         return true;
 
+
+    }
+
+    public Boolean updatePaymentTypeSurgeryCareFunction(Long applicationID, String surgeryPaymentType) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        if ( surgeryPaymentType.equals(SurgeryPaymentType.CASH.name()) ){
+
+            fetchedApplication.setSurgeryPaymentType(SurgeryPaymentType.CASH);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return true;
+
+        }
+
+        if ( surgeryPaymentType.equals(SurgeryPaymentType.INSURANCE.name()) ){
+
+            fetchedApplication.setSurgeryPaymentType(SurgeryPaymentType.INSURANCE);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public Boolean counsellingDone(Long applicationID, String surgeryCounsellorMessage, String consultationType) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setTeleSupportConsellingDone(true);
+        fetchedApplication.setCounsellingIsInProgress(false);
+        fetchedApplication.setSurgeryCounsellorMessage(surgeryCounsellorMessage);
+
+        applicationsRepo.save(fetchedApplication);
+
+        if ( consultationType.equals(ConsultationType.ONSITEVASCULARINJECTIONS.name()) ) {
+
+            User fetchedMedicalSupportUser = fetchedApplication.getMedicalSupportUser();
+
+            Notification newNotification = new Notification();
+            newNotification.setMessage("Counselling Done !");
+            newNotification.setTimeStamp(new Date());
+            newNotification.setApplicationId(applicationID);
+            newNotification.setUser(fetchedMedicalSupportUser);
+            newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+            notificationRepo.save(newNotification);
+            fetchedMedicalSupportUser.getNotifications().add(newNotification);
+
+            userRepo.save(fetchedMedicalSupportUser);
+
+        }
+
+        return true;
 
     }
 
