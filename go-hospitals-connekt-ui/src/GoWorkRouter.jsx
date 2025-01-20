@@ -58,6 +58,7 @@ import CrossConsultationApprovals from './Components/Secured/FrontDeskUser/Compo
 import ClosedCasesFrontDesk from './Components/Secured/FrontDeskUser/Components/ClosedCasesFrontDesk'
 import FrontDeskCompletedAppointments from './Components/Secured/FrontDeskUser/Components/FrontDeskCompletedAppointments'
 import FrontDeskPatientDropOut from './Components/Secured/FrontDeskUser/Components/FrontDeskPatientDropOut'
+import FrontDeskSearchObject from './Components/Secured/FrontDeskUser/Components/FrontDeskSearchObject'
 
 function GoWorkRouter() {
 
@@ -101,6 +102,7 @@ function GoWorkRouter() {
 
 					{/* FRONTDESK ROUTING */}
 					<Route element={<FrontDeskLayout />}>
+						<Route path='/front-desk-search-profile/:id' element={<FrontDeskSearchObject />}/>
 						<Route path="/front-desk-new-patient-on-board" element={<NewPatientOnBoardFrontDesk />} />
 						<Route path="/front-desk-consultation-queue" element={<ConsulationQueueFrontDesk />} />
 						<Route path="/front-desk-consultation-queue/:id" element={<ConsultationQueueProfileFrontDesk />} />

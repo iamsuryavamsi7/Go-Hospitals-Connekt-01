@@ -1142,7 +1142,7 @@ const MyJobsProfile = () => {
 
                             )}
 
-                            { patientData.surgeryPaymentType !== 'CASH' && (
+                            { patientData.surgeryPaymentType !== 'CASH' && patientData.surgeryDocumentsUrls.length > 0 && (
 
                                 <>
 

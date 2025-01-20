@@ -373,4 +373,27 @@ public class FrontDeskController {
 
     }
 
+    @GetMapping("/searchApplications/{searchFieldInput}")
+    public ResponseEntity<List<ApplicationsResponseModel>> searchFieldInput(
+            @PathVariable("searchFieldInput") String searchFieldInput
+    ){
+
+        List<ApplicationsResponseModel> fetchedApplications = frontDeskService.searchFieldInput(searchFieldInput);
+
+        return ResponseEntity.ok(fetchedApplications);
+
+    }
+
+    @GetMapping("/updateBillNo/{newBillNo}/{applicationId}")
+    public ResponseEntity<Boolean> updateBillNo(
+            @PathVariable("newBillNo") String newBillNo,
+            @PathVariable("applicationId") Long applicationId
+    ) throws ApplicationNotFoundException{
+
+        Boolean booleanValue = frontDeskService.updateBillNo(newBillNo, applicationId);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
 }

@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import { getApp } from '../Utils/helpers';
 import GoWorkRouter from './GoWorkRouter';
 import { StrictMode } from 'react';
+import { Provider } from 'react-redux';
+import store from './Components/Secured/ReduxToolkit/Store/store';
 
 const App = () => {
 
@@ -11,11 +13,17 @@ const App = () => {
 
 	return (
 
-		<BrowserRouter>
-		
-			<CurrentApp />
-		
-		</BrowserRouter>
+		<Provider
+			store={store}
+		>
+
+			<BrowserRouter>
+			
+				<CurrentApp />
+			
+			</BrowserRouter>
+
+		</Provider>
 
 	)
 

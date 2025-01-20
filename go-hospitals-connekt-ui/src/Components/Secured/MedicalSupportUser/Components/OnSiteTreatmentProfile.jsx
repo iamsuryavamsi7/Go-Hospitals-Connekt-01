@@ -810,7 +810,7 @@ const OnSiteTreatmentProfile = () => {
 
                         </div>
 
-                        {!patientData.treatmentDone && patientData.consultationType !== 'CASECLOSED' && !patientData.counsellingIsInProgress ? (
+                        {!patientData.treatmentDone && patientData.consultationType !== 'CASECLOSED' && !patientData.counsellingIsInProgress && (
 
                             <>
 
@@ -841,7 +841,7 @@ const OnSiteTreatmentProfile = () => {
                                 </div>}
 
                                 {patientData.consultationType === 'ONSITEQUICKTREATMENT' && <div
-                                    className='bg-[#238636] my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                    className='bg-[#238636] ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
                                     onClick={() => {
 
                                         setTreatMentDoneVisibleReviewPatient(true);
@@ -881,7 +881,9 @@ const OnSiteTreatmentProfile = () => {
 
                             </>
 
-                        ) : (
+                        )} 
+                        
+                        { patientData.counsellingIsInProgress && (
 
                             <div className="bg-green-800 inline-block px-5 py-2 rounded-lg m-10">
 

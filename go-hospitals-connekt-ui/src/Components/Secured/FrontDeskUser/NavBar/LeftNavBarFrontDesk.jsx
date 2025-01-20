@@ -11,6 +11,8 @@ import { FaUserDoctor } from 'react-icons/fa6';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { BsDropletHalf } from 'react-icons/bs';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const LeftNavBarFrontDesk = () => {
 
@@ -540,6 +542,14 @@ const LeftNavBarFrontDesk = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const leftNavBarFrontDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -548,7 +558,10 @@ const LeftNavBarFrontDesk = () => {
 
             {userData.role === frontDesk && (
 
-                    <div className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
+                    <div 
+                        className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800"
+                        onClick={leftNavBarFrontDeskFunction}    
+                    >
 
                         <div 
                             className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}

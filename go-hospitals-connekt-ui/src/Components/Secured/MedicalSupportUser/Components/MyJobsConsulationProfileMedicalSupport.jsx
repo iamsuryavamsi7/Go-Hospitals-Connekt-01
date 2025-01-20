@@ -304,9 +304,25 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                     }
 
-                    if ( consultationType1 === consultationType.onSiteQuickTreatment || consultationType1 === consultationType.onSiteReviewPatientDressing || consultationType1 === consultationType.onSiteVascularInjections ) {
+                    if ( consultationType1 === consultationType.onSiteQuickTreatment || consultationType1 === consultationType.onSiteReviewPatientDressing ) {
 
                         navigate('/medical-support-on-site-treatement');
+
+                    }
+
+                    if ( consultationType1 === consultationType.onSiteVascularInjections ){
+
+                        if ( stompClient !== null ){
+                        
+                            const notificationTypeModel = {
+                                notificationType: `RefreshTeleSupportNotifications`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                            navigate('/medical-support-on-site-treatement');
+
+                        }
 
                     }
                     

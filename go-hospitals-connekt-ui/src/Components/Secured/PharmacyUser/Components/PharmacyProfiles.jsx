@@ -214,7 +214,7 @@ const PharmacyProfiles = () => {
 
                     }
 
-                    if ( patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' ) {
+                    if ( patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS' || patientData.consultationType === 'ONSITEQUICKTREATMENT' ) {
 
                         const webSocketNotificationTypeModel = {
                             notificationType: `MedicinesGivenMedicalSupport`
@@ -757,7 +757,7 @@ const PharmacyProfiles = () => {
 
                                 <div className="mx-10 my-5">
 
-                                    <label className='text-xs'>Bill No <span>( Optional )</span></label><br />
+                                    <label className='text-xs'>Bill No <span className='text-red-500'>*</span></label><br />
 
                                     <input
                                         className='mt-2 border-[1px] border-gray-700 focus-within:outline-none custom-scrollbar cursor-pointer bg-gray-800 px-2 py-2 rounded-lg'

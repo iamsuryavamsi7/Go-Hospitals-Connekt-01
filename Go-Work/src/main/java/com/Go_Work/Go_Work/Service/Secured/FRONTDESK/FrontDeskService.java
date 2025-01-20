@@ -1008,6 +1008,44 @@ public class FrontDeskService {
 
     }
 
+    public List<ApplicationsResponseModel> searchFieldInput(String searchFieldInput) {
+
+        return applicationsRepo.findByPatientIdOrNameContainingIgnoreCase(searchFieldInput, searchFieldInput)
+                .stream()
+                .map(fetchedApplication -> {
+
+                    ApplicationsResponseModel newApplication = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(fetchedApplication, newApplication);
+
+                    return newApplication;
+
+                })
+                .toList();
+
+    }
+
+    public Boolean updateBillNo(String newBillNo, Long applicationId) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        Bills billObject = new Bills();
+
+        billObject.setBillNo(newBillNo);
+        billObject.setBillType(BillType.FRONTDESKBILL);
+        billObject.setApplications(fetchedApplication);
+        billObject.setTimeStamp(new Date(System.currentTimeMillis()));
+
+        fetchedApplication.getBills().add(billObject);
+
+        applicationsRepo.save(fetchedApplication);
+
+        return true;
+
+    }
+
 }
 
 

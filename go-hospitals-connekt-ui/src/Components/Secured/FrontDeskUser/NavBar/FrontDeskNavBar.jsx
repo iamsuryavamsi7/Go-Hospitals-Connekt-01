@@ -6,6 +6,9 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import { IoIosSearch } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import { closeNavBarSearch, openNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const FrontDeskNavBar = () => {
 
@@ -144,8 +147,6 @@ const FrontDeskNavBar = () => {
 
                 setNotificationArray(notificationData);
 
-                console.log(`Notification Fetched`); 
-
             }
 
         }catch(error){
@@ -241,8 +242,6 @@ const FrontDeskNavBar = () => {
 
         });
 
-        console.log(notificationArray);
-
         const playMusicFunction = async () => {
                 
             for(let i = 0; i < unPlayedNotificationsCount.length; i++){
@@ -306,8 +305,6 @@ const FrontDeskNavBar = () => {
 
         const messageObject = JSON.parse(message.body);
 
-        console.log(messageObject);
-
         if ( messageObject.notificationStatus === 'CROSSCONSULTATIONNEEDED' ){
 
             fetchNotifications();
@@ -316,7 +313,7 @@ const FrontDeskNavBar = () => {
 
     }
 
-    const commonNotificationReceived = (message) => { 
+    const commonNotificationReceived = (message) => {
 
         const messageObject = JSON.parse(message.body);
 
@@ -368,161 +365,284 @@ const FrontDeskNavBar = () => {
 
     }, []);
 
+    const searchFeatureState = useSelector((state) => state.frontDeskNavBar.navBarSearchActivated);
+
+    const dispatch = useDispatch();
+
+    const [searchObjects, setSearchObjects] = useState([]);
+
+    useEffect(() => {
+
+        if ( searchObjects.length === 0 ){
+
+            dispatch(closeNavBarSearch());
+
+        }
+
+    }, [searchObjects]);
+
+    // Function to search users on value change
+    const searchBoxFunction = async (searchFieldInput) => {
+
+        if (searchFieldInput && searchFieldInput.trim() !== '') {
+
+            try {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/searchApplications/${searchFieldInput}`,{
+                        headers: { 
+                            Authorization: `Bearer ${access_token}` 
+                        },
+                    }
+                );
+    
+                if (response.status === 200) {
+
+                    const applicationObjects = response.data;
+
+                    const uniqueApplicationObjectMap = new Map();
+
+                    for ( const applicationObject of applicationObjects ){
+
+                        const applicationObjectModel = {
+                            id: applicationObject.id,
+                            patientId: applicationObject.patientId,
+                            name: applicationObject.name,
+                            age: applicationObject.age
+                        }
+
+                        uniqueApplicationObjectMap.set(applicationObject.id, applicationObjectModel);
+
+                    }
+
+                    setSearchObjects(Array.from(uniqueApplicationObjectMap.values()));
+    
+                }
+
+            } catch (error) {
+
+                handleFetchError(error);
+
+            }
+
+        }
+
+        dispatch(openNavBarSearch());
+        
+    };
+
+    const pathName = window.location.pathname;
+
+    useEffect(() => {
+
+        dispatch(closeNavBarSearch());
+
+    }, [pathName]);
+
     return (
 
         <>
 
-            { role === fronDesk && <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
+            { role === fronDesk && (
+                
+                <div className="h-16 flex items-center justify-between border-[1px] border-gray-800 fixed z-50 top-0 left-0 right-0 bg-[#0F172A]">
             
-                <Toaster />
+                    <Toaster />
 
-                <div className="ml-56 flex items-center">
+                    <div className="ml-56 flex items-center">
 
-                    <div className="">
+                        <div className="">
 
-                        <img
-                            src='/Go-Hospitals-Logo.webp'
-                            alt='Go Hospitals'
-                            className='h-6 w-auto'
-                        />
-
-                    </div>
-
-                    <div className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser">
-
-                        works
-
-                    </div>
-
-                </div>
-
-                <div className="mr-56 flex items-center space-x-3">
-
-                    <div className="relative">
-
-                        <HiOutlineSpeakerphone 
-                            className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
-                            onClick={activateNotifications}
-                        />
-
-                        <div className="absolute top-[-10px] notificationCount right-[-7px]">
-
-                            {notificationCount > 0 && notificationCount <= 9 && (
-                            
-                                <>
-                                
-                                    {notificationCount}
-                                
-                                </>
-
-                            )}
-
-                            {notificationCount > 9 && (
-
-                                <>
-                                
-                                    9+
-                                
-                                </>
-                                
-                            )}
+                            <img
+                                src='/Go-Hospitals-Logo.webp'
+                                alt='Go Hospitals'
+                                className='h-6 w-auto'
+                            />
 
                         </div>
 
-                        {notificationsVisible && (
+                        <div className="leading-8 text-[30px] font-semibold mx-2 josefin-sans-navBarUser">
 
-                            <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-gray-900 z-50">
+                            works
 
-                                <div 
-                                    className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800"
-                                >
+                        </div>
 
-                                    Notifications
+                    </div>
 
-                                </div>
+                    <div className="relative z-50">
 
-                                <div className="mb-2 space-y-1 h-[300px] overflow-hidden overflow-y-auto custom-scrollbar relative">
+                        <input 
+                            required
+                            type='text'
+                            className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 flex-1 w-[300px] max-sm:w-full mt-2 text-sm pl-8'
+                            onChange={(e) => {
 
-                                    {notificationArray && notificationArray.length === 0 ? (
+                                const value = e.target.value;
 
-                                        <div className={`absolute top-0 right-0 bottom-0 left-0 flex justify-center items-center`}>
+                                searchBoxFunction(value);
 
-                                            No Notifications found
-                                            
-                                        </div>
+                            }}
+                        /> 
 
-                                    ) : (
+                        <IoIosSearch 
+                            className='absolute top-[15px] left-2 text-[22px]'
+                        />
 
-                                        <>
+                        {searchFeatureState && (
+                            
+                            <div 
+                                className={`absolute left-[-30px] right-[-30px] mt-2 z-50 bg-gray-900 ${searchObjects.length > 0 && 'border-[1px] border-gray-700'} rounded-lg text-[13px] max-h-[300px] overflow-y-scroll custom-scrollbar`}
+                            >
 
-                                            {notificationArray.map((notification) => {
+                                {searchObjects && searchObjects.length > 0 && searchObjects.map((searchObject, index) => (
 
-                                                return (
+                                    <div 
+                                        className="py-3 px-5 hover:bg-gray-800 active:opacity-80 transition-all duration-200 cursor-pointer flex justify-between items-center"
+                                        key={index}
+                                        onClick={() => navigate(`/front-desk-search-profile/${searchObject.id}`)}    
+                                    >
 
-                                                    <div
-                                                        key={notification.id}
-                                                    >
+                                        <div className="">Patient ID : {searchObject.patientId}</div>
+                                        <div className="w-[130px] overflow-hidden text-ellipsis">Name : {searchObject.name}</div>
+                                        <div className="">Age : {searchObject.age}</div>    
 
-                                                        {role === fronDesk && (
+                                    </div>
 
-                                                            <div 
-                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${notification.read ? '' : 'bg-sky-900'} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                                onClick={(notificationObject) => notificationFunction(notification)} 
-                                                            >
-
-                                                                <div className="">
-
-                                                                    {notification.message}
-
-                                                                </div>
-
-                                                                <div className="text-xs text-gray-400">
-
-                                                                    {new Date(notification.timeStamp).toLocaleString()}
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        )}
-
-                                                    </div>
-                                                    
-                                                );
-
-                                            })}
-
-                                        </>
-
-                                    )}
-
-                                </div>
+                                ))}
 
                             </div>
-
+                    
                         )}
 
                     </div>
 
-                    <div className="border-x-[1px] border-gray-800 px-3">
+                    <div className="mr-56 flex items-center space-x-3">
 
-                    {userObject ? userObject.firstName : 'Loading...'}
+                        <div className="relative">
 
-                    </div>
+                            <HiOutlineSpeakerphone 
+                                className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
+                                onClick={activateNotifications}
+                            />
 
-                    <div className="">
+                            <div className="absolute top-[-10px] notificationCount right-[-7px]">
 
-                        <HiOutlineLogout 
-                            className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
-                            onClick={logoutFunction}
-                        />
+                                {notificationCount > 0 && notificationCount <= 9 && (
+                                
+                                    <>
+                                    
+                                        {notificationCount}
+                                    
+                                    </>
+
+                                )}
+
+                                {notificationCount > 9 && (
+
+                                    <>
+                                    
+                                        9+
+                                    
+                                    </>
+                                    
+                                )}
+
+                            </div>
+
+                            {notificationsVisible && (
+
+                                <div className="absolute border-2 border-gray-800 text-white w-[300px] rounded-lg top-12 left-[-20px] bg-gray-900 z-50">
+
+                                    <div 
+                                        className="py-3 px-2 mx-2 text-xl border-b-[1px] border-gray-800"
+                                    >
+
+                                        Notifications
+
+                                    </div>
+
+                                    <div className="mb-2 space-y-1 h-[300px] overflow-hidden overflow-y-auto custom-scrollbar relative">
+
+                                        {notificationArray && notificationArray.length === 0 ? (
+
+                                            <div className={`absolute top-0 right-0 bottom-0 left-0 flex justify-center items-center`}>
+
+                                                No Notifications found
+                                                
+                                            </div>
+
+                                        ) : (
+
+                                            <>
+
+                                                {notificationArray.map((notification) => {
+
+                                                    return (
+
+                                                        <div
+                                                            key={notification.id}
+                                                        >
+
+                                                            {role === fronDesk && (
+
+                                                                <div 
+                                                                    className={`py-3 mx-2 px-2 text-base rounded-lg ${notification.read ? '' : 'bg-sky-900'} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
+                                                                    onClick={(notificationObject) => notificationFunction(notification)} 
+                                                                >
+
+                                                                    <div className="">
+
+                                                                        {notification.message}
+
+                                                                    </div>
+
+                                                                    <div className="text-xs text-gray-400">
+
+                                                                        {new Date(notification.timeStamp).toLocaleString()}
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            )}
+
+                                                        </div>
+                                                        
+                                                    );
+
+                                                })}
+
+                                            </>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            )}
+
+                        </div>
+
+                        <div className="border-x-[1px] border-gray-800 px-3">
+
+                        {userObject ? userObject.firstName : 'Loading...'}
+
+                        </div>
+
+                        <div className="">
+
+                            <HiOutlineLogout 
+                                className='text-2xl opacity-60 hover:opacity-80 active:opacity-40 cursor-pointer'
+                                onClick={logoutFunction}
+                            />
+
+                        </div>
 
                     </div>
 
                 </div>
-
-
-            </div>}
+        
+            )}
 
         </>
 
