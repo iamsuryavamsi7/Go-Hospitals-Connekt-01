@@ -14,6 +14,8 @@ import { format, isAfter } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import { IoCloseCircle } from 'react-icons/io5';
 import { CgLoadbar } from 'react-icons/cg';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const FollowUpProfile = () => { 
 
@@ -1025,6 +1027,14 @@ const FollowUpProfile = () => {
 
     }
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -1037,6 +1047,7 @@ const FollowUpProfile = () => {
 
                     <div 
                         className="mb-20"
+                        onClick={newPatientOnBoardFronDeskFunction}
                     >
 
                         <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">

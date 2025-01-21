@@ -713,6 +713,23 @@ public class MedicalSupportService {
 
         }
 
+        // For On Site Review Patient Dressing Consultation Type
+        if ( consultationType.equals(ConsultationType.ONSITECASCUALITYPATIENT )){
+
+            Applications fetchedApplication = applicationsRepo.findById(applicationId).orElseThrow(
+                    () -> new ApplicationNotFoundException("Application Not Found")
+            );
+
+            fetchedApplication.setConsultationType(ConsultationType.ONSITECASCUALITYPATIENT);
+            fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
+            fetchedApplication.setTeleSupportConsellingDone(false);
+
+            applicationsRepo.save(fetchedApplication);
+
+            return "Consultation Type Updated";
+
+        }
+
         throw new ConsultationTypeNotFoundException("Consultation Not Found");
 
     }

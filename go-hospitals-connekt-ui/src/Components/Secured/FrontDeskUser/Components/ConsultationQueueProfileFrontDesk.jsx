@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const ConsultationQueueProfileFrontDesk = () => {
 
@@ -160,6 +162,14 @@ const ConsultationQueueProfileFrontDesk = () => {
         }
 
     }, [id]);
+
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
 
     return (
 

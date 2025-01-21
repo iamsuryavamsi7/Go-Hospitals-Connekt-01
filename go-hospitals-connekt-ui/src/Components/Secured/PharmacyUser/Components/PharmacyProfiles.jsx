@@ -214,7 +214,7 @@ const PharmacyProfiles = () => {
 
                     }
 
-                    if ( patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS' || patientData.consultationType === 'ONSITEQUICKTREATMENT' ) {
+                    if ( patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS' || patientData.consultationType === 'ONSITEQUICKTREATMENT' || patientData.consultationType === 'ONSITECASCUALITYPATIENT' ) {
 
                         const webSocketNotificationTypeModel = {
                             notificationType: `MedicinesGivenMedicalSupport`

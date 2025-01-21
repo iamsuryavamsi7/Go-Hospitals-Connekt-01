@@ -1046,6 +1046,58 @@ public class FrontDeskService {
 
     }
 
+    public List<ApplicationsResponseModel> fetchSurgeryPatients(int pageNumber, int size) {
+
+        List<Applications> fetchedApplicationsMain = applicationsRepo.findAll();
+
+        List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
+                .stream()
+                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.SURGERYCARE) )
+                .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
+                .map(user01 -> {
+
+                    ApplicationsResponseModel user1 = new ApplicationsResponseModel();
+
+                    BeanUtils.copyProperties(user01, user1);
+
+                    if ( !user01.getBills().isEmpty() ){
+
+                        Bills latestBill = user01.getBills()
+                                .stream()
+                                .sorted(Comparator.comparing(Bills::getTimeStamp).reversed())
+                                .findFirst()
+                                .orElse(null);
+
+                        user1.setBillNo(latestBill.getBillNo());
+
+                    }
+
+                    User fetchedMedicalSupportUserDetails = user01.getMedicalSupportUser();
+
+                    if ( fetchedMedicalSupportUserDetails != null ){
+
+                        user1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
+                        user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+
+                    } else {
+
+                        user1.setMedicalSupportUserId(null);
+                        user1.setMedicalSupportUserName(null);
+
+                    }
+
+                    return user1;
+
+                })
+                .toList();
+
+        int start = pageNumber * size;
+        int end = Math.min(start + size, fetchedApplications.size());
+
+        return fetchedApplications.subList(start, end);
+
+    }
+
 }
 
 

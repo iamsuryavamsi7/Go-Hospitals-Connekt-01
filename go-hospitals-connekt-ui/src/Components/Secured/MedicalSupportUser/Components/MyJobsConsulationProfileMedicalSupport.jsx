@@ -304,7 +304,7 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                     }
 
-                    if ( consultationType1 === consultationType.onSiteQuickTreatment || consultationType1 === consultationType.onSiteReviewPatientDressing ) {
+                    if ( consultationType1 === consultationType.onSiteQuickTreatment || consultationType1 === consultationType.onSiteReviewPatientDressing || consultationType1 === consultationType.onSiteCasvalityPatient ) {
 
                         navigate('/medical-support-on-site-treatement');
 
@@ -1034,6 +1034,7 @@ const MyJobsConsulationProfileMedicalSupport = () => {
 
                                 { patientData.reasonForVisit === 'Go Hospitals' && <div    
                                     className="hover:bg-gray-700 py-5 px-10 transition-all duration-200 cursor-pointer rounded-b-2xl"
+                                    onClick={(consultation) => consulationTypeUpdateFunction(consultationType.onSiteCasvalityPatient)}    
                                 >
 
                                     <button>Casuality Patient</button>

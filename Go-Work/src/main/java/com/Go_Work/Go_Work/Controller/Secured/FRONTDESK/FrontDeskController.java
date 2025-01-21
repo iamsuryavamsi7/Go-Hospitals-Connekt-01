@@ -396,4 +396,16 @@ public class FrontDeskController {
 
     }
 
+    @GetMapping("/fetchSurgeryPatients/{pageNumber}/{defaultSize}")
+    public ResponseEntity<List<ApplicationsResponseModel>> fetchSurgeryPatients(
+            @PathVariable("pageNumber") int pageNumber,
+            @PathVariable("defaultSize") int size
+    ){
+
+        List<ApplicationsResponseModel> message = frontDeskService.fetchSurgeryPatients(pageNumber, size);
+
+        return ResponseEntity.ok(message);
+
+    }
+
 }

@@ -3,6 +3,8 @@ import { GiSandsOfTime } from 'react-icons/gi'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const ClosedCasesFrontDesk = () => {
 
@@ -208,6 +210,14 @@ const ClosedCasesFrontDesk = () => {
 
     }, [page]);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
         
         <>
@@ -216,7 +226,10 @@ const ClosedCasesFrontDesk = () => {
             
                 <>
 
-                    <div className="">
+                    <div 
+                        className=""
+                        onClick={newPatientOnBoardFronDeskFunction}    
+                    >
 
                         <div className="mx-10 text-lg mb-5 flex items-center space-x-2">
 

@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { GiCancel } from 'react-icons/gi';
 import { CgLoadbar } from 'react-icons/cg';
 import { IoCloseCircle } from 'react-icons/io5';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const FrontDeskSearchObject = () => {
 
@@ -498,6 +500,14 @@ const access_token = Cookies.get('access_token');
 
     }
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -508,6 +518,7 @@ const access_token = Cookies.get('access_token');
 
                     <div 
                         className="mb-10"
+                        onClick={newPatientOnBoardFronDeskFunction}
                     >
 
                         <div className="ml-10 text-2xl flex items-center space-x-3 mb-10 justify-center">
@@ -1121,14 +1132,14 @@ const access_token = Cookies.get('access_token');
                         
                     )}
 
-                    <div 
+                   {patientData.consultationType !== 'CASECLOSED' && patientData.consultationType === 'FOLLOWUPCOMPLETED' && <div 
                         className="mx-10 bg-green-800 inline-block px-5 py-2 rounded-lg hover:opacity-60 active:opacity-80 transition-all cursor-pointer"
                         onClick={() => setAddBillActivated(true)}    
                     >
 
                             Add Bill
                             
-                    </div>
+                    </div>}
 
                     {addBillActivated && (
 

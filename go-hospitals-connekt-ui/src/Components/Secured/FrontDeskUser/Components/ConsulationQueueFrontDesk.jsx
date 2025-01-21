@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { BiSolidInjection } from 'react-icons/bi'
 import toast from 'react-hot-toast'
 import { GiSandsOfTime } from 'react-icons/gi'
+import { useDispatch } from 'react-redux'
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice'
 
 const ConsulationQueueFrontDesk = () => {
 
@@ -183,6 +185,14 @@ const ConsulationQueueFrontDesk = () => {
 
     }, [page]);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -191,7 +201,10 @@ const ConsulationQueueFrontDesk = () => {
 
                 <>
 
-                    <div className="">
+                    <div 
+                        className=""
+                        onClick={newPatientOnBoardFronDeskFunction}    
+                    >
 
                         <div className="mx-10 text-lg mb-5 flex items-center space-x-2">
 

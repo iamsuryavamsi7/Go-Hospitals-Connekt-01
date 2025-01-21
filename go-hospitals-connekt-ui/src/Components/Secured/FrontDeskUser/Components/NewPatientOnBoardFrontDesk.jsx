@@ -6,6 +6,8 @@ import toast, { Toaster } from 'react-hot-toast';
 // import { AiOutlineFileSync } from 'react-icons/ai';
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const NewPatientOnBoardFrontDesk = () => {
 
@@ -571,6 +573,14 @@ const NewPatientOnBoardFrontDesk = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -582,6 +592,7 @@ const NewPatientOnBoardFrontDesk = () => {
             <>
 
                 {!patientDetialsOnBoard.newPatientOnBoardActivated && <div
+                onClick={newPatientOnBoardFronDeskFunction}
                 className='h-[800px] mx-10 mr-56 max-h-[800px] overflow-y-scroll scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'>
 
                     <table
@@ -739,7 +750,9 @@ const NewPatientOnBoardFrontDesk = () => {
 
                 {patientDetialsOnBoard.newPatientOnBoardActivated && <div className="inline-block">
 
-                    <div className="text-lg mx-20 mb-7 flex items-center space-x-2">
+                    <div 
+                        onClick={newPatientOnBoardFronDeskFunction}
+                        className="text-lg mx-20 mb-7 flex items-center space-x-2">
 
                         <div className="">
 
@@ -758,6 +771,7 @@ const NewPatientOnBoardFrontDesk = () => {
                     <form
                         className='mx-20'
                         onSubmit={bookAnAppointment}
+                        onClick={newPatientOnBoardFronDeskFunction}
                     >
 
                         <div className="grid grid-cols-2 gap-x-10 gap-y-7">

@@ -108,7 +108,7 @@ function GoWorkRouter() {
 						<Route path="/front-desk-consultation-queue/:id" element={<ConsultationQueueProfileFrontDesk />} />
 						<Route path="/front-desk-follow-up" element={<FollowUp />} />
 						<Route path="/front-desk-follow-up-profile/:id" element={<FollowUpProfile />} />
-						<Route path='/front-desk-patient-approvals' element={<PatientApprovals />}/>
+						<Route path='/front-desk-surgery-patients' element={<PatientApprovals />}/>
 						<Route path='/front-desk-cross-consultation-approvals' element={<CrossConsultationApprovals />}/>
 						{/* <Route path='/front-desk-completed-appointments' element={<FrontDeskCompletedAppointments />}/> */}
 						<Route path='/front-desk-closed-cases' element={<ClosedCasesFrontDesk />}/>

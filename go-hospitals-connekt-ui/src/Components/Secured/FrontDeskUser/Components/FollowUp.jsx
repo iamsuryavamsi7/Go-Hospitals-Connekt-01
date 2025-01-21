@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const FollowUp = () => {
 
@@ -205,6 +207,14 @@ const FollowUp = () => {
 
     }, [page]);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -215,7 +225,10 @@ const FollowUp = () => {
 
                 <>
 
-                    <div className="">
+                    <div 
+                        className=""
+                        onClick={newPatientOnBoardFronDeskFunction}    
+                    >
 
                         <div className="mx-10">
 

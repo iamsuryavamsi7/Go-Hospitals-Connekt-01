@@ -177,7 +177,7 @@ const OnSiteTreatmentProfile = () => {
 
         console.log('started');
 
-        if ( (patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS') && nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
+        if ( (patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS' || patientData.consultationType === 'ONSITECASCUALITYPATIENT') && nextMedicationDate !== null && nextMedicationDate !== `` && isAfter(nextMedicationDate, new Date()) ){
 
             const applicationId = id;
 
@@ -827,7 +827,7 @@ const OnSiteTreatmentProfile = () => {
 
                                 </div>
 
-                                {(patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS') && <div
+                                {(patientData.consultationType === 'ONSITREVIEWPATIENTDRESSING' || patientData.consultationType === 'ONSITEVASCULARINJECTIONS' || patientData.consultationType === 'ONSITECASCUALITYPATIENT') && <div
                                     className='bg-[#238636] ml-10 my-10 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
                                     onClick={() => {
 
