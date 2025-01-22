@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 7778,
+    port: 8080,
   },
   define: {
     global: 'window'

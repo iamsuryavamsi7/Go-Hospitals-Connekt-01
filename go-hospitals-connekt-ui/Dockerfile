@@ -31,8 +31,8 @@ WORKDIR /app
 # Copy the built app from the previous stage
 COPY --from=build /app/dist ./dist
 
-# EXPOSE 7778
-EXPOSE 7778
+# EXPOSE 8080
+EXPOSE 8080
 
 # Command to serve the app with HTTPS
-CMD ["serve", "-s", "dist", "-l", "7778"]
+CMD ["serve", "-s", "dist", "-l", "8080"]
