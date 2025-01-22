@@ -12,13 +12,16 @@ import { Toaster, toast } from 'react-hot-toast';
 
 const LeftNavBar = () => {
 
-// UseNavigation Hook
+    // UseNavigation Hook
     const navigate = useNavigate();
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -141,7 +144,7 @@ const LeftNavBar = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

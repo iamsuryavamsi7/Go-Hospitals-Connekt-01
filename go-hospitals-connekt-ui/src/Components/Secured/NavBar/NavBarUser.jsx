@@ -9,8 +9,11 @@ import { Toaster, toast } from 'react-hot-toast';
 
 const NavBarUser = () => { 
 
-// Jwt Token
+    // Jwt Token
     const access_token = Cookies.get('access_token');
+
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
 
     const[ role, setRole ] = useState(null);
 
@@ -33,10 +36,10 @@ const NavBarUser = () => {
         transportTeam: 'TRANSPORTTEAM'
     }
 
-// useNavigate Hook
+    // useNavigate Hook
     const navigate = useNavigate();
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -63,7 +66,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -91,7 +94,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/logout',{}, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/logout`,{}, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -162,7 +165,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -192,7 +195,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -204,7 +207,7 @@ const NavBarUser = () => {
 
                     const userId = userObject.id;
         
-                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
@@ -245,7 +248,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -257,7 +260,7 @@ const NavBarUser = () => {
 
                     const userId = userObject.id;
         
-                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
@@ -298,7 +301,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -310,7 +313,7 @@ const NavBarUser = () => {
 
                     const userId = userObject.id;
         
-                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
@@ -351,7 +354,7 @@ const NavBarUser = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -363,7 +366,7 @@ const NavBarUser = () => {
 
                     const userId = userObject.id;
         
-                    const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }

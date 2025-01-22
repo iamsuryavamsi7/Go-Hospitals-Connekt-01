@@ -10,10 +10,13 @@ import {toast, Toaster} from 'react-hot-toast';
 
 const AdminManagement = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState('');
@@ -33,7 +36,7 @@ const AdminManagement = () => {
 
     const admin = 'ADMIN';
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -60,7 +63,7 @@ const AdminManagement = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -88,7 +91,7 @@ const AdminManagement = () => {
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/admin/getDepartments', {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/getDepartments`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -120,7 +123,7 @@ const AdminManagement = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/admin/addDepartment', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/admin/addDepartment`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -161,7 +164,7 @@ const AdminManagement = () => {
 
         try{
 
-            const response = await axios.delete('http://localhost:7777/api/v1/admin/deleteDepartmentById/' + id, {
+            const response = await axios.delete(`${goHospitalsAPIBaseURL}/api/v1/admin/deleteDepartmentById/` + id, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -214,7 +217,7 @@ const AdminManagement = () => {
 
         try{
 
-            const response = await axios.put('http://localhost:7777/api/v1/admin/editDepartmentById/' + editDepartmentData.departmentId,{
+            const response = await axios.put(`${goHospitalsAPIBaseURL}/api/v1/admin/editDepartmentById/` + editDepartmentData.departmentId,{
                 departmentName: editDepartmentData.departmentName
             } ,{
                 headers: {
@@ -266,7 +269,7 @@ const AdminManagement = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/admin/fetchDepartmentDataById/' + departmentId, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchDepartmentDataById/` + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }

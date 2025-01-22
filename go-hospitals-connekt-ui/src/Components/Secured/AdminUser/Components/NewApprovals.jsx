@@ -6,10 +6,13 @@ import { toast, Toaster } from 'react-hot-toast';
 
 const NewApprovals = () => {
 
-// JWT Token
-const access_token = Cookies.get('access_token');
+    // JWT Token
+    const access_token = Cookies.get('access_token');
 
-// State Management
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState('');
@@ -20,7 +23,7 @@ const access_token = Cookies.get('access_token');
 
     const admin = 'ADMIN';
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -47,7 +50,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -76,7 +79,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/admin/fetchLockedUsers', {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchLockedUsers`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -126,7 +129,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/admin/deleteUserRequest/' + id, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/deleteUserRequest/` + id, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -167,7 +170,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/admin/acceptUserRequest/' + id, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/acceptUserRequest/` + id, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

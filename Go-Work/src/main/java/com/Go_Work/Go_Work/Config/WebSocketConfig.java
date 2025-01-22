@@ -18,7 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-        registry.addEndpoint("/go-hospitals-websocket").setAllowedOriginPatterns("http://gowork.gohospitals.in:7778/").withSockJS();
+        registry.addEndpoint("/go-hospitals-websocket").setAllowedOriginPatterns("*").withSockJS();
 
     }
 
