@@ -31,9 +31,9 @@ const App = () => {
 
 createRoot(document.getElementById('root')).render(
 
-	// <BrowserRouter>
-	// 	<GoWorkRouter />
-	// </BrowserRouter>
-		<App />
+	<BrowserRouter>
+		<GoWorkRouter />
+	</BrowserRouter>
+		// <App />
 
 )
