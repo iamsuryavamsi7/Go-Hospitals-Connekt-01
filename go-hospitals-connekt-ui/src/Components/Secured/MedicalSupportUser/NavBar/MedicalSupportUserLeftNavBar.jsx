@@ -450,7 +450,7 @@ const MedicalSupportUserLeftNavBar = () => {
 
                     </div>
 
-                    <div 
+                    {/* <div 
                         className={`${patientAdmit1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
                         onClick={() => navigate('/medical-support-patient-admit')}
                     >
@@ -469,7 +469,7 @@ const MedicalSupportUserLeftNavBar = () => {
 
                         </div>
 
-                    </div>
+                    </div> */}
 
                 </div>
 

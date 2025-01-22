@@ -9,6 +9,9 @@ const CompletedMedications = () => {
 // JWT Token
     const access_token = Cookies.get('access_token');
 
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
 // Use Navigate Hook
     const navigate = useNavigate();
 
@@ -52,7 +55,7 @@ const CompletedMedications = () => {
         
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/pharmacy/fetchAllPharmacyCompletedMedicationsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/pharmacy/fetchAllPharmacyCompletedMedicationsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -101,7 +104,7 @@ const CompletedMedications = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

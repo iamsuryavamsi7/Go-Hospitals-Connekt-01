@@ -116,7 +116,7 @@ const FollowUpProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -154,7 +154,7 @@ const FollowUpProfile = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -192,7 +192,7 @@ const FollowUpProfile = () => {
 
     //         try{
 
-    //             const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+    //             const response = await axios.get('${goHospitalsAPIBaseURL}/api/v1/files/display/' + imageSrc1, {
     //                 responseType: 'blob',
     //                 headers: {
     //                     Authorization: `Bearer ${access_token}`
@@ -233,7 +233,7 @@ const FollowUpProfile = () => {
 
     //         try{
 
-    //             const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+    //             const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${fileName1}`, {
     //                 headers: {
     //                     Authorization: `Bearer ${access_token}`
     //                 },
@@ -277,7 +277,7 @@ const FollowUpProfile = () => {
 
     //     try{
 
-    //         const response = await axios.post(`http://localhost:7777/api/v1/front-desk/acceptApplicationById/${id}`, formData, {
+    //         const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/front-desk/acceptApplicationById/${id}`, formData, {
     //             headers: {
     //                 'Authorization': `Bearer ${access_token}`
     //             }
@@ -330,7 +330,7 @@ const FollowUpProfile = () => {
 
     //     try{
 
-    //         const response = await axios.delete(`http://localhost:7777/api/v1/front-desk/deleteApplicationById/${id}`, {
+    //         const response = await axios.delete(`${goHospitalsAPIBaseURL}/api/v1/front-desk/deleteApplicationById/${id}`, {
     //             headers: {
     //                 'Authorization': `Bearer ${access_token}`
     //             }
@@ -401,7 +401,7 @@ const FollowUpProfile = () => {
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartments', {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartments`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -431,7 +431,7 @@ const FollowUpProfile = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartmentById/' + departmentId, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartmentById/` + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }
@@ -461,7 +461,7 @@ const FollowUpProfile = () => {
 
             try{
 
-                const response = await axios.get('http://localhost:7777/api/v1/front-desk/fetchDoctorsByDepartmentId/' + departmentId, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchDoctorsByDepartmentId/` + departmentId, {
                     headers: {
                         'Authorization': `Bearer ${access_token}`
                     }

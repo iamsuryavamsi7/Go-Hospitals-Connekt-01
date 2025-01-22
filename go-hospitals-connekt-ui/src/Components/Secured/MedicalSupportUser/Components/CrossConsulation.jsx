@@ -6,13 +6,16 @@ import { Toaster, toast } from 'react-hot-toast';
 
 const CrossConsulation = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
 
-// Use Navigate Hook
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // Use Navigate Hook
     const navigate = useNavigate();
 
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -57,7 +60,7 @@ const CrossConsulation = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -85,7 +88,7 @@ const CrossConsulation = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -125,7 +128,7 @@ const CrossConsulation = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchAllCrossConsultationPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

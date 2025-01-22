@@ -60,7 +60,7 @@ const InCompletePatients = () => {
         
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchAllIncompleteSurgeryCarePatientsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchAllIncompleteSurgeryCarePatientsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -99,7 +99,7 @@ const InCompletePatients = () => {
         
         try {
             
-            const response = await axios.get(`http://localhost:7777/api/v1/tele-support/fetchAllIncompleteSurgeryCarePatientsPaging/${page}/${pageSize}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/tele-support/fetchAllIncompleteSurgeryCarePatientsPaging/${page}/${pageSize}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -138,7 +138,7 @@ const InCompletePatients = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

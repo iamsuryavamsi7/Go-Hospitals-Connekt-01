@@ -215,7 +215,7 @@ const TeleSupportProfiles = () => {
             console.log("Started...");
     
             try {
-                const response = await axios.get('http://localhost:7777/api/v1/files/display/' + imageSrc1, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageSrc1, {
                     responseType: 'blob',
                     headers: {
                         Authorization: `Bearer ${access_token}`
@@ -256,7 +256,7 @@ const TeleSupportProfiles = () => {
 
             try{
 
-                const response = await axios.get(`http://localhost:7777/api/v1/files/download/${fileName1}`, {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${fileName1}`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`
                     },

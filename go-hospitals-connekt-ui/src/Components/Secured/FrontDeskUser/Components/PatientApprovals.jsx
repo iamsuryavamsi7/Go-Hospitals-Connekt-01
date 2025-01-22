@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
 import { useDispatch } from 'react-redux';
 import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
@@ -171,7 +169,7 @@ const PatientApprovals = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -228,8 +226,6 @@ const PatientApprovals = () => {
     return (
 
         <>
-
-            <ToastContainer />
 
             {role === roles.frontDesk && (
 

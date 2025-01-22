@@ -83,7 +83,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/front-desk/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -121,7 +121,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -151,7 +151,7 @@ const access_token = Cookies.get('access_token');
 
         try{
 
-            const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartments', {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartments`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -181,7 +181,7 @@ const access_token = Cookies.get('access_token');
 
     //         try{
 
-    //             const response = await axios.get('http://localhost:7777/api/v1/front-desk/getDepartmentById/' + departmentId, {
+    //             const response = await axios.get('${goHospitalsAPIBaseURL}/api/v1/front-desk/getDepartmentById/' + departmentId, {
     //                 headers: {
     //                     'Authorization': `Bearer ${access_token}`
     //                 }
@@ -211,7 +211,7 @@ const access_token = Cookies.get('access_token');
 
     //         try{
 
-    //             const response = await axios.get('http://localhost:7777/api/v1/front-desk/fetchDoctorsByDepartmentId/' + departmentId, {
+    //             const response = await axios.get('${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchDoctorsByDepartmentId/' + departmentId, {
     //                 headers: {
     //                     'Authorization': `Bearer ${access_token}`
     //                 }

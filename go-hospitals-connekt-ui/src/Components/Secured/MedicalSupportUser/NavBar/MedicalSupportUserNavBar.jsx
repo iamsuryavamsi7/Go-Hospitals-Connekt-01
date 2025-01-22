@@ -59,7 +59,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/logout',{}, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/logout`,{}, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -136,7 +136,7 @@ const MedicalSupportUserNavBar = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchNotificationByUserId`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

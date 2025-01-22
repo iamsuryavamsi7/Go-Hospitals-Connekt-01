@@ -101,7 +101,7 @@ const OnSiteTreatmentProfile = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -131,7 +131,7 @@ const OnSiteTreatmentProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }

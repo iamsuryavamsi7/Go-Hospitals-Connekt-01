@@ -7,10 +7,13 @@ import { Toaster, toast } from 'react-hot-toast';
 
 const PharmacyProfile = () => {
 
-// JWT Token
+    // JWT Token
     const access_token = Cookies.get('access_token');
+
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
     
-// State Management
+    // State Management
     const [role, setRole] = useState(null);
 
     const [userObject, setUserObject] = useState(null);
@@ -66,7 +69,7 @@ const PharmacyProfile = () => {
     const formattedDate = appointmentDate.toLocaleString('en-US', options);
     
 
-// Functions
+    // Functions
     const handleError = (error) => {
 
         if ( error.response ){
@@ -93,7 +96,7 @@ const PharmacyProfile = () => {
 
         try{
 
-            const response = await axios.post('http://localhost:7777/api/v1/user/fetchUserObject', formData, {
+            const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/user/fetchUserObject`, formData, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -121,7 +124,7 @@ const PharmacyProfile = () => {
 
         try{
 
-            const response = await axios.get(`http://localhost:7777/api/v1/medical-support/fetchApplicationById/${id}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchApplicationById/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -173,7 +176,7 @@ const PharmacyProfile = () => {
         try {
 
           // Send the form data to the backend
-          const response = await axios.post(`http://localhost:7777/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
+          const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/medical-support/uploadPrescription/${applicationId}`, formData, {
             headers: {
                 'Authorization': `Bearer ${access_token}`,
                 'Content-Type': `multipart/form-data`
