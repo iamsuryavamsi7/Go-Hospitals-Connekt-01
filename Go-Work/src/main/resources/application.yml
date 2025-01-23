@@ -34,9 +34,9 @@ cloud:
   aws:
     region: ap-south-1
     keys:
-      access-key: AKIA3DQFZSRKEO7EAQUK
-      secret-key: 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
-    bucket-name: go-work-testing-bucket
+      access-key: AKIAVPEYWJNBD6JS4P63
+      secret-key: 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
+    bucket-name: go-work-bucket
 
 # Values for JwtService
 
