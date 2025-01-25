@@ -8,6 +8,7 @@ import com.Go_Work.Go_Work.Entity.Enum.SurgeryPaymentType;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
+import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.TELESUPPORT.TeleSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
@@ -22,12 +23,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -171,6 +173,8 @@ public class TeleSupportService {
 
         fetchedUser.getTeleSupportApplications().add(fetchedApplication);
 
+        fetchedApplication.setCounsellingIsInProgress(true);
+
         userRepo.save(fetchedUser);
 
         return "Assignment Successfully";
@@ -189,7 +193,7 @@ public class TeleSupportService {
 
         List<TeleSupportResponseModel> fetchedApplications = fetchedTeleSupportUser.getTeleSupportApplications()
                 .stream()
-                .filter(applications -> !applications.isTreatmentDone() )
+                .filter(Applications::getCounsellingIsInProgress)
                 .sorted(Comparator.comparing(Applications::getTeleSupportUserAssignedTime).reversed())
                 .map(application -> {
 
@@ -240,7 +244,7 @@ public class TeleSupportService {
 
     }
 
-    public UserObject fetchUserObject(HttpServletRequest request) {
+    public User fetchUserObject(HttpServletRequest request) {
 
         String jwtToken = request.getHeader("Authorization").substring(7);
 
@@ -250,13 +254,7 @@ public class TeleSupportService {
 
         if ( fetchedUser.isPresent() ){
 
-            User user = fetchedUser.get();
-
-            UserObject newUser = new UserObject();
-
-            BeanUtils.copyProperties(user, newUser);
-
-            return newUser;
+            return fetchedUser.get();
 
         }else{
 
@@ -434,6 +432,101 @@ public class TeleSupportService {
             userRepo.save(fetchedMedicalSupportUser);
 
         }
+
+        return true;
+
+    }
+
+    public Boolean surgeryCounsellingCompleted(String counsellingMessage, Date surgeryDate, Long applicationID, MultipartFile imageData) throws ApplicationNotFoundException, IOException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        String originalFileName = imageData.getOriginalFilename();
+
+        if ( originalFileName != null ){
+
+            originalFileName = originalFileName.replace(" ", "_");
+
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+
+        s3.putObject(objectRequest, RequestBody.fromInputStream(imageData.getInputStream(), imageData.getSize()));
+
+        System.out.println("Image URL FOR TELESUPPORT : " + fileName);
+
+        fetchedApplication.setSurgeryImgDocFileURL(fileName);
+
+        fetchedApplication.setTeleSupportConsellingDone(true);
+        fetchedApplication.setCounsellingIsInProgress(false);
+        fetchedApplication.setSurgeryDate(surgeryDate);
+
+        if ( counsellingMessage != null && !counsellingMessage.isBlank() ) {
+
+            fetchedApplication.setSurgeryCounsellorMessage(counsellingMessage);
+
+        }
+
+        applicationsRepo.save(fetchedApplication);
+
+        User fetchedMedicalSupportUser = fetchedApplication.getMedicalSupportUser();
+
+        Notification newNotification = new Notification();
+        newNotification.setMessage("Counselling Done !");
+        newNotification.setTimeStamp(new Date());
+        newNotification.setApplicationId(applicationID);
+        newNotification.setUser(fetchedMedicalSupportUser);
+        newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+        notificationRepo.save(newNotification);
+        fetchedMedicalSupportUser.getNotifications().add(newNotification);
+
+        userRepo.save(fetchedMedicalSupportUser);
+
+        userRepo.findAll()
+                    .stream()
+                    .filter(user -> user.getRole().equals(Role.FRONTDESK))
+                    .forEach(user -> {
+
+                        Notification newNotification1 = new Notification();
+                        newNotification1.setMessage("Counselling Done !");
+                        newNotification1.setTimeStamp(new Date());
+                        newNotification1.setApplicationId(applicationID);
+                        newNotification1.setUser(user);
+                        newNotification1.setNotificationStatus(NotificationStatus.FOLLOWUPPATIENT);
+
+                        notificationRepo.save(newNotification1);
+                        user.getNotifications().add(newNotification1);
+
+                        userRepo.save(user);
+
+                    });
+
+        userRepo.findAll()
+                .stream()
+                .filter(user -> user.getRole().equals(Role.OTCOORDINATION))
+                .forEach(user -> {
+
+                    Notification newNotification1 = new Notification();
+                    newNotification1.setMessage("New Surgery Added !");
+                    newNotification1.setTimeStamp(new Date());
+                    newNotification1.setApplicationId(applicationID);
+                    newNotification1.setUser(user);
+                    newNotification1.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+                    notificationRepo.save(newNotification1);
+                    user.getNotifications().add(newNotification1);
+
+                    userRepo.save(user);
+
+                });
 
         return true;
 

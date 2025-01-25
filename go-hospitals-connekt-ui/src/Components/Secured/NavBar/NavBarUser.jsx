@@ -417,65 +417,84 @@ const NavBarUser = () => {
 
     const [prevNotificationCount, setPrevNotificationCount] = useState(0);
 
-    useEffect(() => {
+   // Setting the notification count with useEffect hook
+   useEffect(() => {
+    
+    const unreadNotifications = notificationArray.filter(notification => {
+        return !notification.read
+    });
 
-        const unreadNotifications = notificationArray.filter(notification => {
-            return !notification.read
-        });
+    setNotificationCount(unreadNotifications.length);
 
-        setNotificationCount(unreadNotifications.length);
+    const unPlayedNotificationsCount = notificationArray.filter((notification) => {
 
-        if ( prevNotificationCount !== notificationCount ){
+        return !notification.notificationSoundPlayed
 
-            setPrevNotificationCount(unreadNotifications.length);
+    });
+
+    const playMusicFunction = async () => {
+            
+        for(let i = 0; i < unPlayedNotificationsCount.length; i++){
+
+            const currentNotificationID = unPlayedNotificationsCount[i].id;
+            const currentNotificationMessage = unPlayedNotificationsCount[i].message;
+
+            try{
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/notificationSoundPlayed/${currentNotificationID}`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                })
+
+                if ( response.status === 200 ){
+
+                    const responseData = response.data;
+
+                    setTimeout(() => {
+
+                        Notification.requestPermission().then(perm => {
+
+                            if ( perm === 'granted' ){
+                
+                                new Notification('Nursing Notification', {
+                                    body: currentNotificationMessage,
+                                    icon: '/Go-Hospitals-Logo.webp'
+                                });
+
+                                alert(" Working");
+                
+                            } else {
+
+                                alert("Not Working");
+                                
+                            }
+                
+                        });
+
+                        const audio = new Audio(`/Notifications/notification_count.mp4`);
+    
+                        audio.play().catch((error) => {
+                            console.log("Audio play failed", error);
+                        });
+    
+                    }, i * 800); 
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
 
         }
-
-        const notificationCountNumber = document.querySelector(".notificationCount");
-
-        if ( notificationCount > 9 ){
-
-            notificationCountNumber.style.right = '-20px';
-
-        } else {
-
-            notificationCountNumber.style.right = '-7px';
-
-        }
-
-        // if ( prevNotificationCount < notificationCount ){
-
-        //     for(let i = 0; i < unreadNotifications.length; i++){
-
-        //         setTimeout(() => {
-
-        //             const audio = new Audio(`/go_works_notification_sound_file.aac`);
     
-        //             audio.play().catch((error) => {
-        //                 console.log("Audio play failed", error);
-        //             });
-    
-        //         }, i * 800);    
+    }
 
-        //     }
+    playMusicFunction();
 
-        // }
-
-    }, [notificationArray, pathName]);
-
-    // useEffect(() => {
-
-    //     setTimeout(() => {
-
-    //         setInterval(() => {
-
-    //             fetchNotifications();
-
-    //         }, 4000);
-
-    //     }, 2000);
-
-    // }, [])
+}, [notificationArray]);
 
     const notificationDivRef = useRef(null);
 

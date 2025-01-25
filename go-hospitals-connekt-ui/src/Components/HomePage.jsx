@@ -150,7 +150,7 @@ const HomePage = () => {
 
                     </div>
 
-                    <div 
+                    {/* <div 
                         className="h-40 w-auto flex items-center justify-center bg-gray-800 rounded-xl hover:scale-105 transition-all cursor-pointer"
                         onClick={() => navigate('/diagnostics-center-login')}    
                     >
@@ -171,7 +171,7 @@ const HomePage = () => {
 
                         </div>
 
-                    </div>
+                    </div> */}
 
                 </div>
 

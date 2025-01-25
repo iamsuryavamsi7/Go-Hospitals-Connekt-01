@@ -6,9 +6,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { CgLoadbar } from 'react-icons/cg';
-import { IoCloseCircle } from 'react-icons/io5';
+import { IoCloseCircle, IoCloseCircleSharp } from 'react-icons/io5';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import DatePicker from 'react-datepicker';
+import { format, isAfter } from 'date-fns';
 
 const MyJobsProfile = () => {
 
@@ -40,7 +42,8 @@ const MyJobsProfile = () => {
         appointmentOn: '',
         preferredDoctorName: '',
         appointmentCreatedOn: '',
-        appointmentFinished: ''
+        appointmentFinished: '',
+        surgeryDocumentsUrls: []
     });
 
     const roles = {
@@ -540,6 +543,114 @@ const MyJobsProfile = () => {
 
     const [counsellingDoneActivated, setCounsellingDoneActivated] = useState(false);
 
+    const [surgeryCareCounsellingDoneActivated, setSurgeryCareCounsellingDoneActivated] = useState(false);
+
+    const [currentDateValue, setCurrentDateValue] = useState(format(new Date(), 'MMMM dd yyyy'));
+
+    const [surgeryDateValue, setSurgeryDateValue] = useState(null);
+
+    const [surgeryCounsellingDoneData, setSurgeryCounsellingDoneData] = useState({
+        counsellingMessage: ``,
+        surgeryDate: null
+    });
+
+    const surgeryCareCounsellingDoneFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( surgeryCounsellingDoneData.surgeryDate !== null && isAfter(surgeryCounsellingDoneData.surgeryDate, new Date()) && panCardDoc !== null ){
+
+            const formData = new FormData();
+
+            if ( surgeryCounsellingDoneData.counsellingMessage.trim() !== `` ){
+
+                formData.append('counsellingMessage', surgeryCounsellingDoneData.counsellingMessage.trim());
+
+            }
+            
+            formData.append('surgeryDate', surgeryCounsellingDoneData.surgeryDate)
+            formData.append('imageData', panCardDoc);
+
+            try{
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/tele-support/surgeryCounsellingCompleted/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+    
+                if ( response.status === 200 ){
+    
+                    const booleanValue = response.data;
+    
+                    if ( booleanValue ){
+    
+                        fetchAppointmentData();
+
+                        if ( stompClient ){
+    
+                            const webSocketNotificationTypeModel = {
+                                notificationType: `RefreshMedicationPlusFollowUpPage`
+                            }
+    
+                            stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+    
+                        }
+
+                        if ( stompClient ){
+    
+                            const webSocketNotificationTypeModel = {
+                                notificationType: `RefreshOtCoordinationNotifications`
+                            }
+    
+                            stompClient.send(`/app/commonWebSocket`,{}, JSON.stringify(webSocketNotificationTypeModel));
+    
+                        }
+
+                        setSurgeryCareCounsellingDoneActivated(false);
+    
+                    }
+    
+                }
+    
+            }catch(error){
+    
+                console.error(error);
+    
+            }
+
+        }
+
+    }
+
+    const [panCardDoc, setPanCardDoc] = useState(null);
+
+    const [previewPanCardDoc, setPreviewPanCardDoc] = useState(null);
+    
+    const handlePanCardChange = (e) => {
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+        
+        const files = Array.from(e.target.files);
+    
+        // Filter files based on valid types
+        const filteredFiles = files.filter(file => validTypes.includes(file.type));
+    
+        if (filteredFiles.length > 0) {
+
+            setPanCardDoc(filteredFiles[0]);
+
+            const blobURL = URL.createObjectURL(filteredFiles[0]);
+            setPreviewPanCardDoc(blobURL);
+
+        } else {
+
+            alert('Please upload only images or PDF files.');
+
+        }
+
+    };
+
     return (
 
         <>
@@ -992,7 +1103,7 @@ const MyJobsProfile = () => {
 
                             <div className="mb-5">
 
-                                <div 
+                                {patientData.teleSupportConsellingDone !== true && <div 
                                     className='mx-10 inline-block cursor-pointer bg-gray-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
                                     onClick={() => {
 
@@ -1009,7 +1120,7 @@ const MyJobsProfile = () => {
 
                                     </div>
 
-                                </div>
+                                </div>}
 
                                 {updatePaymentTypeActivated && (
 
@@ -1047,7 +1158,7 @@ const MyJobsProfile = () => {
 
                                 )}
 
-                                <div 
+                                {patientData.consultationType !== 'SURGERYCARE' && patientData.teleSupportConsellingDone !== true && <div 
                                     className='inline-block cursor-pointer bg-green-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
                                     onClick={() => {
 
@@ -1064,7 +1175,26 @@ const MyJobsProfile = () => {
 
                                     </div>
 
-                                </div>
+                                </div>}
+
+                                {patientData.consultationType === 'SURGERYCARE' && patientData.teleSupportConsellingDone !== true && <div 
+                                    className='inline-block cursor-pointer bg-green-800 px-2 py-2 rounded-lg hover:opacity-60 active:opacity-40'
+                                    onClick={() => {
+
+                                        setSurgeryCareCounsellingDoneActivated(true);
+
+                                    }}
+                                >
+
+                                    <div 
+                                        className="text-base text-gray-300"
+                                    >
+
+                                        Counselling Done
+
+                                    </div>
+
+                                </div>}
 
                             </div>
 
@@ -1313,6 +1443,169 @@ const MyJobsProfile = () => {
 
                                     </form>
 
+                                </div>
+
+                            )}
+
+                            {surgeryCareCounsellingDoneActivated && (
+
+                                <div 
+                                    className="absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-sm"
+                                >
+    
+                                    <form 
+                                        className="block relative bg-gray-900 rounded-2xl border-[1px] border-gray-800 py-5"
+                                        onSubmit={surgeryCareCounsellingDoneFunction}
+                                    >
+                                    
+                                        <div 
+                                            className="py-5 px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                        >
+                                            
+                                            <label className='text-xs'>Counselling Message (Optional)</label><br />
+    
+                                            <textarea 
+                                                type='text'
+                                                className='bg-[#0d1117] min-h-[100px] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'
+                                                value={surgeryCounsellingDoneData.counsellingMessage}
+                                                onChange={(e) => {
+
+                                                    const value = e.target.value;
+
+                                                    setSurgeryCounsellingDoneData({
+                                                        ...surgeryCounsellingDoneData,
+                                                        counsellingMessage: value
+                                                    });
+
+                                                }}
+                                                onKeyDown={(e) => {
+    
+                                                    if ( e.key === 'Enter' ){
+    
+                                                        e.preventDefault();
+    
+                                                    }
+    
+                                                }}
+                                            />
+                                        
+                                        </div>
+    
+                                        <div 
+                                            className="px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
+                                        >
+                                            
+                                            <label className='text-xs'>Next Consultation Date</label><br />
+    
+                                            <div className="relative inline-block">
+    
+                                                <DatePicker 
+                                                    className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                    value={currentDateValue}
+                                                    onChange={(date) => {
+    
+                                                        const dateValue = format(date, 'MMMM dd yyyy');
+
+                                                        setCurrentDateValue(dateValue);
+    
+                                                        setSurgeryCounsellingDoneData({
+                                                            ...surgeryCounsellingDoneData,
+                                                            surgeryDate: date
+                                                        })
+
+                                                        console.log(date);
+    
+                                                    }}
+                                                    // showTimeSelect // Enable time selection
+                                                    // timeFormat="HH:mm" // Specify the time format
+                                                    // dateFormat="MMMM dd yyyy, hh:mm aa" // Combine date and time
+                                                    // timeIntervals={30} // Set time intervals (e.g., 30 minutes)
+                                                />
+
+                                                <div 
+                                                    className="transition-all duration-200 cursor-pointer flex flex-col items-start"
+                                                    >
+
+                                                    <div className="h-[200px] w-[200px] mt-5 text-xs bg-gray-800 rounded-lg flex justify-center items-center"> 
+
+                                                        {panCardDoc === null ? 'No File Uploaded' : (
+
+                                                            panCardDoc?.type === 'application/pdf' ? (
+
+                                                                // Display PDF using an iframe
+                                                                <iframe 
+                                                                    src={previewPanCardDoc} 
+                                                                    title="PDF Preview" 
+                                                                    className="h-full w-full rounded-lg" 
+                                                                ></iframe>
+
+                                                            ) : (
+
+                                                                // Display Image
+                                                                <img 
+                                                                    src={previewPanCardDoc} 
+                                                                    alt="Preview" 
+                                                                    className="h-full w-full rounded-lg" 
+                                                                />
+
+                                                            )
+                                                        )}
+                                    
+                                                        
+                                                    </div>
+
+                                                    <input 
+                                                        type="file"
+                                                        accept="image/*,application/pdf"
+                                                        capture="environment" // opens the camera on mobile devices
+                                                        onChange={(e) => handlePanCardChange(e)}
+                                                        className='mt-2 mb-5 cursor-pointer hidden'
+                                                        id='panCardfileInput'
+                                                    /><br />
+
+                                                    <label htmlFor="panCardfileInput" className="mt-2 cursor-pointer bg-gray-800 text-white py-2 px-4 rounded-lg hover:opacity-60 active:opacity-40">
+                                                        {panCardDoc === null ? 'Upload' : 'Change File'}
+                                                    </label>
+
+                                                </div>
+
+                                                {/* <input 
+                                                    type='datetime-local'
+                                                    className='bg-white text-black border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] mt-2 text-sm'
+                                                    step={1800}
+                                                    value={currentDateValue}
+                                                    onChange={(e) => {
+
+                                                        const value = e.target.value;
+
+                                                        console.log(value);
+
+                                                    }}
+                                                /> */}
+                                                
+                                            </div>
+    
+                                        </div>
+    
+                                        <button 
+                                            className='bg-[#238636] mx-10 mt-5 px-2 rounded-lg leading-10 cursor-pointer hover:opacity-60 active:opacity-40 inline-block'
+                                            type='submit'
+                                        >
+                                            Counselling Done
+    
+                                        </button>
+    
+                                        <IoCloseCircleSharp 
+                                            className='absolute z-50 top-5 right-5 cursor-pointer'
+                                            onClick={() => {
+    
+                                                setSurgeryCareCounsellingDoneActivated(false);
+    
+                                            }}
+                                        />
+    
+                                    </form>
+    
                                 </div>
 
                             )}

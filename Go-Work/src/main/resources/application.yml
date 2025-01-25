@@ -2,15 +2,22 @@
 
 server:
   port: 7777
+#  ssl:
+#    enabled: true
+#    key-store: classpath:keystore.p12
+#    key-store-password: 1234
+#    key-store-type: PKCS12
+#    key-alias: tomcat
 
 # Configuration for Postgresql JDBC
 
 spring:
   datasource:
-#    url: jdbc:postgresql://localhost:5432/go_work_db
-    url: jdbc:postgresql://go-work-testing.c10eqacy8w6v.ap-south-1.rds.amazonaws.com/go_work_db
+    url: jdbc:postgresql://localhost:5432/go_work_db
+#    url: jdbc:postgresql://go-work-testing.c10eqacy8w6v.ap-south-1.rds.amazonaws.com/go_work_db
     username: postgres
-    password: Vijay393
+#    password: Vijay393
+    password: 1234
     driver-class-name: org.postgresql.Driver
 
   servlet:

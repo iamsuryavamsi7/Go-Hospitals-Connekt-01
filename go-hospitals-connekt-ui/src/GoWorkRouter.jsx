@@ -59,6 +59,11 @@ import ClosedCasesFrontDesk from './Components/Secured/FrontDeskUser/Components/
 import FrontDeskCompletedAppointments from './Components/Secured/FrontDeskUser/Components/FrontDeskCompletedAppointments'
 import FrontDeskPatientDropOut from './Components/Secured/FrontDeskUser/Components/FrontDeskPatientDropOut'
 import FrontDeskSearchObject from './Components/Secured/FrontDeskUser/Components/FrontDeskSearchObject'
+import OtCoordinationPageLayout from './Components/Secured/OtCoordination/OtCoordinationPageLayout'
+import CompletedSurgeries from './Components/Secured/OtCoordination/Components/CompletedSurgeries'
+import FutureSurgeries from './Components/Secured/OtCoordination/Components/FutureSurgeries'
+import CurrentSurgeries from './Components/Secured/OtCoordination/Components/CurrentSurgeries'
+import OtCoordinationSurgeryProfile from './Components/Secured/OtCoordination/Components/OtCoordinationSurgeryProfile'
 
 function GoWorkRouter() {
 
@@ -118,7 +123,7 @@ function GoWorkRouter() {
 					{/* FRONTDESK ROUTING */} 
 					<Route path="/patient-self-filling-page" element={<NewPatientOnBoardFronDeskFillingPage />} />
 
-					{/* MEDICALSUPPORT ROUTING */}
+					{/* MEDICALSUPPORT ROUTING */} 
 					<Route element={<MedicalSupportLayout />}>
 						<Route path='/medical-support-consulation-queue' element={<ConsultationQueueMedicalSupport />}/>
 						<Route path="/medical-support-consultation-queue/:id" element={<ConsultationQueueProfileMedicalSupport />} />
@@ -155,9 +160,16 @@ function GoWorkRouter() {
 					{/* TELESUPPORT Public ROUTING */}
 					<Route path='/public/fill-the-surgery-form/:teleSupportUserId/:applicationId' element={<FillTheSurgeryForm />}/>
 
+					{/* PHARMACYPAGE ROUTING */}
+					<Route element={<OtCoordinationPageLayout />}> 
+						<Route path='/ot-coordination-current-surgeries' element={<CurrentSurgeries />}/>
+						<Route path='/ot-coordination-future-surgeries' element={<FutureSurgeries />}/>
+						<Route path='/ot-coordination-completed-surgeries' element={<CompletedSurgeries />}/>
+						<Route path='/ot-coordination-profiles/:id' element={<OtCoordinationSurgeryProfile />}/>
+					</Route>
 
 				</Routes>
-			
+
 		</>
 	
 	)

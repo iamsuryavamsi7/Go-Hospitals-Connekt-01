@@ -1,6 +1,7 @@
 package com.Go_Work.Go_Work.Controller.Secured.TELESUPPORT;
 
 import com.Go_Work.Go_Work.Entity.Notification;
+import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
@@ -11,7 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -70,11 +74,11 @@ public class TeleSupportController {
     }
 
     @GetMapping("/fetchUserObject")
-    public ResponseEntity<UserObject> fetchUserObject(
+    public ResponseEntity<User> fetchUserObject(
             HttpServletRequest request
     ){
 
-        UserObject fetchedUserObject = teleSupportService.fetchUserObject(request);
+        User fetchedUserObject = teleSupportService.fetchUserObject(request);
 
         return ResponseEntity.ok(fetchedUserObject);
 
@@ -178,6 +182,20 @@ public class TeleSupportController {
     ) throws ApplicationNotFoundException {
 
         Boolean booleanValue = teleSupportService.counsellingDone(applicationID, surgeryCounsellorMessage, consultationType);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @PostMapping("/surgeryCounsellingCompleted/{applicationID}")
+    public ResponseEntity<Boolean> surgeryCounsellingCompleted(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam(value = "counsellingMessage", required = false) String counsellingMessage,
+            @RequestParam("surgeryDate") Date surgeryDate,
+            @RequestParam("imageData") MultipartFile imageData
+            ) throws ApplicationNotFoundException, IOException {
+
+        Boolean booleanValue = teleSupportService.surgeryCounsellingCompleted(counsellingMessage, surgeryDate, applicationID, imageData);
 
         return ResponseEntity.ok(booleanValue);
 

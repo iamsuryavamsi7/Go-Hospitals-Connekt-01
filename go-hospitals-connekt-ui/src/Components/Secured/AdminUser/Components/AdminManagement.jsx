@@ -7,6 +7,7 @@ import { ImCancelCircle } from 'react-icons/im';
 import AdminManagement02 from './MinorComponents/AdminManagement02';
 import { FcDepartment } from 'react-icons/fc';
 import {toast, Toaster} from 'react-hot-toast';
+import AdminManagement03 from './MinorComponents/AdminManagement03';
 
 const AdminManagement = () => {
 
@@ -338,7 +339,7 @@ const AdminManagement = () => {
 
                         {editDepartmentVisible && (
 
-                            <div className="fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
+                            <div className="fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-[2px]">
 
                                 <form
                                     className='text-left bg-[#151b23] border-[#3d444d] border-2 px-5 py-5 rounded-xl mb-5 relative'
@@ -543,6 +544,8 @@ const AdminManagement = () => {
                     </div>
 
                     <AdminManagement02 />
+
+                    <AdminManagement03 />
 
                 </>
 

@@ -172,6 +172,15 @@ return (
                                 name='firstName'
                                 value={userData.firstName}
                                 onChange={(e) => handleInputChange(e)}
+                                onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                             /><br /><br />
 
                             <label> Last Name</label><br />
@@ -181,6 +190,15 @@ return (
                                 name='lastName'
                                 value={userData.lastName}
                                 onChange={(e) => handleInputChange(e)}
+                                onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                             /><br /><br />
 
                             <label> E-mail Address</label><br />
@@ -190,6 +208,15 @@ return (
                                 name='email'
                                 value={userData.email}
                                 onChange={(e) => handleInputChange(e)}
+                                onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                             /><br /><br />
 
                             <label> Password</label><br />
@@ -199,6 +226,15 @@ return (
                                 name='password'
                                 value={userData.password}
                                 onChange={(e) => handleInputChange(e)}
+                                onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                             /><br /><br />
 
                             <label> Confirm Password</label><br />
@@ -208,6 +244,15 @@ return (
                                 name='conformPassword'
                                 value={userData.conformPassword}
                                 onChange={(e) => handleInputChange(e)}
+                                onKeyDown={(e) => {
+
+                                        if ( e.key === 'Enter' ){
+
+                                            e.preventDefault();
+
+                                        }
+
+                                    }}
                             /><br /><br />
 
                             <button

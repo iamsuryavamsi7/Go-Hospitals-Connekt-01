@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
+import { format } from 'date-fns';
 
 const PatientApprovals = () => {
 
@@ -251,7 +252,7 @@ const PatientApprovals = () => {
                                         <th>S.No</th>
                                         <th>Patient Name</th>
                                         <th>Doctors Name</th>
-                                        <th>Bill No</th>
+                                        <th>Surgery Date</th>
                                         <th>Nurse</th>
 
                                     </tr>
@@ -291,7 +292,7 @@ const PatientApprovals = () => {
 
                                                 <th>{application.name}</th>
                                                 <th>{application.preferredDoctorName}</th>
-                                                <th>{application.billNo}</th>
+                                                <th>{format(application.surgeryDate, 'MMMM dd yyyy')}</th>
                                                 <th>{application.medicalSupportUserName ? (
 
                                                     <>

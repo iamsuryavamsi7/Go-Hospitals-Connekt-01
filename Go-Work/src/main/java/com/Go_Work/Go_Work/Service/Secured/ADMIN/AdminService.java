@@ -2,9 +2,11 @@ package com.Go_Work.Go_Work.Service.Secured.ADMIN;
 
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Entity.MobileNumbers;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DoctorNotFoundException;
+import com.Go_Work.Go_Work.Error.MobileNumberNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.AddDoctorModel;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.DepartmentPutModel;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.GetDoctorModel;
@@ -12,6 +14,7 @@ import com.Go_Work.Go_Work.Model.Secured.ADMIN.UpdateDoctorModel;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Repo.DepartmentRepo;
 import com.Go_Work.Go_Work.Repo.DoctorRepo;
+import com.Go_Work.Go_Work.Repo.MobileNumbersRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
 import com.Go_Work.Go_Work.Service.Email.EmailSenderService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+
+    private final MobileNumbersRepo mobileNumbersRepo;
 
     private final UserRepo userRepo;
 
@@ -221,6 +228,72 @@ public class AdminService {
         return doctorRepo.findById(doctorId).orElseThrow(
                 () -> new DoctorNotFoundException("Doctor Not Found")
         );
+
+    }
+
+    public List<MobileNumbers> fetchNumbers() {
+
+        return mobileNumbersRepo.findAll()
+                .stream()
+                .sorted(Comparator.comparing(MobileNumbers::getCreatedTimeStamp).reversed())
+                .toList();
+
+    }
+
+    public Boolean addMobileNumber(String name, String mobileNumber) {
+
+        if ( name != null && !name.isBlank() && mobileNumber != null && !mobileNumber.isBlank() ){
+
+            MobileNumbers mobileNumberObject = new MobileNumbers();
+
+            mobileNumberObject.setName(name);
+            mobileNumberObject.setMobileNumber(mobileNumber);
+            mobileNumberObject.setCreatedTimeStamp(new Date(System.currentTimeMillis()));
+
+            mobileNumbersRepo.save(mobileNumberObject);
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public Boolean deleteMobileNumberById(Long mobileNumberID) {
+
+        mobileNumbersRepo.deleteById(mobileNumberID);
+
+        return true;
+
+    }
+
+    public MobileNumbers fetchMobileNumberById(Long mobileNumberID) throws MobileNumberNotFoundException {
+
+        return mobileNumbersRepo.findById(mobileNumberID).orElseThrow(
+                () -> new MobileNumberNotFoundException("Mobile Number Not Found")
+        );
+
+    }
+
+    public Boolean editMobileNumberById(Long mobileNumberID, String name, String mobileNumber) throws MobileNumberNotFoundException {
+
+        MobileNumbers fetchedMobileNumberObject = mobileNumbersRepo.findById(mobileNumberID).orElseThrow(
+                () -> new MobileNumberNotFoundException("Mobile Number Not Found")
+        );
+
+        if ( fetchedMobileNumberObject != null && !name.isBlank() && !mobileNumber.isBlank() ){
+
+            fetchedMobileNumberObject.setName(name);
+            fetchedMobileNumberObject.setMobileNumber(mobileNumber);
+
+            mobileNumbersRepo.save(fetchedMobileNumberObject);
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

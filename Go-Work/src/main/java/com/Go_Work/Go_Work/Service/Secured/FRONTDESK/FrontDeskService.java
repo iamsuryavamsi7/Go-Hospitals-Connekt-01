@@ -48,6 +48,8 @@ public class FrontDeskService {
 
     private final NextAppointmentDateRepo nextAppointmentDateRepo ;
 
+    private final MobileNumbersRepo mobileNumbersRepo;
+
     public String fetchUserRole(HttpServletRequest request) throws FrontDeskUserNotFoundException {
 
         String jwtToken = request.getHeader("Authorization").substring(7);
@@ -1053,7 +1055,7 @@ public class FrontDeskService {
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
                 .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.SURGERYCARE) )
-                .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
+                .sorted(Comparator.comparing(Applications::getSurgeryDate))
                 .map(user01 -> {
 
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();
@@ -1095,6 +1097,74 @@ public class FrontDeskService {
         int end = Math.min(start + size, fetchedApplications.size());
 
         return fetchedApplications.subList(start, end);
+
+    }
+
+    public Boolean surgeryCompletedBooked(Long applicationID, String roomNo, String billNo) throws ApplicationNotFoundException {
+
+        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+                () -> new ApplicationNotFoundException("Application Not Found")
+        );
+
+        fetchedApplication.setRoomNo(roomNo);
+
+        if ( !billNo.isEmpty() ){
+
+            Bills newBillObject = new Bills();
+
+            newBillObject.setBillType(BillType.FRONTDESKBILL);
+            newBillObject.setBillNo(billNo);
+            newBillObject.setApplications(fetchedApplication);
+            newBillObject.setTimeStamp(new Date(System.currentTimeMillis()));
+
+            fetchedApplication.getBills().add(newBillObject);
+
+        }
+
+        applicationsRepo.save(fetchedApplication);
+
+        User fetchedMedicalUser = fetchedApplication.getMedicalSupportUser();
+
+        Notification newNotification = new Notification();
+        newNotification.setMessage("Room Number Updated");
+        newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
+        newNotification.setApplicationId(fetchedApplication.getId());
+        newNotification.setRead(false);
+        newNotification.setUser(fetchedMedicalUser);
+        newNotification.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+        fetchedMedicalUser.getNotifications().add(newNotification);
+
+        userRepo.save(fetchedMedicalUser);
+
+        userRepo.findAll()
+                .stream()
+                .filter(user -> user.getRole().equals(Role.OTCOORDINATION))
+                .forEach(user -> {
+
+                    Notification newNotification1 = new Notification();
+                    newNotification1.setMessage("Room Number Updated");
+                    newNotification1.setTimeStamp(new Date(System.currentTimeMillis()));
+                    newNotification1.setApplicationId(fetchedApplication.getId());
+                    newNotification1.setRead(false);
+                    newNotification1.setUser(fetchedMedicalUser);
+                    newNotification1.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
+
+                    notificationRepo.save(newNotification1);
+
+                    user.getNotifications().add(newNotification1);
+
+                    userRepo.save(user);
+
+                });
+
+        return true;
+
+    }
+
+    public List<MobileNumbers> fetchSurgeryTeam() {
+
+        return mobileNumbersRepo.findAll();
 
     }
 

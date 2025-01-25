@@ -620,6 +620,7 @@ public class MedicalSupportService {
             fetchedApplication.setConsultationType(ConsultationType.SURGERYCARE);
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
+            fetchedApplication.setCounsellingIsInProgress(true);
 
             applicationsRepo.save(fetchedApplication);
 

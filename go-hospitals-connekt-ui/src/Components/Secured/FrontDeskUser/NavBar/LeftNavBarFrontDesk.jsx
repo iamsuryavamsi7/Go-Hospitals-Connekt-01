@@ -230,7 +230,7 @@ const LeftNavBarFrontDesk = () => {
 
         }
 
-        if ( pathName === `/front-desk-patient-approvals` ){
+        if ( pathName === `/front-desk-surgery-patients` ){
 
             setPatientApprovals1(`text-sky-500`);
 

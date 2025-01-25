@@ -408,4 +408,26 @@ public class FrontDeskController {
 
     }
 
+    @PutMapping("/surgeryCompletedBooked/{applicationID}")
+    public ResponseEntity<Boolean> surgeryCompletedBooked(
+            @PathVariable("applicationID") Long applicationID,
+            @RequestParam("roomNo") String roomNo,
+            @RequestParam("billNo") String billNo
+    ) throws ApplicationNotFoundException {
+
+        Boolean booleanValue = frontDeskService.surgeryCompletedBooked(applicationID, roomNo, billNo);
+
+        return ResponseEntity.ok(booleanValue);
+
+    }
+
+    @GetMapping("/fetchSurgeryTeam")
+    public ResponseEntity<List<MobileNumbers>> fetchSurgeryTeam(){
+
+        List<MobileNumbers> fetchedMobileNumbers = frontDeskService.fetchSurgeryTeam();
+
+        return ResponseEntity.ok(fetchedMobileNumbers);
+
+    }
+
 }

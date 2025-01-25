@@ -1035,6 +1035,123 @@ const FollowUpProfile = () => {
 
     }
 
+    const [surgeryCounsellingActivated, setSurgeryCounsellingActivated] = useState(false);
+
+    const [surgeryCounsellingData, setSurgeryCounsellingData] = useState({
+        billNo: ``,
+        roomNo: ``
+    });
+
+    const surgeryCounsellingBookedFunction = async (e) => {
+
+        e.preventDefault();
+
+        if ( surgeryCounsellingData.roomNo.trim !== `` ){
+
+            const formData = new FormData();
+
+            formData.append('roomNo', surgeryCounsellingData.roomNo);
+
+            if ( surgeryCounsellingData.billNo.trim() !== `` ){
+
+                formData.append('billNo', surgeryCounsellingData.billNo.trim());
+
+            }
+
+            try{
+
+                const response = await axios.put(`${goHospitalsAPIBaseURL}/api/v1/front-desk/surgeryCompletedBooked/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+
+                if ( response.status === 200 ){
+
+                    const booleanValue = response.data;
+
+                    if ( booleanValue ){
+
+                        fetchAppointmentData();
+
+                        setSurgeryCounsellingActivated(false);
+
+                        setSurgeryCounsellingData({
+                            ...surgeryCounsellingData,
+                            billNo: ``,
+                            roomNo: ``
+                        })
+
+                    }
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
+
+    // Function to notify surgery team
+    const notifySurgeryTeam = async () => {
+
+        if ( !notifyTeamMembersActivated ){
+
+            try{
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/fetchSurgeryTeam`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+    
+                if ( response.status === 200 ){
+    
+                    const surgeryTeamObjects = response.data;
+    
+                    console.log(surgeryTeamObjects);
+    
+                    setSurgeryTeamObjects(surgeryTeamObjects);
+    
+                    setNotifyTeamMembersActivated(true);
+    
+                }
+    
+            }catch(error){
+    
+                console.error(error);
+    
+            }
+
+        }else {
+
+            setNotifyTeamMembersActivated(false);
+
+        }
+
+    }
+
+    // State to store the surgery team member objects 
+    const [surgeryTeamObjects, setSurgeryTeamObjects] = useState([]);
+
+    // State to toggle notify team members element
+    const [notifyTeamMembersActivated, setNotifyTeamMembersActivated] = useState(false);
+
+    // Function to run when the send message is triggered
+    const sendWhatsappMessage = (e, surgeryObj) => {
+
+        const whatsappNumber = surgeryObj.mobileNumber;
+
+        console.log(whatsappNumber);
+
+        window.open(`https://wa.me/${whatsappNumber}?text=Hello%2C%0A%0AOn%${surgeryObj.name}%2C%20you%20are%20having%20surgery%20for%20this%20patient%20%27Surya%27%20and%20he%20is%20in%20room%20no%20203.%0A%0AFrom%20FrontDesk.`, '_blank');
+
+    }
+
     return (
 
         <>
@@ -1046,7 +1163,7 @@ const FollowUpProfile = () => {
                 <>
 
                     <div 
-                        className="mb-20"
+                        className="mb-10"
                         onClick={newPatientOnBoardFronDeskFunction}
                     >
 
@@ -1249,6 +1366,22 @@ const FollowUpProfile = () => {
 
                             )}
 
+                            {patientData.roomNo !== `` && patientData.roomNo !== null && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Room No
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.roomNo}
+
+                                </div>
+
+                            </div>}
+                            
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
@@ -1998,7 +2131,7 @@ const FollowUpProfile = () => {
 
                                     <div className="flex flex-col mx-10">
 
-                                        <label className='text-xs mb-2'>Case Close Note <span className='text-red-500'>*</span></label>
+                                        <label className='text-xs mb-2'>Note <span className='text-red-500'>*</span></label>
 
                                         <textarea 
                                             className='bg-[#0d1117] min-h-[100px] max-h-[100px] custom-scrollbar text-white border-gray-400 border-[.5px] focus:outline-none focus:border-2 rounded-lg h-[80px] px-3 w-[300px] max-sm:w-full'
@@ -2393,6 +2526,158 @@ const FollowUpProfile = () => {
                                         Cancel
 
                                     </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    )}
+                    
+                    {patientData.consultationType === 'SURGERYCARE' && (
+
+                         <div className="mx-10 space-x-5">
+
+                            {(patientData.roomNo === null || patientData.roomNo === ``) && <button
+                                className={`bg-green-800 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                onClick={() => setSurgeryCounsellingActivated(true)}
+                            >
+
+                                Update Surgery
+
+                           </button>}
+
+                           {(patientData.roomNo !== null && patientData.roomNo !== ``) && <button
+                                className={`bg-green-800 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                onClick={notifySurgeryTeam}
+                            >
+
+                                {!notifyTeamMembersActivated ? 'Notify Team' : 'Close Notify'}
+
+                           </button>}
+
+                            <button
+                                className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3`}
+                                onClick={() => {
+
+                                    setCaseCloseButtonActivated(true);
+
+                                }}
+                            >
+
+                                Case Closed
+
+                            </button>
+
+                            <button
+                                className={`bg-red-500 hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 ml-5 mb-5`}
+                                onClick={() => {
+
+                                    setCaseCloseButtonActivated(true);
+
+                                }}
+                            >
+
+                                Patient Drop Out
+
+                            </button>
+
+                        </div>
+
+                    )}
+
+                    {notifyTeamMembersActivated && surgeryTeamObjects.length > 0 && surgeryTeamObjects.map((surgeryObject, index) => (
+
+                        <div 
+                            className="flex mx-10 mt-5"
+                            key={index}    
+                        >
+
+                            <div className="w-[150px] whitespace-nowrap overflow-hidden">{surgeryObject.name}</div>
+
+                            <div className="">
+
+                                <button
+                                    className='bg-green-800 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-80'
+                                    onClick={(e, surgeryObj) => sendWhatsappMessage(e, surgeryObject)}
+                                >Send Message</button>
+
+                            </div>
+
+                        </div>
+
+                    ))}
+
+                    {surgeryCounsellingActivated && (
+
+                       <form
+                            className='absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm'
+                            onSubmit={surgeryCounsellingBookedFunction}
+                        >
+
+                            <div className="bg-gray-900 px-10 py-10 rounded-2xl relative">
+
+                                <GiCancel 
+                                    className='absolute top-5 right-5 cursor-pointer'
+                                    onClick={() => {
+
+                                        setSurgeryCounsellingActivated(false);
+
+                                    }}
+                                />
+
+                                <div className="">
+
+                                    <label> Bill No <span className=''>( Optional )</span></label><br />
+                                
+                                    <input 
+                                        type='text'
+                                        required
+                                        className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                        value={surgeryCounsellingData.billNo}
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setSurgeryCounsellingData({
+                                                ...surgeryCounsellingData,
+                                                billNo: value
+                                            })
+
+                                        }}
+                                    /> 
+
+                                </div>
+
+                                <div className="mt-5">
+
+                                    <label> Room No <span className='text-red-400'>*</span></label><br />
+                                
+                                    <input 
+                                        type='text'
+                                        required
+                                        className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
+                                        value={surgeryCounsellingData.roomNo}
+                                        onChange={(e) => {
+
+                                            const value = e.target.value;
+
+                                            setSurgeryCounsellingData({
+                                                ...surgeryCounsellingData,
+                                                roomNo: value
+                                            });
+
+                                        }}
+                                    /> 
+
+                                </div>
+
+                                <div className="">
+
+                                    <button
+                                    className='bg-[#238636] hover:opacity-60 active:opacity-80 text-white rounded-lg leading-8 px-3 mt-7'
+                                > Update Application </button>
 
                                 </div>
 

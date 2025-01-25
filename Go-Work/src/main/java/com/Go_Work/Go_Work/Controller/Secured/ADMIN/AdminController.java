@@ -2,8 +2,10 @@ package com.Go_Work.Go_Work.Controller.Secured.ADMIN;
 
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Entity.MobileNumbers;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DoctorNotFoundException;
+import com.Go_Work.Go_Work.Error.MobileNumberNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.AddDoctorModel;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.DepartmentPutModel;
 import com.Go_Work.Go_Work.Model.Secured.ADMIN.GetDoctorModel;
@@ -162,6 +164,62 @@ public class AdminController {
         String message = adminService.editDepartmentById(departmentId, request);
 
         return ResponseEntity.ok(message);
+
+    }
+
+    @GetMapping("/fetchNumbers")
+    public ResponseEntity<List<MobileNumbers>> fetchNumbers(){
+
+        List<MobileNumbers> fetchedMobileNumbers = adminService.fetchNumbers();
+
+        return ResponseEntity.ok(fetchedMobileNumbers);
+
+    }
+
+    @PostMapping("/addMobileNumber")
+    public ResponseEntity<Boolean> addMobileNumber(
+            @RequestParam("name") String name,
+            @RequestParam("mobileNumber") String mobileNumber
+    ){
+
+        Boolean fetchedBooleanValue = adminService.addMobileNumber(name, mobileNumber);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @DeleteMapping("/deleteMobileNumberById/{mobileNumberID}")
+    public ResponseEntity<Boolean> deleteMobileNumberById(
+            @PathVariable("mobileNumberID") Long mobileNumberID
+    ){
+
+        Boolean fetchedBooleanValue = adminService.deleteMobileNumberById(mobileNumberID);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @PutMapping("/editMobileNumberById/{mobileNumberID}")
+    public ResponseEntity<Boolean> editMobileNumberById(
+            @PathVariable("mobileNumberID") Long mobileNumberID,
+            @RequestParam("name") String name,
+            @RequestParam("mobileNumber") String mobileNumber
+    ) throws MobileNumberNotFoundException {
+
+        Boolean fetchedBooleanValue = adminService.editMobileNumberById(mobileNumberID,  name, mobileNumber);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/fetchMobileNumberById/{mobileNumberID}")
+    public ResponseEntity<MobileNumbers> fetchMobileNumberById(
+            @PathVariable("mobileNumberID") Long mobileNumberID
+    ) throws MobileNumberNotFoundException {
+
+        MobileNumbers fetchedMobileNumberData = adminService.fetchMobileNumberById(mobileNumberID);
+
+        return ResponseEntity.ok(fetchedMobileNumberData);
 
     }
 

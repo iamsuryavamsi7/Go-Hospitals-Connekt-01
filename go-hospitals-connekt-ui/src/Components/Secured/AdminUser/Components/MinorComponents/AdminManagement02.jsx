@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { ImCancelCircle } from 'react-icons/im';
 import { FaUserDoctor } from 'react-icons/fa6';
-import { toast, Toaster } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast'; 
 
 const AdminManagement02 = () => {
 
@@ -333,7 +333,7 @@ const AdminManagement02 = () => {
 
             {editDoctorVisible && (
 
-                <div className="fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
+                <div className="fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-[2px]">
 
                     <form
                         className='text-left bg-[#151b23] border-[#3d444d] border-2 px-5 py-5 rounded-xl mb-5 relative'

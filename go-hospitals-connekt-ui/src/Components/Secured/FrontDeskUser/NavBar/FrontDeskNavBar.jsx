@@ -271,7 +271,7 @@ const FrontDeskNavBar = () => {
                                         body: currentNotificationMessage,
                                         icon: '/Go-Hospitals-Logo.webp'
                                     });
-                    
+
                                 }
                     
                             });
@@ -294,7 +294,7 @@ const FrontDeskNavBar = () => {
 
             }
         
-        }
+        } 
 
         playMusicFunction();
 
@@ -490,7 +490,7 @@ const FrontDeskNavBar = () => {
                         {searchFeatureState && (
                             
                             <div 
-                                className={`absolute left-[-30px] right-[-30px] mt-2 z-50 bg-gray-900 ${searchObjects.length > 0 && 'border-[1px] border-gray-700'} rounded-lg text-[13px] max-h-[300px] overflow-y-scroll custom-scrollbar`}
+                                className={`absolute left-[-60px] right-[-60px] mt-2 z-50 bg-gray-900 ${searchObjects.length > 0 && 'border-[1px] border-gray-700'} rounded-lg text-[13px] max-h-[300px] overflow-y-scroll custom-scrollbar`}
                             >
 
                                 {searchObjects && searchObjects.length > 0 && searchObjects.map((searchObject, index) => (
@@ -501,7 +501,7 @@ const FrontDeskNavBar = () => {
                                         onClick={() => navigate(`/front-desk-search-profile/${searchObject.id}`)}    
                                     >
 
-                                        <div className="">Patient ID : {searchObject.patientId}</div>
+                                        <div className="w-[120px] whitespace-nowrap">Patient ID : {searchObject.patientId}</div>
                                         <div className="w-[130px] overflow-hidden text-ellipsis">Name : {searchObject.name}</div>
                                         <div className="">Age : {searchObject.age}</div>    
 

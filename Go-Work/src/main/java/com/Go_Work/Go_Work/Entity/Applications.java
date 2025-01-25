@@ -84,6 +84,8 @@ public class Applications {
     )
     private User medicalSupportUser;
 
+    private String surgeryImgDocFileURL;
+
     @ManyToOne
     @JoinColumn(
             name = "tele_support_user_id"
@@ -96,6 +98,13 @@ public class Applications {
     private boolean teleSupportConsellingDone = false;
 
     private boolean teleSupportSurgeryDocumentsAccept = false;
+
+    private Date surgeryDate;
+    private Date surgeryStartTime;
+    private Date surgeryEndTime;
+    private Boolean SurgeryCompleted = false;
+
+    private String roomNo;
 
     private Date pharmacyGoingTime;
 

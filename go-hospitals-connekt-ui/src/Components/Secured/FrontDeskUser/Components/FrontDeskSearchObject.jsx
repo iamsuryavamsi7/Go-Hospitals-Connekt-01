@@ -1132,12 +1132,12 @@ const access_token = Cookies.get('access_token');
                         
                     )}
 
-                   {patientData.consultationType !== 'CASECLOSED' && patientData.consultationType === 'FOLLOWUPCOMPLETED' && <div 
+                   {patientData.consultationType !== 'CASECLOSED' && patientData.consultationType !== 'FOLLOWUPCOMPLETED' && <div 
                         className="mx-10 bg-green-800 inline-block px-5 py-2 rounded-lg hover:opacity-60 active:opacity-80 transition-all cursor-pointer"
                         onClick={() => setAddBillActivated(true)}    
                     >
 
-                            Add Bill
+                        Add Bill
                             
                     </div>}
 
