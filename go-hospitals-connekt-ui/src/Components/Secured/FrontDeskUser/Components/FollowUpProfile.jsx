@@ -2400,6 +2400,54 @@ const FollowUpProfile = () => {
 
                     </div>}
 
+                    {/* Have to do it */}
+                    {/* {prescriptionURLData && <div className="fixed top-0 right-0 left-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-[2px]">
+
+                        <div className="bg-gray-900 p-10 rounded-2xl max-h-[600px] overflow-y-scroll custom-scrollbar relative">
+
+                            <div className="mb-5 font-xl text-center font-semibold">Prescription History</div>
+
+                            {patientData.prescriptionUrl.map((item, index) => (
+
+                                <div 
+                                    className="flex space-x-2"
+                                    key={index}    
+                                >
+
+                                    <div className="">{index + 1}{')'}</div>
+
+                                    <div className="flex items-center space-x-5 mb-2">
+
+                                        <div className="w-[300px]"> {item.prescriptionMessage ? item.prescriptionMessage : 'No Data'} </div>
+                                        <div className="text-xs text-gray-200"> {'('}{format(item.timeStamp, 'MMMM dd yyyy, hh:mm a')}{')'} </div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={(e, ind) => fetchImages(e, index)}    
+                                        >View Prescriptions</div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={(e, ind) => downloadImage(e, index)}    
+                                        >Download Prescriptions</div>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                            <GiCancel 
+                                className='absolute top-3 right-2 cursor-pointer'
+                                onClick={() => {
+
+                                    setPrescriptionURLData(false);
+
+                                }}
+                            />
+
+                        </div>
+
+                    </div>} */}
+
                     {fetchedImageVisible && (
                                                 
                         <div className="fixed top-0 right-0 bottom-0 left-0 z-50 flex backdrop-blur-sm">

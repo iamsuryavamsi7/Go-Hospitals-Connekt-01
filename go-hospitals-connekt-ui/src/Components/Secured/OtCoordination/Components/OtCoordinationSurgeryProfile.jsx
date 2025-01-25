@@ -208,6 +208,8 @@ const OtCoordinationSurgeryProfile = () => {
 
                     fetchAppointmentData();
 
+                    setSurgeryStartedActivated(false);
+
                 }
 
             }
@@ -248,6 +250,8 @@ const OtCoordinationSurgeryProfile = () => {
 
                     }
 
+                    setSurgeryEndedActivated(false);
+
                 }
 
             }
@@ -259,6 +263,9 @@ const OtCoordinationSurgeryProfile = () => {
         }
 
     }
+
+    const [surgeryStartedActivated, setSurgeryStartedActivated] = useState(false);
+    const [surgeryEndedActivated, setSurgeryEndedActivated] = useState(false);
 
     return (
 
@@ -464,7 +471,7 @@ const OtCoordinationSurgeryProfile = () => {
 
                             </div>
 
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+                            {patientData.roomNo && <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
                                 <div className="text-base text-gray-300">
 
@@ -478,7 +485,7 @@ const OtCoordinationSurgeryProfile = () => {
 
                                 </div>
 
-                            </div>
+                            </div>}
 
                             <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
 
@@ -496,19 +503,89 @@ const OtCoordinationSurgeryProfile = () => {
 
                             </div>
 
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
+                                    Surgery Status
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.surgeryCompleted ? 'Surgery Completed' : 'Not Completed'}
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                         {format(patientData.surgeryDate, 'MMMM dd yyyy') === format(new Date(), 'MMMM dd yyyy') && !patientData.surgeryCompleted && <div className="mx-10 mt-10 flex items-center">
 
                             {(patientData.surgeryStartTime === null) && <button
                                 className='bg-green-800 px-2 py-1 hover:opacity-60 active:opacity-80 rounded-lg mr-5'
-                                onClick={surgeryStartedFunction}
+                                onClick={() => setSurgeryStartedActivated(true)}
                             >Surgery Started</button>}
 
                             {(patientData.surgeryStartTime !== null) && <button
                                 className='bg-green-800 px-2 py-1 hover:opacity-60 active:opacity-80 rounded-lg'
-                                onClick={surgeryEndedFunction}
+                                onClick={() => setSurgeryEndedActivated(true)}
                             >Surgery Ended</button>}
+
+                        </div>}
+
+                        {surgeryStartedActivated && <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-[2px]">
+
+                            <div className="bg-gray-900 rounded-lg p-10">
+
+                                <div className="">
+
+                                    By clicking this you are assuring that surgery is started
+
+                                </div>
+
+                                <div className="mt-5">
+
+                                    <button 
+                                        className='bg-green-800 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-80 mr-5'
+                                        onClick={surgeryStartedFunction}
+                                    >Conform</button>
+                                    <button 
+                                        className='bg-red-700 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-80'
+                                        onClick={() => setSurgeryStartedActivated(false)}
+                                    >Cancel</button>
+
+                                </div>
+
+                            </div>
+
+                        </div>}
+
+                        {surgeryEndedActivated && <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-[2px]">
+
+                            <div className="bg-gray-900 rounded-lg p-10">
+
+                                <div className="">
+
+                                    By clicking this you are assuring that surgery is completed
+
+                                </div>
+
+                                <div className="mt-5">
+
+                                    <button 
+                                        className='bg-green-800 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-80 mr-5'
+                                        onClick={surgeryEndedFunction}
+                                    >Conform</button>
+                                    <button 
+                                        className='bg-red-700 px-2 py-1 rounded-lg hover:opacity-60 active:opacity-80'
+                                        onClick={() => setSurgeryEndedActivated(false)}
+                                    >Cancel</button>
+
+                                </div>
+
+                            </div>
 
                         </div>}
 

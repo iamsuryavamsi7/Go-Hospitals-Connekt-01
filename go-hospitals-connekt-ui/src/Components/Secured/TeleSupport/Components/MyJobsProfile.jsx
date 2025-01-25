@@ -10,7 +10,7 @@ import { IoCloseCircle, IoCloseCircleSharp } from 'react-icons/io5';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import DatePicker from 'react-datepicker';
-import { format, isAfter } from 'date-fns';
+import { format, isAfter, isSameDay } from 'date-fns';
 
 const MyJobsProfile = () => {
 
@@ -149,7 +149,7 @@ const MyJobsProfile = () => {
 
     const sendLinkFunction = () => {
 
-        window.open(`https://wa.me/${patientData.contact}?text=Click%20on%20this%20link%20to%20go%20further%20with%20our%20surgery%20process%3A%20http%3A%2F%2Fgowork.gohospitals.in%3A7778%2Fpublic%2Ffill-the-surgery-form%2F${userObject.id}%2F${id}`, '_blank');
+        window.open(`https://wa.me/${patientData.contact}?text=Please%20fill%20this%20form%3A%20https%3A%2F%2Fgoworks.goclinics.in%2Fpublic%2Ffill-the-surgery-form%2F${userObject.id}%2F${id}`, '_blank');
 
     }
 
@@ -160,7 +160,7 @@ const MyJobsProfile = () => {
 
         const applicationId = id;
 
-        const textToCopy = `http://gowork.gohospitals.in:7778/public/fill-the-surgery-form/${teleSupportUserId}/${applicationId}`;
+        const textToCopy = `${goHospitalsFRONTENDBASEURL}/public/fill-the-surgery-form/${teleSupportUserId}/${applicationId}`;
 
         // Check if `navigator.clipboard` is supported
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -558,7 +558,7 @@ const MyJobsProfile = () => {
 
         e.preventDefault();
 
-        if ( surgeryCounsellingDoneData.surgeryDate !== null && isAfter(surgeryCounsellingDoneData.surgeryDate, new Date()) && panCardDoc !== null ){
+        if ( surgeryCounsellingDoneData.surgeryDate !== null && (isSameDay(surgeryCounsellingDoneData.surgeryDate, new Date()) || isAfter(surgeryCounsellingDoneData.surgeryDate, new Date())) && panCardDoc !== null ){
 
             const formData = new FormData();
 
@@ -1495,7 +1495,7 @@ const MyJobsProfile = () => {
                                             className="px-10 transition-all duration-200 cursor-pointer rounded-t-2xl block"
                                         >
                                             
-                                            <label className='text-xs'>Next Consultation Date</label><br />
+                                            <label className='text-xs'>Surgery Date</label><br />
     
                                             <div className="relative inline-block">
     

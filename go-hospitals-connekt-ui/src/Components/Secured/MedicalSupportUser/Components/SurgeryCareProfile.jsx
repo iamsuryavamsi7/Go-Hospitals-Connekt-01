@@ -499,6 +499,22 @@ const SurgeryCareProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Patient ID
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.patientId}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Age
 
                                 </div>
@@ -515,38 +531,6 @@ const SurgeryCareProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Contact
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.contact}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
-                                    Address
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {patientData.address}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Gender
 
                                 </div>
@@ -554,22 +538,6 @@ const SurgeryCareProfile = () => {
                                 <div className="text-lg">
                                     
                                     {patientData.gender}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg w-auto">
-
-                                <div className="text-base text-gray-300">
-
-                                    Medical History
-
-                                </div>
-
-                                <div className="text-lg w-auto break-words">
-                                    
-                                    {patientData.medicalHistory}
 
                                 </div>
 
@@ -643,22 +611,6 @@ const SurgeryCareProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
-                                    Appointment Created On
-
-                                </div>
-
-                                <div className="text-lg">
-                                    
-                                    {formattedDate}
-
-                                </div>
-
-                            </div>
-
-                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
-
-                                <div className="text-base text-gray-300">
-
                                     Booked By
 
                                 </div>
@@ -713,29 +665,29 @@ const SurgeryCareProfile = () => {
 
                                 <div className="text-base text-gray-300">
 
+                                    Surgery Completed
+
+                                </div>
+
+                                <div className="text-lg">
+                                    
+                                    {patientData.surgeryCompleted ? 'Surgery Completed' : 'Not Completed'}
+
+                                </div>
+
+                            </div>
+
+                            <div className="block items-start bg-gray-800 px-5 py-3 rounded-lg">
+
+                                <div className="text-base text-gray-300">
+
                                     Treatment Status
 
                                 </div>
 
                                 <div className="text-lg">
                                     
-                                    {patientData.treatmentDone ? (
-
-                                        <div className="text-base text-gray-300">
-
-                                            Completed
-
-                                        </div>
-
-                                    ) : (
-
-                                        <div className="text-lg">
-
-                                            Not Completed
-
-                                        </div>
-
-                                    )}
+                                    {patientData.treatmentDone ? 'Completed' : 'Not Completed'}
 
                                 </div>
 
@@ -747,15 +699,10 @@ const SurgeryCareProfile = () => {
                         {!patientData.surgeryCompleted && (
 
                             <div
-                                className='bg-[#238636] mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer inline-block'
-                                onClick={() => {
-
-                                    // setTreatMentDoneVisible(true);
-
-                                }}
+                                className='bg-gray-800 mx-10 my-10 px-2 rounded-lg leading-10 cursor-pointer inline-block'
                             >
 
-                                Sent to Tele Support
+                                In Progress
 
                             </div>
 

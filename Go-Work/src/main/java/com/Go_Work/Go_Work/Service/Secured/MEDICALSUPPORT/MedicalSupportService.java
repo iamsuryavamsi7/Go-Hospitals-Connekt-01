@@ -929,7 +929,7 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE))
+                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE) )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 

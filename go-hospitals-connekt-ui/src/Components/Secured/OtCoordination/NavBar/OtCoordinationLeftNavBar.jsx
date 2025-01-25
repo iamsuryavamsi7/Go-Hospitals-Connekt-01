@@ -72,44 +72,62 @@ const OtCoordinationLeftNavBar = () => {
     const pathName = window.location.pathname;
 
     // States to manage left nav bar style
-    const [pendingMedications1, setPendingMedications1] = useState(`text-gray-400`);
+    const [currentSurgeries1, setCurrentSurgeries1] = useState(`text-gray-400`);
 
-    const [pendingMedications2, setPendingMedications2] = useState(`text-gray-400`);
+    const [currentSurgeries2, setCurrentSurgeries2] = useState(`text-gray-400`);
 
-    const [completedMedication1, setCompletedMedications1] = useState(`text-gray-400`);
+    const [futureSurgeries1, setFutureSurgeries1] = useState(`text-gray-400`);
 
-    const [completedMedication2, setCompletedMedications2] = useState(`text-gray-400`);
+    const [futureSurgeries2, setFutureSurgeries2] = useState(`text-gray-400`);
+
+    const [completedSurgeries1, setCompletedSurgeries1] = useState(`text-gray-400`);
+
+    const [completedSurgeries2, setCompletedSurgeries2] = useState(`text-gray-400`);
 
     useEffect(() => {
 
-        // PHARMACY LEFTNAVBAR
-        if ( pathName === `/pharmacy-pending-medications`){
+        // OTCOORDINATION LEFTNAVBAR
+        if ( pathName === `/ot-coordination-current-surgeries`){
 
-            setPendingMedications1(`text-sky-500`);
+            setCurrentSurgeries1(`text-sky-500`);
 
-            setPendingMedications2(`bg-sky-500 text-white`);
+            setCurrentSurgeries2(`bg-sky-500 text-white`);
 
         } else {
 
-            setPendingMedications1(`text-gray-400`);
+            setCurrentSurgeries1(`text-gray-400`);
 
-            setPendingMedications2(`text-gray-400`);            
+            setCurrentSurgeries2(`text-gray-400`);            
 
         }
 
-        if ( pathName === `/pharmacy-completed-medications`){
+        if ( pathName === `/ot-coordination-future-surgeries`){
 
-            setCompletedMedications1(`text-sky-500`);
+            setFutureSurgeries1(`text-sky-500`);
 
-            setCompletedMedications2(`bg-sky-500 text-white`);
+            setFutureSurgeries2(`bg-sky-500 text-white`);
 
         } else {
 
-            setCompletedMedications1(`text-gray-400`);
+            setFutureSurgeries1(`text-gray-400`);
 
-            setCompletedMedications2(`text-gray-400`);            
+            setFutureSurgeries2(`text-gray-400`);            
 
-        }        
+        }  
+        
+        if ( pathName === `/ot-coordination-completed-surgeries`){
+
+            setCompletedSurgeries1(`text-sky-500`);
+
+            setCompletedSurgeries2(`bg-sky-500 text-white`);
+
+        } else {
+
+            setCompletedSurgeries1(`text-gray-400`);
+
+            setCompletedSurgeries2(`text-gray-400`);            
+
+        }  
 
     }, [pathName]);
 
@@ -117,9 +135,7 @@ const OtCoordinationLeftNavBar = () => {
 
         if ( access_token ){
 
-            if ( pathName !== `/pharmacy-pending-medications` ){
-
-                console.log(`Function is running in pharmacy left nav bar and the pathName is ${pathName}`);
+            if ( pathName !== `/` ){
 
                 // checkPendingMedicationsRefreshFunction();
 
@@ -130,8 +146,9 @@ const OtCoordinationLeftNavBar = () => {
     }, []);
 
     const [leftNavBarRedBall, setLeftNavBarRedBall] = useState({
-        pendingMedications: false,
-        completedMedications: false
+        currentSurgeries: false,
+        futureSurgeries: false,
+        completedSurgeries: false
     });
 
     // // Function to check pending medications
@@ -238,7 +255,7 @@ const OtCoordinationLeftNavBar = () => {
                 <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                     <div 
-                        className={`${pendingMedications1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                        className={`${currentSurgeries1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                         onClick={() => {
 
                             if ( leftNavBarRedBall.pendingMedications ){
@@ -263,7 +280,7 @@ const OtCoordinationLeftNavBar = () => {
                         <div className="">
 
                             <IoPersonAddSharp 
-                                className={`${pendingMedications2} text-2xl  leading-8 p-1 rounded-md`}
+                                className={`${currentSurgeries2} text-2xl  leading-8 p-1 rounded-md`}
                             />
 
                         </div>
@@ -274,19 +291,19 @@ const OtCoordinationLeftNavBar = () => {
 
                         </div>
 
-                        {leftNavBarRedBall.pendingMedications && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+                        {leftNavBarRedBall.currentSurgeries && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                     </div>
 
                     <div 
-                        className={`${completedMedication1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                        className={`${futureSurgeries1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                         onClick={() => navigate('/ot-coordination-future-surgeries')}
                     >
 
                         <div className="">
 
                             <IoPeopleCircleOutline 
-                                className={`${completedMedication2} text-2xl  leading-8 p-[1px] rounded-md`}
+                                className={`${futureSurgeries2} text-2xl  leading-8 p-[1px] rounded-md`}
                             />
 
                         </div>
@@ -297,19 +314,19 @@ const OtCoordinationLeftNavBar = () => {
 
                         </div>
 
-                        {leftNavBarRedBall.completedMedications && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+                        {leftNavBarRedBall.futureSurgeries && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                     </div>
                     
                     <div 
-                        className={`${completedMedication1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                        className={`${completedSurgeries1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
                         onClick={() => navigate('/ot-coordination-completed-surgeries')}
                     >
 
                         <div className="">
 
                             <IoPeopleCircleOutline 
-                                className={`${completedMedication2} text-2xl  leading-8 p-[1px] rounded-md`}
+                                className={`${completedSurgeries2} text-2xl  leading-8 p-[1px] rounded-md`}
                             />
 
                         </div>
@@ -320,7 +337,7 @@ const OtCoordinationLeftNavBar = () => {
 
                         </div>
 
-                        {leftNavBarRedBall.completedMedications && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
+                        {leftNavBarRedBall.completedSurgeries && <div className="bg-red-500 h-2 w-2 rounded-[50%] absolute left-[-30px] top-2 animate-pulse"></div>}
 
                     </div>
 

@@ -106,7 +106,7 @@ public class OtCoorindationService {
         List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
                 .stream()
                 .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && !applications.getSurgeryCompleted()&& isAfterDay(applications.getSurgeryDate(), new Date()) )
-                .sorted(Comparator.comparing(Applications::getSurgeryDate).reversed())
+                .sorted(Comparator.comparing(Applications::getSurgeryDate))
                 .map(application -> {
 
                     ApplicationsResponseModel application1 = new ApplicationsResponseModel();
