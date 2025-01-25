@@ -819,6 +819,7 @@ public class MedicalSupportService {
 
         fetchedApplication.setTreatmentDone(true);
         fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+        fetchedApplication.setTeleSupportUser(null);
 
         NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
 

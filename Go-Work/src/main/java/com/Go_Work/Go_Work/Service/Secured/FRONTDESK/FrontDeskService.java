@@ -1147,10 +1147,8 @@ public class FrontDeskService {
                     newNotification1.setTimeStamp(new Date(System.currentTimeMillis()));
                     newNotification1.setApplicationId(fetchedApplication.getId());
                     newNotification1.setRead(false);
-                    newNotification1.setUser(fetchedMedicalUser);
+                    newNotification1.setUser(user);
                     newNotification1.setNotificationStatus(NotificationStatus.BOOKAPPOINTMENT);
-
-                    notificationRepo.save(newNotification1);
 
                     user.getNotifications().add(newNotification1);
 

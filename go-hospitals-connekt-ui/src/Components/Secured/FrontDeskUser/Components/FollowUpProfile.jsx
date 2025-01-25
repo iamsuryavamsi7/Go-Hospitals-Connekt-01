@@ -1082,6 +1082,26 @@ const FollowUpProfile = () => {
                             roomNo: ``
                         })
 
+                        if ( stompClient ){
+
+                            const notificationTypeModel = {
+                                notificationType: `FollowUpPatientCame`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                        }
+
+                        if ( stompClient ){
+
+                            const notificationTypeModel = {
+                                notificationType: `RefreshOtCoordinationNotifications`
+                            }
+                
+                            stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                        }
+
                     }
 
                 }
@@ -2717,7 +2737,7 @@ const FollowUpProfile = () => {
                                             });
 
                                         }}
-                                    /> 
+                                    />
 
                                 </div>
 
