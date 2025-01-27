@@ -621,6 +621,7 @@ public class MedicalSupportService {
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
             fetchedApplication.setCounsellingIsInProgress(true);
+            fetchedApplication.setTeleSupportUser(null);
 
             applicationsRepo.save(fetchedApplication);
 
@@ -691,6 +692,7 @@ public class MedicalSupportService {
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
             fetchedApplication.setCounsellingIsInProgress(true);
+            fetchedApplication.setTeleSupportUser(null);
 
             applicationsRepo.save(fetchedApplication);
 
