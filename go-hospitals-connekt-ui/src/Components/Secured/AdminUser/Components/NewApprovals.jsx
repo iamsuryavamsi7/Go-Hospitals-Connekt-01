@@ -3,6 +3,10 @@ import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
 import { FiRefreshCw } from 'react-icons/fi';
 import { toast, Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const NewApprovals = () => {
 
@@ -222,6 +226,61 @@ const NewApprovals = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => {
+
+                    const messageBody = JSON.parse(message.body);
+
+                    if ( messageBody.notificationType === 'RefreshAdminApprovals' ){
+
+                        lockedUsersFunction();
+
+                    }
+
+                });
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
+
     return (
 
         <>
@@ -230,138 +289,141 @@ const NewApprovals = () => {
 
             {role === admin && (
 
-                <div className="">
+                <div 
+                    className=""
+                    onClick={newPatientOnBoardFronDeskFunction}
+                >
 
-                <div className="text-lg mb-5 mx-20">
+                    <div className="text-lg mb-5 mx-20">
 
-                    New Approvals
+                        New Approvals
 
-                </div>
+                    </div>
 
-                <div className="mt-10 block relative z-10">
+                    <div className="mt-10 block relative z-10">
 
-                    <FiRefreshCw 
-                        className={`text-xl opacity-60 absolute right-36 top-[-20px] cursor-pointer ${refreshButtonStyle}`}
-                        onClick={refreshButtonFunction}
-                    />
+                        {/* <FiRefreshCw 
+                            className={`text-xl opacity-60 absolute right-36 top-[-20px] cursor-pointer ${refreshButtonStyle}`}
+                            onClick={refreshButtonFunction}
+                        /> */}
 
-                    <table
-                        className='mx-10 w-full text-left z-10'
-                    >
+                        <table
+                            className='mx-10 w-full text-left z-10'
+                        >
 
-                        <thead>
-
-                            <tr
-                                className='h-[60px] border-b-[.5px] border-gray-800'
-                            >
-
-                                <th
-                                    className='px-12'
-                                >Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th
-                                    className='text-center'
-                                >Take Action</th>
-
-                            </tr>
-
-                        </thead>
-
-                        {lockedUsers && lockedUsers.length > 0 ? (
-
-                            <tbody>
-
-                                {lockedUsers.map((lockedUser) => {
-
-                                    return (
-
-                                        <tr
-                                        className='leading-10 border-b-[.5px] border-gray-800 text-gray-400 z-10'
-                                        key={lockedUser.id}
-                                        >
-
-                                            <td
-                                                className='px-12'
-                                            >{lockedUser.firstName} {lockedUser.lastName}</td>
-                                            <td>{lockedUser.email}</td>
-                                            <td>{lockedUser.role}</td>
-                                            <td
-                                                className='space-x-10 text-center'
-                                            >
-
-                                                <button
-                                                    className='hover:text-green-400 transition-all'
-                                                    onClick={(e, id) => acceptUserFunction(e, lockedUser.id)}
-                                                >
-
-                                                    Accept
-
-                                                </button>
-
-                                                <button
-                                                    className='hover:text-red-400 transition-all'
-                                                    onClick={(e, id) => rejectUserFunction(e, lockedUser.id)}
-                                                >
-
-                                                    Reject
-
-                                                </button>
-
-                                            </td>
-
-                                        </tr>
-
-                                    );
-
-                                })}
-
-                            </tbody>
-
-                            ) : (
-
-                            <tbody>
+                            <thead>
 
                                 <tr
-                                className='leading-10 border-b-[.5px] border-gray-800 text-gray-400'
+                                    className='h-[60px] border-b-[.5px] border-gray-800'
                                 >
 
-                                    <td
+                                    <th
                                         className='px-12'
-                                    > No Data </td>
-                                    <td> No Data  </td>
-                                    <td> No Data </td>
-                                    <td
-                                        className='space-x-10 text-center'
-                                    >
-
-                                        <button
-                                            className='hover:text-green-400 transition-all'
-                                        >
-
-                                            No Data 
-
-                                        </button>
-
-                                        <button
-                                            className='hover:text-red-400 transition-all'
-                                        >
-
-                                            No Data 
-
-                                        </button>
-
-                                    </td>
+                                    >Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th
+                                        className='text-center'
+                                    >Take Action</th>
 
                                 </tr>
 
-                            </tbody>
+                            </thead>
 
-                            )}
+                            {lockedUsers && lockedUsers.length > 0 ? (
 
-                    </table>
+                                <tbody>
 
-                </div>
+                                    {lockedUsers.map((lockedUser) => {
+
+                                        return (
+
+                                            <tr
+                                            className='leading-10 border-b-[.5px] border-gray-800 text-gray-400 z-10'
+                                            key={lockedUser.id}
+                                            >
+
+                                                <td
+                                                    className='px-12'
+                                                >{lockedUser.firstName} {lockedUser.lastName}</td>
+                                                <td>{lockedUser.email}</td>
+                                                <td>{lockedUser.role}</td>
+                                                <td
+                                                    className='space-x-10 text-center'
+                                                >
+
+                                                    <button
+                                                        className='hover:text-green-400 transition-all'
+                                                        onClick={(e, id) => acceptUserFunction(e, lockedUser.id)}
+                                                    >
+
+                                                        Accept
+
+                                                    </button>
+
+                                                    <button
+                                                        className='hover:text-red-400 transition-all'
+                                                        onClick={(e, id) => rejectUserFunction(e, lockedUser.id)}
+                                                    >
+
+                                                        Reject
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        );
+
+                                    })}
+
+                                </tbody>
+
+                                ) : (
+
+                                <tbody>
+
+                                    <tr
+                                    className='leading-10 border-b-[.5px] border-gray-800 text-gray-400'
+                                    >
+
+                                        <td
+                                            className='px-12'
+                                        > No Data </td>
+                                        <td> No Data  </td>
+                                        <td> No Data </td>
+                                        <td
+                                            className='space-x-10 text-center'
+                                        >
+
+                                            <button
+                                                className='hover:text-green-400 transition-all'
+                                            >
+
+                                                No Data 
+
+                                            </button>
+
+                                            <button
+                                                className='hover:text-red-400 transition-all'
+                                            >
+
+                                                No Data 
+
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                                )}
+
+                        </table>
+
+                    </div>
 
                 </div>
 

@@ -8,6 +8,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Cookies from 'js-cookie';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const FrontDeskRegister = () => {
 
@@ -101,6 +103,16 @@ const FrontDeskRegister = () => {
 
                     }, 1600);
 
+                    if ( stompClient ){
+
+                        const webSocketNotificationTypeModel = {
+                            notificationType: `RefreshAdminApprovals`
+                        }
+
+                        stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(webSocketNotificationTypeModel));
+
+                    }
+
                 }
 
             }catch(error){
@@ -149,7 +161,7 @@ const FrontDeskRegister = () => {
 
     }
     
-// useEffect Hook
+    // useEffect Hook
     useEffect(() => {
 
         setTimeout(() => {
@@ -159,6 +171,43 @@ const FrontDeskRegister = () => {
         }, 500);
 
     });
+
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connection Successfull`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 

@@ -1,7 +1,9 @@
 package com.Go_Work.Go_Work.Service.Auth;
 
+import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Entity.Enum.TokenType;
+import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.Token;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.InvalidJwtTokenException;
@@ -67,6 +69,27 @@ public class AuthService {
         savingUserObject.setUnLocked(false);
 
         userRepo.save(savingUserObject);
+
+        userRepo.findAll()
+                .stream()
+                .filter(application -> application.getRole().equals(Role.ADMIN))
+                .forEach(user -> {
+
+                    Notification newNotification = new Notification();
+
+                    newNotification.setNotificationStatus(NotificationStatus.NEWUSERREGISTER);
+                    newNotification.setMessage("New User Registered !");
+                    newNotification.setRead(false);
+                    newNotification.setTimeStamp(new Date(System.currentTimeMillis()));
+                    newNotification.setNotificationSoundPlayed(false);
+
+                    newNotification.setUser(user);
+
+                    user.getNotifications().add(newNotification);
+
+                    userRepo.save(user);
+
+                });
 
         sendRegistrationEmail(savingUserObject.getEmail());
 

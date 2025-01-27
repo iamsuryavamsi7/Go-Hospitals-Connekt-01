@@ -905,14 +905,176 @@ const FollowUpProfile = () => {
         
     };
 
+    // Functin to fetch surgery documents
+    // const fetchSurgeryDocuments = async (e) => {
+
+    //     const imageSrc = patientData.surgeryDocumentsUrls;
+
+    //     setSurgeryDocumentActivated(false);
+
+    //     setFetchedImageVisible(true);
+
+    //     const surgeryFile = patientData.surgeryImgDocFileURL;
+
+    //     try {
+
+    //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + surgeryFile, {
+    //             responseType: 'blob',
+    //             headers: {
+    //                 Authorization: `Bearer ${access_token}`
+    //             }
+    //         });
+
+    //         if ( response.status === 200 ){
+
+    //             const value = response.data;
+
+    //             const mimeType = response.headers['content-type'];
+    //             const blobUrl = URL.createObjectURL(value);
+
+
+
+    //         }
+
+    //     } catch (error) {
+
+    //         handleError(error);
+
+    //     }
+    
+    //     const imagePromises = imageSrc.map(async (imgSrc) => {
+
+    //         const imageUrl = imgSrc.surgeryDocumentsUrl;
+
+    //         try {
+
+    //             const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageUrl, {
+    //                 responseType: 'blob',
+    //                 headers: {
+    //                     Authorization: `Bearer ${access_token}`
+    //                 }
+    //             });
+    
+    //             if ( response.status === 200 ){
+
+    //                 const value = response.data;
+
+    //                 const mimeType = response.headers['content-type'];
+    //                 const blobUrl = URL.createObjectURL(value);
+
+    //                 console.log(blobUrl);
+
+    //                 return { blobUrl, mimeType };
+
+    //             }
+    
+    //         } catch (error) {
+
+    //             handleError(error);
+
+    //         }
+
+    //     });
+
+    //     const blobs = await Promise.all(imagePromises);
+    
+    //     setImages(
+    //         [...blobs.filter((blob) => blob !== null)]
+    //     );
+        
+    // };
+
+    const fetchSurgeryDocuments = async (e) => {
+
+        const imageSrc = patientData.surgeryDocumentsUrls;
+    
+        setSurgeryDocumentActivated(false);
+        setFetchedImageVisible(true);
+    
+        const surgeryFile = patientData.surgeryImgDocFileURL;
+    
+        const imagesList = []; // Temporary array to hold all images
+    
+        try {
+            // Fetch the surgery file
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + surgeryFile, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+    
+            if (response.status === 200) {
+
+                const value = response.data;
+                const mimeType = response.headers['content-type'];
+                const blobUrl = URL.createObjectURL(value);
+    
+                // Add surgery file to the images list
+                imagesList.push({ blobUrl, mimeType });
+
+            }
+        } catch (error) {
+            handleError(error);
+        }
+    
+        // Fetch all surgery document URLs
+        const imagePromises = imageSrc.map(async (imgSrc) => {
+            const imageUrl = imgSrc.surgeryDocumentsUrl;
+    
+            try {
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/display/` + imageUrl, {
+                    responseType: 'blob',
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+    
+                if (response.status === 200) {
+
+                    const value = response.data;
+                    const mimeType = response.headers['content-type'];
+                    const blobUrl = URL.createObjectURL(value);
+    
+                    return { blobUrl, mimeType };
+
+                }
+            } catch (error) {
+
+                handleError(error);
+
+                return null; // Return null for failed fetches
+
+            }
+        });
+    
+        // Wait for all images to be fetched
+        const blobs = await Promise.all(imagePromises);
+    
+        // Filter out null responses and add them to the images list
+        const validBlobs = blobs.filter((blob) => blob !== null);
+
+        imagesList.push(...validBlobs);
+    
+        // Set all images to the state
+        setImages(imagesList);
+    
+        // Optionally set the first fetched image
+        if (imagesList.length > 0) {
+
+            setFirstFetchedImage(imagesList[0]); // Assuming `setFirstFetchedImage` is defined
+        }
+
+    };    
+
     // Function to download images
     const downloadImage = async (e, index) => {
 
         const imageSrc = patientData.prescriptionUrl[index];
 
-        const mainImageSrc = imageSrc.prescriptionURL;
+        console.log(imageSrc.prescriptionURL);
 
-        mainImageSrc.map(async (imgSrc) => {
+        imageSrc.prescriptionURL.map(async (imgSrc) => {
 
             const imageUrl = imgSrc;
 
@@ -952,6 +1114,87 @@ const FollowUpProfile = () => {
             }
 
         });
+
+    }
+
+    // Function to download images
+    const downloadSurgeryDocumentImages = async (e) => {
+
+        // const imageSrc = patientData.surgeryDocumentsUrls;
+
+        // imageSrc.map(async (imgSrc) => {
+
+        //     const imageUrl = imgSrc.surgeryDocumentsUrl;
+
+        //     console.log(imageUrl);
+
+        //     try {
+
+        //         const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${imageUrl}`, {
+        //             headers: {
+        //                 Authorization: `Bearer ${access_token}`
+        //             },
+        //             responseType: 'blob'
+        //         })
+
+        //         if ( response.status === 200 ){
+
+        //             const url = window.URL.createObjectURL(new Blob([response.data]));
+
+        //             const link = document.createElement('a');
+
+        //             link.href = url;
+
+        //             link.setAttribute('download', imageUrl);
+
+        //             document.body.appendChild(link);
+        //             link.click();
+
+        //             document.body.removeChild(link);
+        //             window.URL.revokeObjectURL(url);
+
+        //         }
+    
+        //     } catch (error) {
+
+        //         handleError(error);
+
+        //     }
+
+        // });
+
+        try {
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/files/download/${patientData.surgeryImgDocFileURL}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                },
+                responseType: 'blob'
+            })
+
+            if ( response.status === 200 ){
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+
+                const link = document.createElement('a');
+
+                link.href = url;
+
+                link.setAttribute('download', patientData.surgeryImgDocFileURL);
+
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+            }
+
+        } catch (error) {
+
+            handleError(error);
+
+        }
 
     }
 
@@ -1171,6 +1414,8 @@ const FollowUpProfile = () => {
         window.open(`https://wa.me/${whatsappNumber}?text=Hello%2C%0A%0AOn%${surgeryObj.name}%2C%20you%20are%20having%20surgery%20for%20this%20patient%20%27Surya%27%20and%20he%20is%20in%20room%20no%20203.%0A%0AFrom%20FrontDesk.`, '_blank');
 
     }
+
+    const [surgeryDocumentActivated, setSurgeryDocumentActivated] = useState(false);
 
     return (
 
@@ -1537,6 +1782,15 @@ const FollowUpProfile = () => {
                                     className="hover:opacity-60 active:opacity-80 cursor-pointer"
                                     onClick={() => setPrescriptionURLData(true)}    
                                 >View All Presciptions</div>
+
+                            </div>}
+
+                            {(patientData.surgeryImgDocFileURL !== `` || patientData.surgeryImgDocFileURL !== null) && <div className="bg-gray-800 px-5 py-3 rounded-lg flex items-center justify-center">
+
+                                <div 
+                                    className="hover:opacity-60 active:opacity-80 cursor-pointer"
+                                    onClick={() => setSurgeryDocumentActivated(true)}    
+                                >View Surgery Document</div>
 
                             </div>}
 
@@ -2754,6 +3008,47 @@ const FollowUpProfile = () => {
                         </form>
 
                     )}
+
+                    {surgeryDocumentActivated && <div className="fixed top-0 right-0 left-0 bottom-0 z-50 flex justify-center items-center backdrop-blur-[2px]">
+
+                        <div className="bg-gray-900 p-10 rounded-2xl max-h-[600px] overflow-y-scroll custom-scrollbar relative">
+
+                            <div className="mb-5 font-xl text-center font-semibold">Surgery Documents</div>
+
+                                <div 
+                                    className="flex space-x-2"
+                                >
+
+                                    <div className="max-w-[100px]">{1}{')'}</div>
+
+                                    <div className="flex items-center space-x-5 mb-2">
+
+                                        <div className="w-[100px]"> {patientData.surgeryCounsellorMessage} </div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={fetchSurgeryDocuments}    
+                                        >View Surgery Documents</div>
+                                        <div   
+                                            className="text-xs text-gray-200 hover:opacity-60 active:opacity-80 cursor-pointer"
+                                            onClick={downloadSurgeryDocumentImages}    
+                                        >Download Surgery Documents</div>
+
+                                    </div>
+
+                            </div>
+
+                            <GiCancel 
+                                className='absolute top-3 right-2 cursor-pointer'
+                                onClick={() => {
+
+                                    setSurgeryDocumentActivated(false);
+
+                                }}
+                            />
+
+                        </div>
+
+                    </div>}
 
                 </>
 

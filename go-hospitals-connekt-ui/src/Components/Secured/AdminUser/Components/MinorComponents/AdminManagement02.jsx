@@ -6,6 +6,8 @@ import axios from 'axios';
 import { ImCancelCircle } from 'react-icons/im';
 import { FaUserDoctor } from 'react-icons/fa6';
 import { toast, Toaster } from 'react-hot-toast'; 
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const AdminManagement02 = () => {
 
@@ -325,9 +327,20 @@ const AdminManagement02 = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
-        <div className="my-10 w-[70%]">
+        <div 
+            className="my-10 w-[70%]"
+            onClick={newPatientOnBoardFronDeskFunction}    
+        >
 
             <Toaster />
 

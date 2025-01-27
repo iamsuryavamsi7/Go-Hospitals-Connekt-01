@@ -31,8 +31,6 @@ public class WebSocketController {
             @Payload WebSocketNotificationType webSocketNotificationType
     ){
 
-        System.out.println("WebSocketNotificationType : " + webSocketNotificationType + "\n\n\n");
-
         return webSocketNotificationType;
 
     }

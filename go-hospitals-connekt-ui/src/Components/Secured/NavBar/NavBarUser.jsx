@@ -6,7 +6,12 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import '../../../Style/secured/navbar/navbaruser.css';
 import { Toaster, toast } from 'react-hot-toast';
-
+import { IoIosSearch } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import { closeNavBarSearch, openNavBarSearch } from '../ReduxToolkit/Slices/frontDeskNavBarSlice';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+ 
 const NavBarUser = () => { 
 
     // Jwt Token
@@ -173,7 +178,7 @@ const NavBarUser = () => {
 
             if ( response.status === 200 ){
 
-                let notificationData = response.data;
+                const notificationData = response.data;
 
                 setNotificationArray(notificationData);
 
@@ -187,15 +192,15 @@ const NavBarUser = () => {
 
     }
 
-    const notificationFunction = async (id, notificationId) => {
+    const notificationAdminFunction = async (id, notificationId) => {
 
-        navigate(`/medical-support-consultation-queue/${id}`);
+        navigate(`/admin-new-approvals`);
 
         setNotificationsVisible(false);
 
         try{
 
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/setNotificationReadByNotificationId/${notificationId}`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -203,191 +208,7 @@ const NavBarUser = () => {
 
             if ( response.status === 200 ){
 
-                try{
-
-                    const userId = userObject.id;
-        
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`
-                        }
-                    })
-        
-                    if ( response.status === 200 ){
-        
-                        let notificationData = response.data;
-
-                        // Sort notifications by timeStamp in descending order (latest first)
-                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
-            
-                        setNotificationArray(notificationData);
-        
-                    }
-        
-                }catch(error){
-        
-                    handleError(error);
-        
-                }
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-        }
-
-    }
-
-    const notificationFrontDeskFunction = async (id, notificationId) => {
-
-        navigate(`/front-desk-follow-up-profile/${id}`);
-
-        setNotificationsVisible(false);
-
-        try{
-
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                try{
-
-                    const userId = userObject.id;
-        
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`
-                        }
-                    })
-        
-                    if ( response.status === 200 ){
-        
-                        let notificationData = response.data;
-
-                        // Sort notifications by timeStamp in descending order (latest first)
-                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
-            
-                        setNotificationArray(notificationData);
-        
-                    }
-        
-                }catch(error){
-        
-                    handleError(error);
-        
-                }
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-        }
-
-    }
-
-    const notificationTeleSupportFunction = async (id, notificationId) => {
-
-        navigate(`/telesupport-profile/${id}`);
-
-        setNotificationsVisible(false);
-
-        try{
-
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                try{
-
-                    const userId = userObject.id;
-        
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`
-                        }
-                    })
-        
-                    if ( response.status === 200 ){
-        
-                        let notificationData = response.data;
-
-                        // Sort notifications by timeStamp in descending order (latest first)
-                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
-            
-                        setNotificationArray(notificationData);
-        
-                    }
-        
-                }catch(error){
-        
-                    handleError(error);
-        
-                }
-
-            }
-
-        }catch(error){
-
-            handleError(error);
-
-        }
-
-    }
-
-    const notificationPharmacyCareFunction = async (id, notificationId) => {
-
-        navigate(`/pharmacy-profiles/${id}`);
-
-        setNotificationsVisible(false);
-
-        try{
-
-            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/setNotificationReadByNotificationId/${notificationId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-
-            if ( response.status === 200 ){
-
-                try{
-
-                    const userId = userObject.id;
-        
-                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/medical-support/fetchNotificationByUserId/${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`
-                        }
-                    })
-        
-                    if ( response.status === 200 ){
-        
-                        let notificationData = response.data;
-
-                        // Sort notifications by timeStamp in descending order (latest first)
-                        notificationData.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
-            
-                        setNotificationArray(notificationData);
-        
-                    }
-        
-                }catch(error){
-        
-                    handleError(error);
-        
-                }
+                fetchNotifications();
 
             }
 
@@ -400,10 +221,12 @@ const NavBarUser = () => {
     }
 
     useEffect(() => {
-
+ 
         if ( access_token ){
 
             fetchUserObject(); 
+
+            fetchNotifications();
 
         } else {
 
@@ -420,81 +243,75 @@ const NavBarUser = () => {
    // Setting the notification count with useEffect hook
    useEffect(() => {
     
-    const unreadNotifications = notificationArray.filter(notification => {
-        return !notification.read
-    });
+        const unreadNotifications = notificationArray.filter(notification => {
+            return !notification.read
+        });
 
-    setNotificationCount(unreadNotifications.length);
+        setNotificationCount(unreadNotifications.length);
 
-    const unPlayedNotificationsCount = notificationArray.filter((notification) => {
+        const unPlayedNotificationsCount = notificationArray.filter((notification) => {
 
-        return !notification.notificationSoundPlayed
+            return !notification.notificationSoundPlayed
 
-    });
+        });
 
-    const playMusicFunction = async () => {
-            
-        for(let i = 0; i < unPlayedNotificationsCount.length; i++){
+        const playMusicFunction = async () => {
+                
+            for(let i = 0; i < unPlayedNotificationsCount.length; i++){
 
-            const currentNotificationID = unPlayedNotificationsCount[i].id;
-            const currentNotificationMessage = unPlayedNotificationsCount[i].message;
+                const currentNotificationID = unPlayedNotificationsCount[i].id;
+                const currentNotificationMessage = unPlayedNotificationsCount[i].message;
 
-            try{
+                try{
 
-                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/notificationSoundPlayed/${currentNotificationID}`, {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`
+                    const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/notificationSoundPlayed/${currentNotificationID}`, {
+                        headers: {
+                            Authorization: `Bearer ${access_token}`
+                        }
+                    })
+
+                    if ( response.status === 200 ){
+
+                        const responseData = response.data;
+
+                        setTimeout(() => {
+
+                            Notification.requestPermission().then(perm => {
+
+                                if ( perm === 'granted' ){
+                    
+                                    new Notification('Nursing Notification', {
+                                        body: currentNotificationMessage,
+                                        icon: '/Go-Hospitals-Logo.webp'
+                                    });
+
+                                }
+                    
+                            });
+
+                            const audio = new Audio(`/Notifications/notification_count.mp4`);
+        
+                            audio.play().catch((error) => {
+                                console.log("Audio play failed", error);
+                            });
+        
+                        }, i * 800); 
+
                     }
-                })
 
-                if ( response.status === 200 ){
+                }catch(error){
 
-                    const responseData = response.data;
-
-                    setTimeout(() => {
-
-                        Notification.requestPermission().then(perm => {
-
-                            if ( perm === 'granted' ){
-                
-                                new Notification('Nursing Notification', {
-                                    body: currentNotificationMessage,
-                                    icon: '/Go-Hospitals-Logo.webp'
-                                });
-
-                                alert(" Working");
-                
-                            } else {
-
-                                alert("Not Working");
-                                
-                            }
-                
-                        });
-
-                        const audio = new Audio(`/Notifications/notification_count.mp4`);
-    
-                        audio.play().catch((error) => {
-                            console.log("Audio play failed", error);
-                        });
-    
-                    }, i * 800); 
+                    console.error(error);
 
                 }
 
-            }catch(error){
-
-                console.error(error);
-
             }
-
-        }
     
-    }
+        }
 
-    playMusicFunction();
+        playMusicFunction();
 
-}, [notificationArray]);
+    }, [notificationArray]);
 
     const notificationDivRef = useRef(null);
 
@@ -503,6 +320,118 @@ const NavBarUser = () => {
         if ( notificationDivRef.current ){
 
             notificationDivRef.current.click();
+
+        }
+
+    }, []);
+
+    const searchFeatureState = useSelector((state) => state.frontDeskNavBar.navBarSearchActivated);
+
+    const dispatch = useDispatch();
+
+    const [searchObjects, setSearchObjects] = useState([]);
+
+    useEffect(() => {
+
+        if ( searchObjects.length === 0 ){
+
+            dispatch(closeNavBarSearch());
+
+        }
+
+    }, [searchObjects]);
+
+    // Function to search users on value change
+    const searchBoxFunction = async (searchFieldInput) => {
+
+        if (searchFieldInput && searchFieldInput.trim() !== '') {
+
+            try {
+
+                const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/front-desk/searchApplications/${searchFieldInput}`,{
+                        headers: { 
+                            Authorization: `Bearer ${access_token}` 
+                        },
+                    }
+                );
+    
+                if (response.status === 200) {
+
+                    const applicationObjects = response.data;
+
+                    const uniqueApplicationObjectMap = new Map();
+
+                    for ( const applicationObject of applicationObjects ){
+
+                        const applicationObjectModel = {
+                            id: applicationObject.id,
+                            patientId: applicationObject.patientId,
+                            name: applicationObject.name,
+                            age: applicationObject.age
+                        }
+
+                        uniqueApplicationObjectMap.set(applicationObject.id, applicationObjectModel);
+
+                    }
+
+                    setSearchObjects(Array.from(uniqueApplicationObjectMap.values()));
+    
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+            }
+
+        }
+
+        dispatch(openNavBarSearch());
+        
+    };
+
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/common/commonFunction`, (message) => {
+
+                    const messageBody = JSON.parse(message.body);
+
+                    if ( messageBody.notificationType === 'RefreshAdminApprovals' ){
+
+                        fetchNotifications();
+
+                    }
+
+                });
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
 
         }
 
@@ -533,6 +462,53 @@ const NavBarUser = () => {
                         works
 
                     </div>
+
+                </div>
+
+                <div className="relative z-50">
+
+                    <input 
+                        required
+                        type='text'
+                        className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 flex-1 w-[300px] max-sm:w-full mt-2 text-sm pl-8'
+                        onChange={(e) => {
+
+                            const value = e.target.value;
+
+                            searchBoxFunction(value);
+
+                        }}
+                    /> 
+
+                    <IoIosSearch 
+                        className='absolute top-[15px] left-2 text-[22px]'
+                    />
+
+                    {searchFeatureState && (
+                        
+                        <div 
+                            className={`absolute left-[-60px] right-[-60px] mt-2 z-50 bg-gray-900 ${searchObjects.length > 0 && 'border-[1px] border-gray-700'} rounded-lg text-[13px] max-h-[300px] overflow-y-scroll custom-scrollbar`}
+                        >
+
+                            {searchObjects && searchObjects.length > 0 && searchObjects.map((searchObject, index) => (
+
+                                <div 
+                                    className="py-3 px-5 hover:bg-gray-800 active:opacity-80 transition-all duration-200 cursor-pointer flex justify-between items-center"
+                                    key={index}
+                                    onClick={() => navigate(`/admin-search-profile/${searchObject.id}`)}    
+                                >
+
+                                    <div className="w-[120px] whitespace-nowrap">Patient ID : {searchObject.patientId}</div>
+                                    <div className="w-[130px] overflow-hidden text-ellipsis">Name : {searchObject.name}</div>
+                                    <div className="">Age : {searchObject.age}</div>    
+
+                                </div>
+
+                            ))}
+
+                        </div>
+                
+                    )}
 
                 </div>
 
@@ -604,80 +580,11 @@ const NavBarUser = () => {
                                                         key={notification.id}
                                                     >
 
-                                                        {role === roles.frontDesk && (
+                                                        {role === roles.admin && (
 
                                                             <div 
                                                                 className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                                onClick={(id, notificationid) => notificationFrontDeskFunction(notification.applicationId, notification.id)} 
-                                                            >
-
-                                                                <div className="">
-
-                                                                    {notification.message}
-
-                                                                </div>
-
-                                                                <div className="text-xs text-gray-400">
-
-                                                                    {new Date(notification.timeStamp).toLocaleString()}
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        )}
-
-                                                        {role === roles.medicalSupport && (
-
-                                                            <div 
-                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                                onClick={(id, notificationid) => notificationFunction(notification.applicationId, notification.id)} 
-                                                            >
-
-                                                                <div className="">
-
-                                                                    {notification.message}
-
-                                                                </div>
-
-                                                                <div className="text-xs text-gray-400">
-
-                                                                    {new Date(notification.timeStamp).toLocaleString()}
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        )}
-
-                                                        {role === roles.teleSupport && (
-
-                                                            <div 
-                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                                onClick={(id, notificationid) => notificationTeleSupportFunction(notification.applicationId, notification.id)} 
-                                                            >
-
-                                                                <div className="">
-
-                                                                    {notification.message}
-
-                                                                </div>
-
-                                                                <div className="text-xs text-gray-400">
-
-                                                                    {new Date(notification.timeStamp).toLocaleString()}
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        )}
-
-                                                        {role === roles.pharmacyCare && (
-
-                                                            <div 
-                                                                className={`py-3 mx-2 px-2 text-base rounded-lg ${colorChange(notification.read)} transition-all duration-200 cursor-pointer hover:opacity-60 active:opacity-40`}
-                                                                onClick={(id, notificationid) => notificationPharmacyCareFunction(notification.applicationId, notification.id)} 
+                                                                onClick={(id, notificationid) => notificationAdminFunction(notification.applicationId, notification.id)} 
                                                             >
 
                                                                 <div className="">

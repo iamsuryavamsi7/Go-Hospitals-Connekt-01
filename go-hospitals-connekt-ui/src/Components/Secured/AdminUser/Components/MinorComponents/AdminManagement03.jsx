@@ -5,6 +5,8 @@ import { RiDeleteBin5Line } from 'react-icons/ri'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { ImCancelCircle } from 'react-icons/im'
+import { useDispatch } from 'react-redux'
+import { closeNavBarSearch } from '../../../ReduxToolkit/Slices/frontDeskNavBarSlice'
 
 const AdminManagement03 = () => {
 
@@ -267,9 +269,20 @@ const AdminManagement03 = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
-        <div className="mx-20 mb-20 w-[50%]">
+        <div 
+            className="mx-20 mb-20 w-[50%]"
+            onClick={newPatientOnBoardFronDeskFunction}    
+        >
 
             <div className="flex items-center">
 

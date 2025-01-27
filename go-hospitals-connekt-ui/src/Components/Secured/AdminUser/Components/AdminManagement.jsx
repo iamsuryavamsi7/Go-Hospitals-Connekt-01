@@ -8,6 +8,8 @@ import AdminManagement02 from './MinorComponents/AdminManagement02';
 import { FcDepartment } from 'react-icons/fc';
 import {toast, Toaster} from 'react-hot-toast';
 import AdminManagement03 from './MinorComponents/AdminManagement03';
+import { useDispatch } from 'react-redux';
+import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
 const AdminManagement = () => {
 
@@ -325,6 +327,14 @@ const AdminManagement = () => {
 
     }, []);
 
+    const dispatch = useDispatch();
+
+    const newPatientOnBoardFronDeskFunction = () => {
+
+        dispatch(closeNavBarSearch());
+
+    }
+
     return (
 
         <>
@@ -335,7 +345,10 @@ const AdminManagement = () => {
 
                 <>
 
-                    <div className=""> 
+                    <div 
+                        className=""
+                        onClick={newPatientOnBoardFronDeskFunction}    
+                    > 
 
                         {editDepartmentVisible && (
 

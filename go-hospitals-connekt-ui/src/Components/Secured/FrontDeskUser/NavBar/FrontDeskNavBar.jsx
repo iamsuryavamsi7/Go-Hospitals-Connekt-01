@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { IoIosSearch } from 'react-icons/io';
+import { IoIosSearch } from 'react-icons/io'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { closeNavBarSearch, openNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
 
@@ -429,14 +429,6 @@ const FrontDeskNavBar = () => {
         dispatch(openNavBarSearch());
         
     };
-
-    const pathName = window.location.pathname;
-
-    useEffect(() => {
-
-        dispatch(closeNavBarSearch());
-
-    }, [pathName]);
 
     return (
 
