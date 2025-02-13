@@ -65,6 +65,7 @@ import FutureSurgeries from './Components/Secured/OtCoordination/Components/Futu
 import CurrentSurgeries from './Components/Secured/OtCoordination/Components/CurrentSurgeries'
 import OtCoordinationSurgeryProfile from './Components/Secured/OtCoordination/Components/OtCoordinationSurgeryProfile'
 import AdminSearchObject from './Components/Secured/AdminUser/Components/AdminSearchObject'
+import AdminAnalytics from './Components/Secured/AdminUser/Components/AdminAnalytics'
 
 function GoWorkRouter() {
 
@@ -105,6 +106,7 @@ function GoWorkRouter() {
 						<Route path='/admin-new-approvals' element={<NewApprovals />}/>
 						<Route path='/admin-management' element={<AdminManagement />}/>
 						<Route path='/admin-search-profile/:id' element={<AdminSearchObject />}/>
+						<Route path='/admin-analytics' element={<AdminAnalytics />}/>
 					</Route>
 
 					{/* FRONTDESK ROUTING */}

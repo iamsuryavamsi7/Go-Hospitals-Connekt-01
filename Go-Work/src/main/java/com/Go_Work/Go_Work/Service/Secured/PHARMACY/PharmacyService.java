@@ -10,10 +10,7 @@ import com.Go_Work.Go_Work.Error.FrontDeskUserNotFoundException;
 import com.Go_Work.Go_Work.Error.NotificationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.MedicalSupportResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.ApplicationsResponseModel;
-import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
-import com.Go_Work.Go_Work.Repo.NotificationRepo;
-import com.Go_Work.Go_Work.Repo.PharmacyRepo;
-import com.Go_Work.Go_Work.Repo.UserRepo;
+import com.Go_Work.Go_Work.Repo.*;
 import com.Go_Work.Go_Work.Service.Config.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +41,8 @@ public class PharmacyService {
     private final JwtService jwtService;
 
     private final PharmacyRepo pharmacyRepo;
+
+    private final BillsRepo billsRepo;
 
     public MedicalSupportResponseModel fetchApplicationById(Long id) throws AppointmentNotFoundException {
 
@@ -114,13 +113,29 @@ public class PharmacyService {
         fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
 
+        ConsultationTypesData fetchedConsultationType = fetchedApplication.getConsultationTypesData().stream()
+                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                .orElse(null);
+
         if ( fetchedApplication.getIsMedicationPlusFollow() ){
 
-            fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+            if ( fetchedConsultationType != null ){
+
+                fetchedConsultationType.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+            }
+
+//            fetchedConsultationType.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
 
         }else {
 
-            fetchedApplication.setConsultationType(ConsultationType.COMPLETED);
+            if ( fetchedConsultationType != null ){
+
+                fetchedConsultationType.setConsultationType(ConsultationType.COMPLETED);
+
+            }
+
+//            fetchedApplication.setConsultationType(ConsultationType.COMPLETED);
 
         }
 
@@ -128,7 +143,7 @@ public class PharmacyService {
 
         applicationsRepo.save(fetchedApplication);
 
-        if ( fetchedApplication.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED) ) {
+        if ( fetchedConsultationType != null && fetchedConsultationType.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED) ) {
 
             userRepo.findAll()
                     .stream()
@@ -160,7 +175,24 @@ public class PharmacyService {
 
         return applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> !applications.getConsultationType().equals(ConsultationType.WAITING) && !applications.getConsultationType().equals(ConsultationType.COMPLETED) && applications.getMedicalSupportUser() != null )
+                .filter(applications -> {
+
+//                                !applications.getConsultationType().equals(ConsultationType.WAITING) &&
+
+                            ConsultationType latetsConsultationType = applications.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null);
+
+
+                            return
+                                    !applications.getConsultationTypesData().isEmpty() &&
+                                    latetsConsultationType != ConsultationType.WAITING &&
+                                    latetsConsultationType != ConsultationType.COMPLETED &&
+//                                  !applications.getConsultationType().equals(ConsultationType.COMPLETED) &&
+                                    applications.getMedicalSupportUser() != null;
+
+                })
                 .map(application1 -> {
 
                     ApplicationsResponseModel application = new ApplicationsResponseModel();
@@ -181,53 +213,68 @@ public class PharmacyService {
 
     public List<ApplicationsResponseModel> fetchAllPharmacyCompletedMedications() {
 
-        return applicationsRepo.findAll()
+//        return applicationsRepo.findAll()
+//                .stream()
+//                .map(application1 -> {
+//
+//                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+//
+//                    BeanUtils.copyProperties(application1, application);
+//
+//                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+//
+//                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
+//                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+//
+//                    return application;
+//
+//                })
+//                .collect(Collectors.toList());
+
+        return billsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.COMPLETED) )
-                .map(application1 -> {
+                .filter(bill -> bill.getBillType().equals(BillType.PHARMACYBILL) )
+                .map(bill -> {
 
-                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+                    Applications fetchedApplication = bill.getApplications();
 
-                    BeanUtils.copyProperties(application1, application);
+                    ApplicationsResponseModel applicationsResponseModel = new ApplicationsResponseModel();
 
-                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+                    BeanUtils.copyProperties(fetchedApplication, applicationsResponseModel);
 
-                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
-                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
-
-                    return application;
+                    return applicationsResponseModel;
 
                 })
-                .collect(Collectors.toList());
+                .toList();
 
     }
 
-    public List<ApplicationsResponseModel> fetchAllPharmacyCompletedMedicationsPaging(int pageNumber, int size) {
-
-        Pageable pageable = PageRequest.of(pageNumber, size);
-
-        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
-
-        return applicationsPage
-                .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.COMPLETED) )
-                .map(application1 -> {
-
-                    ApplicationsResponseModel application = new ApplicationsResponseModel();
-
-                    BeanUtils.copyProperties(application1, application);
-
-                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
-
-                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
-                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
-
-                    return application;
-
-                })
-                .collect(Collectors.toList());
-
-    }
+//    public List<ApplicationsResponseModel> fetchAllPharmacyCompletedMedicationsPaging(int pageNumber, int size) {
+//
+//        Pageable pageable = PageRequest.of(pageNumber, size);
+//
+//        Page<Applications> applicationsPage = applicationsRepo.findAll(pageable);
+//
+//        return applicationsPage
+//                .stream()
+//                .filter(applications -> applications.getConsultationType().equals(ConsultationType.COMPLETED) )
+//                .map(application1 -> {
+//
+//                    ApplicationsResponseModel application = new ApplicationsResponseModel();
+//
+//                    BeanUtils.copyProperties(application1, application);
+//
+//                    User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
+//
+//                    application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
+//                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+//
+//                    return application;
+//
+//                })
+//                .collect(Collectors.toList());
+//
+//    }
 
     public List<ApplicationsResponseModel> fetchAllPharmacyMedicationsPaging(int page, int pageSize) {
 

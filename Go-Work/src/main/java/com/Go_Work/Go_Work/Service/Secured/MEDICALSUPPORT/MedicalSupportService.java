@@ -62,7 +62,16 @@ public class MedicalSupportService {
 
         List<ConsultationQueueMedicalSupportModel> fetchedApplications = applicationsRepo.findAll()
             .stream()
-            .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.WAITING))
+            .filter(appointment ->
+
+//                    appointment.getConsultationType().equals(ConsultationType.WAITING)
+
+                    appointment.getConsultationTypesData().stream()
+                            .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                            .map(ConsultationTypesData::getConsultationType)
+                            .orElse(null) == ConsultationType.WAITING
+
+            )
             .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
             .map(user01 -> {
 
@@ -192,7 +201,16 @@ public class MedicalSupportService {
 
         return fetchedMedicalSupportUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != ConsultationType.COMPLETED)
+                .filter(application ->
+
+//                        application.getConsultationType() != ConsultationType.COMPLETED
+
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.FOLLOWUPCOMPLETED
+
+                )
                 .collect(Collectors.toList());
 
     }
@@ -239,7 +257,27 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplicationModels =  fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType().equals(ConsultationType.ONSITREVIEWPATIENTDRESSING) || application.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS) || application.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT) )
+                .filter(application -> {
+
+//                    application.getConsultationType().equals(ConsultationType.ONSITREVIEWPATIENTDRESSING) || application.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS) || application.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT) || application.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT)
+
+                            ConsultationType fetchedConsultationType = application.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null);
+
+                            return
+                                    fetchedConsultationType != null &&
+                                    (
+
+                                            fetchedConsultationType.equals(ConsultationType.ONSITREVIEWPATIENTDRESSING) ||
+                                            fetchedConsultationType.equals(ConsultationType.ONSITEVASCULARINJECTIONS) ||
+                                            fetchedConsultationType.equals(ConsultationType.ONSITEQUICKTREATMENT) ||
+                                            fetchedConsultationType.equals(ConsultationType.ONSITECASCUALITYPATIENT)
+
+                                    );
+
+                })
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -287,7 +325,17 @@ public class MedicalSupportService {
 
         return fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.MEDICATIONPLUSFOLLOWUP
+
+                )
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -317,7 +365,17 @@ public class MedicalSupportService {
 
         return fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.SURGERYCARE
+
+                )
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -347,7 +405,17 @@ public class MedicalSupportService {
 
         return fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.PHARMACY
+
+                )
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -377,7 +445,17 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.CROSSCONSULTATION
+
+                )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -428,7 +506,17 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.PATIENTADMIT
+
+                )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -566,7 +654,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setConsultationType(consultationType);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(consultationType);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
 
             applicationsRepo.save(fetchedApplication);
@@ -600,7 +697,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(consultationType);
+//            fetchedApplication.setConsultationType(consultationType);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(consultationType);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setIsMedicationPlusFollow(true);
 
@@ -617,7 +723,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(ConsultationType.SURGERYCARE);
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(consultationType);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
+//            fetchedApplication.setConsultationType(ConsultationType.SURGERYCARE);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
             fetchedApplication.setCounsellingIsInProgress(true);
@@ -654,7 +769,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(ConsultationType.ONSITEQUICKTREATMENT);
+//            fetchedApplication.setConsultationType(ConsultationType.ONSITEQUICKTREATMENT);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(ConsultationType.ONSITEQUICKTREATMENT);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
 
@@ -671,7 +795,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(ConsultationType.ONSITREVIEWPATIENTDRESSING);
+//            fetchedApplication.setConsultationType(ConsultationType.ONSITREVIEWPATIENTDRESSING);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(ConsultationType.ONSITREVIEWPATIENTDRESSING);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
 
@@ -688,7 +821,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(ConsultationType.ONSITEVASCULARINJECTIONS);
+//            fetchedApplication.setConsultationType(ConsultationType.ONSITEVASCULARINJECTIONS);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(ConsultationType.ONSITEVASCULARINJECTIONS);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
             fetchedApplication.setCounsellingIsInProgress(true);
@@ -723,7 +865,16 @@ public class MedicalSupportService {
                     () -> new ApplicationNotFoundException("Application Not Found")
             );
 
-            fetchedApplication.setConsultationType(ConsultationType.ONSITECASCUALITYPATIENT);
+//            fetchedApplication.setConsultationType(ConsultationType.ONSITECASCUALITYPATIENT);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(ConsultationType.ONSITECASCUALITYPATIENT);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
             fetchedApplication.setConsultationAssignedTime(new Date(System.currentTimeMillis()));
             fetchedApplication.setTeleSupportConsellingDone(false);
 
@@ -743,7 +894,15 @@ public class MedicalSupportService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+//        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setApplications(fetchedApplication);
+        consultationTypesData.setConsultationType(ConsultationType.CASECLOSED);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
 
         if ( treatmentDoneMessage != null && !treatmentDoneMessage.isBlank() ){
 
@@ -820,7 +979,16 @@ public class MedicalSupportService {
         }
 
         fetchedApplication.setTreatmentDone(true);
-        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+//        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setApplications(fetchedApplication);
+        consultationTypesData.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
         fetchedApplication.setTeleSupportUser(null);
 
         NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
@@ -867,7 +1035,17 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> filteredData = fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.MEDICATIONPLUSFOLLOWUP)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.MEDICATIONPLUSFOLLOWUP
+
+                )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -932,7 +1110,17 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE) )
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.SURGERYCARE)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.SURGERYCARE
+
+                )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -981,7 +1169,17 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedData = fetchedMedicalUser.getApplications()
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PHARMACY)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.PHARMACY
+
+                )
                 .sorted(Comparator.comparing(Applications::getConsultationAssignedTime).reversed())
                 .map(application1 -> {
 
@@ -1018,7 +1216,17 @@ public class MedicalSupportService {
 
         return fetchedData
                 .stream()
-                .filter(application -> application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT))
+                .filter(application ->
+
+//                        application.getConsultationType() != null && application.getConsultationType().equals(ConsultationType.PATIENTADMIT)
+
+                        application.getConsultationTypesData() != null &&
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.PATIENTADMIT
+
+                )
                 .map(application1 -> {
 
                     User medicalSupportUser = application1.getMedicalSupportUser();
@@ -1081,7 +1289,17 @@ public class MedicalSupportService {
 
         return fetchedApplications
                 .stream()
-                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED )
+                .filter(applications ->
+
+//                        applications.getConsultationType() != ConsultationType.COMPLETED
+
+                        applications.getConsultationTypesData() != null &&
+                        applications.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.COMPLETED
+
+                )
                 .collect(Collectors.toList());
 
     }
@@ -1096,7 +1314,23 @@ public class MedicalSupportService {
 
         List<ApplicationsResponseModel> fetchedApplications = fetchedUser.getApplications()
                 .stream()
-                .filter(applications -> applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED && applications.getConsultationType() != ConsultationType.CASECLOSED && applications.getConsultationType() != ConsultationType.PATIENTDROPOUT)
+                .filter(applications -> {
+
+//                    applications.getConsultationType() != ConsultationType.COMPLETED && applications.getConsultationType() != ConsultationType.FOLLOWUPCOMPLETED && applications.getConsultationType() != ConsultationType.CASECLOSED && applications.getConsultationType() != ConsultationType.PATIENTDROPOUT
+
+                    ConsultationType fetchedConsultationType = applications.getConsultationTypesData().stream()
+                            .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                            .map(ConsultationTypesData::getConsultationType)
+                            .orElse(null);
+
+                    return
+
+                            fetchedConsultationType != ConsultationType.COMPLETED &&
+                            fetchedConsultationType != ConsultationType.FOLLOWUPCOMPLETED &&
+                            fetchedConsultationType != ConsultationType.CASECLOSED &&
+                            fetchedConsultationType != ConsultationType.PATIENTADMIT;
+
+                })
                 .sorted(Comparator.comparing(Applications::getMedicalSupportUserAssignedTime).reversed())
                 .map(fetchedApplication -> {
 
@@ -1138,7 +1372,15 @@ public class MedicalSupportService {
 
         if ( fetchedApplication != null ){
 
-            fetchedApplication.setConsultationType(ConsultationType.DMOCARECOMPLETED);
+//            fetchedApplication.setConsultationType(ConsultationType.DMOCARECOMPLETED);
+
+            ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+            consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+            consultationTypesData.setApplications(fetchedApplication);
+            consultationTypesData.setConsultationType(ConsultationType.DMOCARECOMPLETED);
+
+            fetchedApplication.getConsultationTypesData().add(consultationTypesData);
 
             applicationsRepo.save(fetchedApplication);
 
@@ -1211,7 +1453,17 @@ public class MedicalSupportService {
 
         List<Applications> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.WAITING))
+                .filter(applications ->
+
+//                        applications.getConsultationType().equals(ConsultationType.WAITING)
+
+                        applications.getConsultationTypesData() != null &&
+                        applications.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.WAITING
+
+                )
                 .toList();
 
         if ( !fetchedApplications.isEmpty() ){
@@ -1320,7 +1572,15 @@ public class MedicalSupportService {
         }
 
         fetchedApplication.setTreatmentDone(true);
-        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+//        fetchedApplication.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setApplications(fetchedApplication);
+        consultationTypesData.setConsultationType(ConsultationType.FOLLOWUPCOMPLETED);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
 
         NextAppointmentDate nextAppointmentDate = new NextAppointmentDate();
 
@@ -1359,7 +1619,15 @@ public class MedicalSupportService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.PATIENTDROPOUT);
+//        fetchedApplication.setConsultationType(ConsultationType.PATIENTDROPOUT);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setConsultationType(ConsultationType.PATIENTDROPOUT);
+        consultationTypesData.setApplications(fetchedApplication);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
 
         fetchedApplication.setTreatmentDone(true);
         fetchedApplication.setPaymentDone(true);

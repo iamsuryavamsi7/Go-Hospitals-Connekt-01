@@ -317,7 +317,18 @@ public class TeleSupportService {
 
         List<Applications> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(application1 -> application1.getConsultationType().equals(ConsultationType.SURGERYCARE) && !application1.isTeleSupportConsellingDone())
+                .filter(application1 ->
+
+//                        application1.getConsultationType().equals(ConsultationType.SURGERYCARE) && !application1.isTeleSupportConsellingDone()
+
+                        application1.getConsultationTypesData() != null &&
+                        application1.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.SURGERYCARE &&
+                        !application1.isTeleSupportConsellingDone()
+
+                )
                 .toList();
 
         if ( !fetchedApplications.isEmpty() ){

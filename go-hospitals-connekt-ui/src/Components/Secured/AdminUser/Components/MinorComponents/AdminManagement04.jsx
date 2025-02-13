@@ -74,7 +74,7 @@ const AdminManagement04 = () => {
     const [addUserData, setAddUserData] = useState({
         name: ``,
         password: ``,
-        role: ``
+        role: `FRONTDESK`
     });
 
     // Function to run when the add mobile number is submitted
@@ -211,54 +211,60 @@ const AdminManagement04 = () => {
 
         e.preventDefault();
 
-        if (tempororyUserData.username.trim() !== null && tempororyUserData.username.trim() !== `` && tempororyUserData.password.trim() !== null && tempororyUserData.password.trim() !== `` && tempororyUserData.role.trim() !== null && tempororyUserData.role.trim() !== `` ){
+        const formData = new FormData();
 
-            const formData = new FormData();
+        if ( tempororyUserData.username.trim() != null && tempororyUserData.username.trim() !== '' ){
 
             formData.append("username", tempororyUserData.username.trim());
+
+        }
+
+        if ( tempororyUserData.password.trim() != null && tempororyUserData.password.trim() !== ''  ) {
+
             formData.append("password", tempororyUserData.password.trim());
+
+        }
+
+        if ( tempororyUserData.role.trim() != null && tempororyUserData.role.trim() !== '' ){
+
             formData.append("role", tempororyUserData.role.trim());
 
-            try{
+        }
+
+        try{
 
 
-                const response = await axios.put(`${goHospitalsAPIBaseURL}/api/v1/admin/editUserDataById/${tempororyUserData.id}`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`
-                    }
-                });
+            const response = await axios.put(`${goHospitalsAPIBaseURL}/api/v1/admin/editUserDataById/${tempororyUserData.id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
 
 
-                if ( response.status === 200 ){
+            if ( response.status === 200 ){
 
-                    const booleanValue = response.data;
+                const booleanValue = response.data;
 
-                    if ( booleanValue ){
+                if ( booleanValue ){
 
-                        fetchUsersData();
+                    fetchUsersData();
 
-                        setTempororyUserData({
-                            id: ``,
-                            username: ``,
-                            password: ``,
-                            role: ``
-                        });
+                    setTempororyUserData({
+                        id: ``,
+                        username: ``,
+                        password: ``,
+                        role: ``
+                    });
 
-                        setEditMobileNumberActivated(false);
-
-                    }
+                    setEditMobileNumberActivated(false);
 
                 }
 
-            }catch(error){
-
-                console.error(error);
-
             }
 
-        }else {
+        }catch(error){
 
-            console.log(`Its having some issues`);
+            console.error(error);
 
         }
 
@@ -461,6 +467,7 @@ const AdminManagement04 = () => {
                                 <input 
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     value={addUserData.password}
+                                    type='password'
                                     onChange={(e) => {
 
                                         const value = e.target.value;

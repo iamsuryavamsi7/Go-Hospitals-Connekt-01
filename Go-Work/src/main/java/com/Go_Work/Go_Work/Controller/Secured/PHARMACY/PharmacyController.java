@@ -69,17 +69,17 @@ public class PharmacyController {
 
     }
 
-    @GetMapping("/fetchAllPharmacyCompletedMedicationsPaging/{pageNumber}/{defaultSize}")
-    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyCompletedMedicationsPaging(
-            @PathVariable("pageNumber") int pageNumber,
-            @PathVariable("defaultSize") int size
-    ){
-
-        List<ApplicationsResponseModel> fetchedApplications = pharmacyService.fetchAllPharmacyCompletedMedicationsPaging(pageNumber, size);
-
-        return ResponseEntity.ok(fetchedApplications);
-
-    }
+//    @GetMapping("/fetchAllPharmacyCompletedMedicationsPaging/{pageNumber}/{defaultSize}")
+//    public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyCompletedMedicationsPaging(
+//            @PathVariable("pageNumber") int pageNumber,
+//            @PathVariable("defaultSize") int size
+//    ){
+//
+//        List<ApplicationsResponseModel> fetchedApplications = pharmacyService.fetchAllPharmacyCompletedMedicationsPaging(pageNumber, size);
+//
+//        return ResponseEntity.ok(fetchedApplications);
+//
+//    }
 
     @GetMapping("/fetchAllPharmacyMedicationsPaging/{pageNumber}/{defaultSize}")
     public ResponseEntity<List<ApplicationsResponseModel>> fetchAllPharmacyMedicationsPaging(

@@ -29,7 +29,19 @@ public class OtCoorindationService {
 
         List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && applications.getSurgeryDate() != null && !applications.getSurgeryCompleted()&& isSamyDay(applications.getSurgeryDate(), new Date()) )
+                .filter(applications ->
+
+//                                applications.getConsultationType().equals(ConsultationType.SURGERYCARE) &&
+                                applications.getConsultationTypesData() != null &&
+                                !applications.getConsultationTypesData().isEmpty() &&
+                                applications.getConsultationTypesData().stream()
+                                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                                .map(ConsultationTypesData::getConsultationType)
+                                                .orElse(null) == ConsultationType.SURGERYCARE &&
+                                applications.getSurgeryDate() != null &&
+                                !applications.getSurgeryCompleted() &&
+                                isSamyDay(applications.getSurgeryDate(), new Date()) )
+
                 .sorted(Comparator.comparing(Applications::getSurgeryDate).reversed())
                 .map(application -> {
 
@@ -105,7 +117,18 @@ public class OtCoorindationService {
 
         List<ApplicationsResponseModel> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(applications -> applications.getConsultationType().equals(ConsultationType.SURGERYCARE) && !applications.getSurgeryCompleted()&& isAfterDay(applications.getSurgeryDate(), new Date()) )
+                .filter(applications ->
+
+//                                applications.getConsultationType().equals(ConsultationType.SURGERYCARE) &&
+                                applications.getConsultationTypesData() != null &&
+                                !applications.getConsultationTypesData().isEmpty() &&
+                                applications.getConsultationTypesData().stream()
+                                        .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                        .map(ConsultationTypesData::getConsultationType)
+                                        .orElse(null) == ConsultationType.SURGERYCARE &&
+                                !applications.getSurgeryCompleted() &&
+                                isAfterDay(applications.getSurgeryDate(), new Date()) )
+
                 .sorted(Comparator.comparing(Applications::getSurgeryDate))
                 .map(application -> {
 

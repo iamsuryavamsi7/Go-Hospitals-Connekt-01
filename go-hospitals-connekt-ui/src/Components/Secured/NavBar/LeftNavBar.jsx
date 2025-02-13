@@ -49,6 +49,10 @@ const LeftNavBar = () => {
 
     const [newApprovals2, setNewApprovals2] = useState(`text-gray-400`);
 
+    const [analytics1, setAnalytics1] = useState(`text-gray-400`);
+
+    const [analytics2, setAnalytics2] = useState(`text-gray-400`);
+
     // const [newPatientRegistration, setNewPatientRegistration] = useState(`text-gray-400`);
 
     // const [newPatientRegistration2, setNewPatientRegistration2] = useState(`text-gray-400`);
@@ -262,6 +266,20 @@ const LeftNavBar = () => {
             setAdminmanagement1(`text-gray-400`)
 
             setAdminmanagement2(`text-gray-400`)
+
+        }
+
+        if ( pathName === '/admin-analytics'){
+
+            setAnalytics1(`text-sky-500`)
+
+            setAnalytics2(`bg-sky-500 text-white`)
+
+        } else {
+
+            setAnalytics1(`text-gray-400`)
+
+            setAnalytics2(`text-gray-400`)
 
         }
 
@@ -619,6 +637,27 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Management
+
+                            </div>
+
+                        </div>
+
+                        <div 
+                            className={`${analytics1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/admin-analytics')}
+                        >
+
+                            <div className="">
+
+                                <MdManageAccounts 
+                                    className={`${analytics2} text-[28px]  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Analytics
 
                             </div>
 

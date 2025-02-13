@@ -45,8 +45,8 @@ public class Applications {
     private String tempororyBillNo;
     private String patientDropOutMessage;
 
-    @Enumerated(EnumType.STRING)
-    private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
+//    @Enumerated(EnumType.STRING)
+//    private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
 
     @OneToMany(
             mappedBy = "applications",

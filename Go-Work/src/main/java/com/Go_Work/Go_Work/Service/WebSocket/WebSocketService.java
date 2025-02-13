@@ -1,12 +1,9 @@
 package com.Go_Work.Go_Work.Service.WebSocket;
 
-import com.Go_Work.Go_Work.Entity.Applications;
-import com.Go_Work.Go_Work.Entity.Bills;
+import com.Go_Work.Go_Work.Entity.*;
 import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
 import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
-import com.Go_Work.Go_Work.Entity.Notification;
-import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.AcceptCrossConsultationModel;
@@ -65,7 +62,16 @@ public class WebSocketService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+//        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+
+        ConsultationTypesData newConsultationTypesData = new ConsultationTypesData();
+
+        newConsultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        newConsultationTypesData.setConsultationType(ConsultationType.WAITING);
+        newConsultationTypesData.setApplications(fetchedApplication);
+
+        fetchedApplication.getConsultationTypesData().add(newConsultationTypesData);
+
         fetchedApplication.setMedicalSupportUser(null);
         fetchedApplication.setTreatmentDone(false);
         fetchedApplication.setApplicationCompletedTime(null);

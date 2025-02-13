@@ -307,6 +307,7 @@ public class AdminService {
         return userRepo.findAll()
                 .stream()
                 .filter(user -> !user.getRole().equals(Role.ADMIN) )
+                .sorted(Comparator.comparing(User::getRegisteredOn).reversed())
                 .map(user -> {
 
                     UsersDataAdminModel userData = new UsersDataAdminModel();
@@ -338,6 +339,7 @@ public class AdminService {
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setRole(role);
         newUser.setUnLocked(true);
+        newUser.setRegisteredOn(new Date(System.currentTimeMillis()));
 
         userRepo.save(newUser);
 
@@ -367,9 +369,23 @@ public class AdminService {
                 () -> new UsernameNotFoundException("User Not Found Exception")
         );
 
-        fetchedUser.setUsername(username);
-        fetchedUser.setPassword(passwordEncoder.encode(password));
-        fetchedUser.setRole(role);
+        if ( username != null && !username.isBlank() ) {
+
+            fetchedUser.setUsername(username);
+
+        }
+
+        if ( password != null && !password.isBlank() ) {
+
+            fetchedUser.setPassword(passwordEncoder.encode(password));
+
+        }
+
+        if ( role != null ) {
+
+            fetchedUser.setRole(role);
+
+        }
 
         userRepo.save(fetchedUser);
 

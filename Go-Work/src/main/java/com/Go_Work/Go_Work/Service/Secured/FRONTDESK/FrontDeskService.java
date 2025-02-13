@@ -69,7 +69,16 @@ public class FrontDeskService {
 
         // Set appointment details
         applications.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
-        applications.setConsultationType(ConsultationType.WAITING);
+
+        ConsultationTypesData newConsultationTypeData = new ConsultationTypesData();
+
+        newConsultationTypeData.setConsultationType(ConsultationType.WAITING);
+        newConsultationTypeData.setTimeStamp(new Date(System.currentTimeMillis()));
+        newConsultationTypeData.setApplications(applications);
+
+        applications.getConsultationTypesData().add(newConsultationTypeData);
+
+//      applications.setConsultationType(ConsultationType.WAITING);
         applications.setTreatmentDone(false);
         applications.setPaymentDone(false);
         applications.setPatientGotApproved(true);
@@ -123,7 +132,16 @@ public class FrontDeskService {
 
         return applicationsRepo.findAll()
                 .stream()
-                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING)
+
+                        appointment.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.WAITING
+
+                )
                 .map(user01 -> {
 
                     ApplicationsResponseModel user1 = new ApplicationsResponseModel();
@@ -276,7 +294,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING))
+                .filter(appointment ->
+
+//                          appointment.getConsultationType() != null && appointment.getConsultationType().equals(ConsultationType.WAITING)
+
+                            appointment.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null) == ConsultationType.WAITING
+
+                )
                 .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
                 .map(user01 -> {
 
@@ -330,7 +357,17 @@ public class FrontDeskService {
 
         return applicationsPage
                 .stream()
-                .filter(application -> application.getConsultationType().equals(ConsultationType.PATIENTADMIT) && !application.isPatientGotApproved())
+                .filter(application ->
+
+//                          application.getConsultationType().equals(ConsultationType.PATIENTADMIT) &&
+
+                            application.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null) == ConsultationType.PATIENTADMIT &&
+                            !application.isPatientGotApproved()
+//
+                )
                 .map(application1 -> {
 
                     MedicalSupportResponseModel applicationNew = new MedicalSupportResponseModel();
@@ -402,7 +439,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED)
+
+                            appointment.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null) == ConsultationType.FOLLOWUPCOMPLETED
+
+                )
                 .map(application1 -> {
 
                     ApplicationsResponseModel newApplication = new ApplicationsResponseModel();
@@ -471,7 +517,16 @@ public class FrontDeskService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+//        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setApplications(fetchedApplication);
+        consultationTypesData.setConsultationType(ConsultationType.WAITING);
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
         fetchedApplication.setMedicalSupportUser(null);
         fetchedApplication.setTreatmentDone(false);
         fetchedApplication.setApplicationCompletedTime(null);
@@ -617,7 +672,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.CROSSCONSULTATION)
+
+                        appointment.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.CROSSCONSULTATION
+
+                )
                 .sorted(Comparator.comparing(Applications::getAppointmentCreatedOn).reversed())
                 .map(user01 -> {
 
@@ -683,7 +747,16 @@ public class FrontDeskService {
 
         List<Applications> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(application -> application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION))
+                .filter(application ->
+
+//                        application.getConsultationType().equals(ConsultationType.CROSSCONSULTATION)
+
+                                application.getConsultationTypesData().stream()
+                                    .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                    .map(ConsultationTypesData::getConsultationType)
+                                    .orElse(null) == ConsultationType.CROSSCONSULTATION
+
+                )
                 .toList();
 
         if ( !fetchedApplications.isEmpty() ){
@@ -700,7 +773,16 @@ public class FrontDeskService {
 
         List<Applications> fetchedApplications = applicationsRepo.findAll()
                 .stream()
-                .filter(application -> application.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED))
+                .filter(application ->
+
+//                        application.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED)
+
+                        application.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.FOLLOWUPCOMPLETED
+
+                )
                 .toList();
 
         if ( !fetchedApplications.isEmpty() ){
@@ -764,7 +846,16 @@ public class FrontDeskService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+//        fetchedApplication.setConsultationType(ConsultationType.WAITING);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setApplications(fetchedApplication);
+        consultationTypesData.setConsultationType(ConsultationType.WAITING);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
         fetchedApplication.setTreatmentDone(false);
         fetchedApplication.setPaymentDone(false);
         fetchedApplication.setPatientGotApproved(true);
@@ -817,7 +908,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.CASECLOSED))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.CASECLOSED)
+
+                        appointment.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.CASECLOSED
+
+                )
                 .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
                 .map(application1 -> {
 
@@ -869,7 +969,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.PATIENTDROPOUT))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.PATIENTDROPOUT)
+
+                                appointment.getConsultationTypesData().stream()
+                                        .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                        .map(ConsultationTypesData::getConsultationType)
+                                        .orElse(null) == ConsultationType.FOLLOWUPCOMPLETED
+
+                )
                 .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
                 .map(application1 -> {
 
@@ -921,7 +1030,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.COMPLETED))
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.COMPLETED)
+
+                        appointment.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.COMPLETED
+
+                )
                 .sorted(Comparator.comparing(Applications::getApplicationCompletedTime).reversed())
                 .map(application1 -> {
 
@@ -973,7 +1091,16 @@ public class FrontDeskService {
                 () -> new ApplicationNotFoundException("Application Not Found")
         );
 
-        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+//        fetchedApplication.setConsultationType(ConsultationType.CASECLOSED);
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setConsultationType(ConsultationType.CASECLOSED);
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setApplications(fetchedApplication);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
+
         fetchedApplication.setPaymentDone(true);
         fetchedApplication.setApplicationCompletedTime(new Date(System.currentTimeMillis()));
         fetchedApplication.setPaymentDoneTime(new Date(System.currentTimeMillis()));
@@ -1054,7 +1181,16 @@ public class FrontDeskService {
 
         List<ApplicationsResponseModel> fetchedApplications =  fetchedApplicationsMain
                 .stream()
-                .filter(appointment -> appointment.getConsultationType().equals(ConsultationType.SURGERYCARE) )
+                .filter(appointment ->
+
+//                        appointment.getConsultationType().equals(ConsultationType.SURGERYCARE)
+
+                            appointment.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null) == ConsultationType.FOLLOWUPCOMPLETED
+
+                )
                 .sorted(Comparator.comparing(Applications::getSurgeryDate))
                 .map(user01 -> {
 

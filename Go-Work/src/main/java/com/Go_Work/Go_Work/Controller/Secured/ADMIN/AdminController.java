@@ -268,9 +268,9 @@ public class AdminController {
     @PutMapping("/editUserDataById/{userId}")
     public ResponseEntity<Boolean> editUserDataById(
             @PathVariable("userId") Long userId,
-            @RequestParam("username") String username,
-            @RequestParam("password") String password,
-            @RequestParam("role") Role role
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "password", required = false) String password,
+            @RequestParam(value = "role", required = false) Role role
     ) throws MobileNumberNotFoundException {
 
         Boolean fetchedBooleanValue = adminService.editUserDataById(userId,  username, password, role);
