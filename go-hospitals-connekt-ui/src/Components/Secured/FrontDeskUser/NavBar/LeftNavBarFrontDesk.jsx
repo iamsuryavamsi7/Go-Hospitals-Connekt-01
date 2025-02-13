@@ -559,12 +559,12 @@ const LeftNavBarFrontDesk = () => {
             {userData.role === frontDesk && (
 
                     <div 
-                        className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800"
+                        className="mx-56 w-[233px] flex flex-col text-left bottom-0 fixed lg:top-20 border-r-[1px] border-gray-800 max-sm:left-0 max-sm:right-0 max-sm:flex-row max-sm:m-0 max-sm:w-full max-sm:justify-between max-sm:py-3"
                         onClick={leftNavBarFrontDeskFunction}    
                     >
 
                         <div 
-                            className={`${newPatientRegistration} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${newPatientRegistration} font-sans text-base transition-all lg:lg:mt-5 cursor-pointer flex items-center space-x-3 relative max-sm:ml-5`}
                             onClick={() => {
 
                                 setLeftNavBarRedBall((prevElement) => {
@@ -585,12 +585,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <IoPersonAddSharp 
-                                    className={`${newPatientRegistration2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${newPatientRegistration2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 New Patient Onboarding
 
@@ -601,19 +601,19 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${pendingConsultations} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${pendingConsultations} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-consultation-queue')}
                         >
 
                             <div className="">
 
                                 <IoPeopleCircleOutline 
-                                    className={`${pendingConsultations2} text-2xl  leading-8 p-[1px] rounded-md`}
+                                    className={`${pendingConsultations2} lg:text-2xl max-sm:text-[30px]  leading-8 p-[1px] rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 Consultations Queue
 
@@ -624,7 +624,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${patientApprovals1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${patientApprovals1} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-surgery-patients')}
                         >
 
@@ -632,12 +632,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <SiTicktick 
-                                    className={`${patientApprovals2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${patientApprovals2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 Surgery Patients
 
@@ -648,7 +648,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${followUpPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${followUpPatients} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => {
 
                                 setLeftNavBarRedBall((prevElement) => {
@@ -670,12 +670,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <MdFollowTheSigns 
-                                    className={`${followUpPatients2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${followUpPatients2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 Follow-up Patients
 
@@ -686,7 +686,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${crossConsultationApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${crossConsultationApprovals} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => {
 
                                 setLeftNavBarRedBall((prevElement) => {
@@ -708,12 +708,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <FaUserDoctor 
-                                    className={`${crossConsultationApprovals2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${crossConsultationApprovals2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="whitespace-nowrap">
+                            <div className="whitespace-nowrap max-sm:hidden">
 
                                 Cross Consultation
 
@@ -724,7 +724,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${caseClosed1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${caseClosed1} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-closed-cases')}
                         >
 
@@ -732,12 +732,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <SiTicktick 
-                                    className={`${caseClosed2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${caseClosed2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 Case Closed
 
@@ -748,7 +748,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${dropOutPatients} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3 relative`}
+                            className={`${dropOutPatients} font-sans text-base transition-all lg:mt-5 cursor-pointer flex items-center space-x-3 relative`}
                             onClick={() => navigate('/front-desk-patient-drop-out')}
                         >
 
@@ -756,12 +756,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <BsDropletHalf 
-                                    className={`${dropOutPatients2} text-2xl  leading-8 p-1 rounded-md`}
+                                    className={`${dropOutPatients2} lg:text-2xl max-sm:text-[30px]  leading-8 p-1 rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 Drop Out Patients 
 
@@ -772,7 +772,7 @@ const LeftNavBarFrontDesk = () => {
                         </div>
 
                         <div 
-                            className={`${moreButtonStyle1} font-sans text-base transition-all cursor-pointer mt-auto mb-5 flex items-center space-x-2 relative`}
+                            className={`${moreButtonStyle1} font-sans text-base transition-all cursor-pointer lg:mt-auto lg:mb-5 flex items-center space-x-2 relative max-sm:mr-5`}
                             onClick={() => {
 
                                 if ( moreButtonActivated ){
@@ -791,12 +791,12 @@ const LeftNavBarFrontDesk = () => {
                             <div className="">
 
                                 <CgDetailsMore 
-                                    className={`${moreButtonStyle2} text-2xl  leading-8 p-[2px] rounded-md`}
+                                    className={`${moreButtonStyle2} lg:text-2xl max-sm:text-[30px]  leading-8 p-[2px] rounded-md`}
                                 />
 
                             </div>
 
-                            <div className="">
+                            <div className="max-sm:hidden">
 
                                 More
 

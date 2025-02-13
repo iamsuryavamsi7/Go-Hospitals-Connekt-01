@@ -1,7 +1,9 @@
 package com.Go_Work.Go_Work.Service.Secured.ADMIN;
 
+import com.Go_Work.Go_Work.Model.Secured.ADMIN.UsersDataAdminModel;
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Entity.MobileNumbers;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -42,6 +45,8 @@ public class AdminService {
     private final DepartmentRepo departmentRepo;
 
     private final EmailSenderService emailSenderService;
+
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public List<UserObject> fetchLockedUsers() {
 
@@ -82,7 +87,7 @@ public class AdminService {
 
             userRepo.save(user);
 
-            sendRegistrationEmail(user.getEmail());
+            sendRegistrationEmail(user.getUsername());
 
             return "User Accepted";
 
@@ -294,6 +299,81 @@ public class AdminService {
         }
 
         return false;
+
+    }
+
+    public List<UsersDataAdminModel> fetchUsersData() {
+
+        return userRepo.findAll()
+                .stream()
+                .filter(user -> !user.getRole().equals(Role.ADMIN) )
+                .map(user -> {
+
+                    UsersDataAdminModel userData = new UsersDataAdminModel();
+
+                    userData.setId(user.getId());
+                    userData.setUsername(user.getUsername());
+                    userData.setRole(user.getRole());
+
+                    return userData;
+
+                })
+                .toList();
+
+    }
+
+    public Boolean deleteUserByIdPermanent(Long userId) {
+
+        userRepo.deleteById(userId);
+
+        return true;
+
+    }
+
+    public Boolean addUserName(String username, String password, Role role) {
+
+        User newUser = new User();
+
+        newUser.setUsername(username);
+        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setRole(role);
+        newUser.setUnLocked(true);
+
+        userRepo.save(newUser);
+
+        return true;
+
+    }
+
+    public UsersDataAdminModel fetchUserDataById(Long userId) {
+
+        User fetchedUser = userRepo.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found Exception")
+        );
+
+        UsersDataAdminModel newDataModel = new UsersDataAdminModel();
+
+        newDataModel.setId(fetchedUser.getId());
+        newDataModel.setUsername(fetchedUser.getUsername());
+        newDataModel.setRole(fetchedUser.getRole());
+
+        return newDataModel;
+
+    }
+
+    public Boolean editUserDataById(Long userId, String username, String password, Role role) {
+
+        User fetchedUser = userRepo.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found Exception")
+        );
+
+        fetchedUser.setUsername(username);
+        fetchedUser.setPassword(passwordEncoder.encode(password));
+        fetchedUser.setRole(role);
+
+        userRepo.save(fetchedUser);
+
+        return true;
 
     }
 

@@ -23,7 +23,7 @@ public class UserService {
 
         String extractedUserName = jwtService.extractUserName(jwtToken);
 
-        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+        Optional<User> fetchedUser = userRepo.findByUsername(extractedUserName);
 
         if ( fetchedUser.isPresent() ){
 
@@ -47,7 +47,7 @@ public class UserService {
 
         String extractedUserName = jwtService.extractUserName(jwtToken);
 
-        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+        Optional<User> fetchedUser = userRepo.findByUsername(extractedUserName);
 
         if ( fetchedUser.isPresent() ){
 

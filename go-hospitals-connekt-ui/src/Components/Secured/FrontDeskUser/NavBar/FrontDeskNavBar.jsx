@@ -440,7 +440,7 @@ const FrontDeskNavBar = () => {
             
                     <Toaster />
 
-                    <div className="ml-56 flex items-center">
+                    <div className="lg:ml-56 flex items-center">
 
                         <div className="">
 
@@ -507,7 +507,7 @@ const FrontDeskNavBar = () => {
 
                     </div>
 
-                    <div className="mr-56 flex items-center space-x-3">
+                    <div className="lg:mr-56 flex items-center space-x-3">
 
                         <div className="relative">
 

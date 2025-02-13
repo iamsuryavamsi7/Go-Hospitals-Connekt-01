@@ -10,6 +10,7 @@ import {toast, Toaster} from 'react-hot-toast';
 import AdminManagement03 from './MinorComponents/AdminManagement03';
 import { useDispatch } from 'react-redux';
 import { closeNavBarSearch } from '../../ReduxToolkit/Slices/frontDeskNavBarSlice';
+import AdminManagement04 from './MinorComponents/AdminManagement04';
 
 const AdminManagement = () => {
 
@@ -559,6 +560,8 @@ const AdminManagement = () => {
                     <AdminManagement02 />
 
                     <AdminManagement03 />
+
+                    <AdminManagement04 />
 
                 </>
 

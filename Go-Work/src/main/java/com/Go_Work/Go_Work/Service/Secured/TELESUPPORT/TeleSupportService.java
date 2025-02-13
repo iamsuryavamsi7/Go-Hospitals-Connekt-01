@@ -157,7 +157,7 @@ public class TeleSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -187,7 +187,7 @@ public class TeleSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedTeleSupportUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedTeleSupportUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -250,7 +250,7 @@ public class TeleSupportService {
 
         String extractedUserName = jwtService.extractUserName(jwtToken);
 
-        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+        Optional<User> fetchedUser = userRepo.findByUsername(extractedUserName);
 
         if ( fetchedUser.isPresent() ){
 
@@ -268,7 +268,7 @@ public class TeleSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User user = userRepo.findByEmail(userEmail).orElseThrow(
+        User user = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -305,7 +305,7 @@ public class TeleSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedFrontDeskUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new FrontDeskUserNotFoundException("Front Desk User Not Found")
         );
 

@@ -8,10 +8,10 @@ import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String username);
+    Optional<User> findByUsername(String username);
 
     List<User> findByUnLocked(boolean unLocked);
 
-    List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String searchObject1, String searchObject2, String searchObject3);
+    List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(String searchObject1, String searchObject2, String searchObject3);
 
 }

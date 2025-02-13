@@ -62,6 +62,8 @@ public class AuthService {
 
         BeanUtils.copyProperties(request, savingUserObject);
 
+        savingUserObject.setUsername(request.getEmail());
+
         savingUserObject.setRegisteredOn(new Date(System.currentTimeMillis()));
 
         savingUserObject.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -91,7 +93,7 @@ public class AuthService {
 
                 });
 
-        sendRegistrationEmail(savingUserObject.getEmail());
+        sendRegistrationEmail(savingUserObject.getUsername());
 
         return "User Successfully Created";
 
@@ -132,7 +134,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateFrontDesk(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -165,7 +167,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateMedicalSupport(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -198,7 +200,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateTeleSupport(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -231,7 +233,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticatePharmacyCare(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -264,7 +266,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateOtCoordination(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -297,7 +299,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateDiagnosticsCenter(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -330,7 +332,7 @@ public class AuthService {
 
     public AuthenticationResponseObject authenticateTransportTeam(AuthenticationRequestObject request) throws AccountLockedException {
 
-        User fetchedUser = userRepo.findByEmail(request.getEmail()).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(request.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -365,7 +367,7 @@ public class AuthService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        Optional<User> user = userRepo.findByEmail(userEmail);
+        Optional<User> user = userRepo.findByUsername(userEmail);
 
         if ( user.isPresent() ){
 
@@ -392,7 +394,7 @@ public class AuthService {
 
     public String generateOTP(String userEmail) {
 
-        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+        Optional<User> fetchedUser = userRepo.findByUsername(userEmail);
 
         if ( fetchedUser.isPresent() ){
 
@@ -404,7 +406,7 @@ public class AuthService {
 
             userRepo.save(user);
 
-            sendOTP(user.getEmail(), otp);
+            sendOTP(user.getUsername(), otp);
 
             return "OTP Generated";
 
@@ -425,7 +427,7 @@ public class AuthService {
 
     public String checkOTP(int otp, String userEmail) throws InvalidOTPException {
 
-        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+        Optional<User> fetchedUser = userRepo.findByUsername(userEmail);
 
         if ( fetchedUser.isPresent() ){
 
@@ -449,7 +451,7 @@ public class AuthService {
 
     public String updatePassword(String password, String userEmail) {
 
-        Optional<User> fetchedUser = userRepo.findByEmail(userEmail);
+        Optional<User> fetchedUser = userRepo.findByUsername(userEmail);
 
         if ( fetchedUser.isPresent() ){
 

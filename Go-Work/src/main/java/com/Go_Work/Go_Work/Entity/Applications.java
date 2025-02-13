@@ -48,13 +48,20 @@ public class Applications {
     @Enumerated(EnumType.STRING)
     private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
 
+    @OneToMany(
+            mappedBy = "applications",
+            cascade = CascadeType.ALL
+    )
+    @JsonManagedReference("consultationTypesData")
+    private List<ConsultationTypesData> consultationTypesData;
+
     private String treatmentDoneMessage;
 
     @OneToMany(
             mappedBy = "application",
             cascade = CascadeType.ALL
     )
-    @JsonManagedReference
+    @JsonManagedReference("prescriptionURL")
     private List<ImageUrls> prescriptionUrl = new ArrayList<>();
 
     private boolean isPatientGotApproved = false;

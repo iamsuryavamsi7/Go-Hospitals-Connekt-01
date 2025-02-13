@@ -280,7 +280,7 @@ public class PharmacyService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedFrontDeskUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedFrontDeskUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new FrontDeskUserNotFoundException("Front Desk User Not Found")
         );
 
@@ -320,7 +320,7 @@ public class PharmacyService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User user = userRepo.findByEmail(userEmail).orElseThrow(
+        User user = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 

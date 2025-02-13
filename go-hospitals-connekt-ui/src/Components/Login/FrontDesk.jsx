@@ -237,7 +237,6 @@ const FrontDesk = () => {
 
                                 <label> E-mail Address</label><br />
                                 <input 
-                                    type='email'
                                     className='bg-[#0d1117] text-white border-gray-400 border-[.5px] focus:outline-none focus:border-blue-600  focus:border-2 rounded-lg leading-8 px-3 w-[300px] max-sm:w-full mt-2'
                                     name='email'
                                     value={loginData.email}

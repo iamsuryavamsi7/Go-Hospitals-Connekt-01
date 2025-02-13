@@ -201,7 +201,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User user = userRepo.findByEmail(userEmail).orElseThrow(
+        User user = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -231,7 +231,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -371,7 +371,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -422,7 +422,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -859,7 +859,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -926,7 +926,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -975,7 +975,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -1090,7 +1090,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found")
         );
 
@@ -1156,7 +1156,7 @@ public class MedicalSupportService {
 
         String userEmail = jwtService.extractUserName(jwtToken);
 
-        User fetchedMedicalUser = userRepo.findByEmail(userEmail).orElseThrow(
+        User fetchedMedicalUser = userRepo.findByUsername(userEmail).orElseThrow(
                 () -> new MedicalSupportUserNotFound("Medical User Not Found")
         );
 
@@ -1168,7 +1168,7 @@ public class MedicalSupportService {
 
         String extractedUserName = jwtService.extractUserName(jwtToken);
 
-        Optional<User> fetchedUser = userRepo.findByEmail(extractedUserName);
+        Optional<User> fetchedUser = userRepo.findByUsername(extractedUserName);
 
         if ( fetchedUser.isPresent() ){
 

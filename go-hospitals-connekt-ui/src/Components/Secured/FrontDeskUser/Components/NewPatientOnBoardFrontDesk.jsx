@@ -593,7 +593,7 @@ const NewPatientOnBoardFrontDesk = () => {
 
                 {!patientDetialsOnBoard.newPatientOnBoardActivated && <div
                 onClick={newPatientOnBoardFronDeskFunction}
-                className='h-[800px] mx-10 mr-56 max-h-[800px] overflow-y-scroll scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'>
+                className='h-[800px] lg:mx-10 max-sm:px-5 max-sm:overflow-x-scroll lg:mr-56 max-h-[800px] overflow-y-scroll scrollableMove scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-gray-700'>
 
                     <table
                         className='w-[100%]'
@@ -605,10 +605,10 @@ const NewPatientOnBoardFrontDesk = () => {
                                 className='text-left leading-10'
                             >
 
-                                <th>S.No</th>
-                                <th>Patient Name</th>
-                                <th className='pl-20'>Age</th>
-                                <th>Phone Number</th>
+                                <th className='pr-5'>S.No</th>
+                                <th className='whitespace-nowrap'>Patient Name</th>
+                                <th className='pl-20 pr-5'>Age</th>
+                                <th className='whitespace-nowrap pr-5'>Phone Number</th>
 
                             </tr>
 

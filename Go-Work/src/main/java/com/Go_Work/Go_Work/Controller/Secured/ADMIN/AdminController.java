@@ -2,14 +2,12 @@ package com.Go_Work.Go_Work.Controller.Secured.ADMIN;
 
 import com.Go_Work.Go_Work.Entity.Department;
 import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.Go_Work.Go_Work.Entity.MobileNumbers;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DoctorNotFoundException;
 import com.Go_Work.Go_Work.Error.MobileNumberNotFoundException;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.AddDoctorModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.DepartmentPutModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.GetDoctorModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.UpdateDoctorModel;
+import com.Go_Work.Go_Work.Model.Secured.ADMIN.*;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
 import com.Go_Work.Go_Work.Service.Secured.ADMIN.AdminService;
 import jakarta.validation.Valid;
@@ -220,6 +218,64 @@ public class AdminController {
         MobileNumbers fetchedMobileNumberData = adminService.fetchMobileNumberById(mobileNumberID);
 
         return ResponseEntity.ok(fetchedMobileNumberData);
+
+    }
+
+    @GetMapping("/fetchUsersData")
+    public ResponseEntity<List<UsersDataAdminModel>> fetchUsersData(){
+
+        List<UsersDataAdminModel> fetchedUsersData = adminService.fetchUsersData();
+
+        return ResponseEntity.ok(fetchedUsersData);
+
+    }
+
+    @DeleteMapping("/deleteUserByIdPermanent/{userId}")
+    public ResponseEntity<Boolean> deleteUserByIdPermanent(
+            @PathVariable("userId") Long userId
+    ){
+
+        Boolean fetchedBooleanValue = adminService.deleteUserByIdPermanent(userId);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @PostMapping("/addUserName")
+    public ResponseEntity<Boolean> addUserName(
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("role") Role role
+            ) throws MobileNumberNotFoundException {
+
+        Boolean fetchedBooleanValue = adminService.addUserName(username, password, role);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
+
+    }
+
+    @GetMapping("/fetchUserDataById/{userId}")
+    public ResponseEntity<UsersDataAdminModel> fetchUserDataById(
+            @PathVariable("userId") Long userId
+    ){
+
+        UsersDataAdminModel fetchedUsersData = adminService.fetchUserDataById(userId);
+
+        return ResponseEntity.ok(fetchedUsersData);
+
+    }
+
+    @PutMapping("/editUserDataById/{userId}")
+    public ResponseEntity<Boolean> editUserDataById(
+            @PathVariable("userId") Long userId,
+            @RequestParam("username") String username,
+            @RequestParam("password") String password,
+            @RequestParam("role") Role role
+    ) throws MobileNumberNotFoundException {
+
+        Boolean fetchedBooleanValue = adminService.editUserDataById(userId,  username, password, role);
+
+        return ResponseEntity.ok(fetchedBooleanValue);
 
     }
 

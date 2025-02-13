@@ -4,6 +4,7 @@ import com.Go_Work.Go_Work.Entity.Enum.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ import java.util.List;
         name = "go_work_users",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {
-                        "email"
+                        "username"
                 }
         )
 )
@@ -34,20 +35,17 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "firstName is required")
     private String firstName;
 
-    @NotNull
     private String lastName;
 
-    @NotNull
-    @Email
-    private String email;
+    @NotBlank
+    private String username;
 
-    @NotNull
+    @NotBlank
     private String password;
 
     @NotNull
@@ -95,7 +93,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

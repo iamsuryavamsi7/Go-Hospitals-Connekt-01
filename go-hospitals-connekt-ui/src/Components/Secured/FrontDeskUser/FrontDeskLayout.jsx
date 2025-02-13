@@ -8,7 +8,7 @@ const FrontDeskLayout = () => {
         <>
             <FrontDeskNavBar />
             <LeftNavBarFrontDesk />
-            <div className="pt-16 pl-[457px] mt-10 mr-16">
+            <div className="pt-16 lg:pl-[457px] lg:mt-10 max-sm:mt-5 lg:mr-16">
                 <Outlet /> {/* This is where the child components (like ConsultationQueue) will be rendered */}
             </div>
         </>

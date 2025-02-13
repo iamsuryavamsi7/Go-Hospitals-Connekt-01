@@ -27,7 +27,6 @@ public class RegistrationRequestObject {
 
     @NotNull
     @NotBlank
-    @Email
     private String email;
 
     @NotNull
