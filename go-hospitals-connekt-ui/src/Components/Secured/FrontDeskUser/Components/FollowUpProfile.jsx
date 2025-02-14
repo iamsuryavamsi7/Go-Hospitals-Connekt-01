@@ -1785,7 +1785,7 @@ const FollowUpProfile = () => {
 
                             </div>}
 
-                            {(patientData.surgeryImgDocFileURL !== `` || patientData.surgeryImgDocFileURL !== null) && <div className="bg-gray-800 px-5 py-3 rounded-lg flex items-center justify-center">
+                            {(patientData.surgeryImgDocFileURL !== `` && patientData.surgeryImgDocFileURL !== null) && <div className="bg-gray-800 px-5 py-3 rounded-lg flex items-center justify-center">
 
                                 <div 
                                     className="hover:opacity-60 active:opacity-80 cursor-pointer"

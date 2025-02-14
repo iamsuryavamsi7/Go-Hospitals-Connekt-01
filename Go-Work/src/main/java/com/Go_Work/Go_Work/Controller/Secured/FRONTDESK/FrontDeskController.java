@@ -83,10 +83,11 @@ public class FrontDeskController {
     @PostMapping("/bookApplication/{temporaryAppointmentID}")
     public ResponseEntity<String> bookAppointment(
         @RequestBody Applications applications,
-        @PathVariable("temporaryAppointmentID") Long temporaryAppointmentID
+        @PathVariable("temporaryAppointmentID") Long temporaryAppointmentID,
+        HttpServletRequest request
     ){
 
-        String message = frontDeskService.bookAppointment(applications, temporaryAppointmentID);
+        String message = frontDeskService.bookAppointment(applications, temporaryAppointmentID, request);
 
         return ResponseEntity.ok(message);
 

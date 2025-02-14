@@ -156,7 +156,7 @@ public class MedicalSupportService {
         if ( fetchedMedicalSupportUserDetails != null ){
 
             application1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
-            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getUsername());
 
         } else {
 
@@ -164,6 +164,13 @@ public class MedicalSupportService {
             application1.setMedicalSupportUserName(null);
 
         }
+
+        ConsultationType consultationType = fetchedApplication.getConsultationTypesData().stream()
+                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                .map(ConsultationTypesData::getConsultationType)
+                .orElse(null);
+
+        application1.setConsultationType(consultationType);
 
         return application1;
 
@@ -186,6 +193,14 @@ public class MedicalSupportService {
         fetchedApplication.setMedicalSupportUser(fetchedMedicalSupportUser);
 
         fetchedApplication.setMedicalSupportUserAssignedTime(new Date(System.currentTimeMillis()));
+
+        ConsultationTypesData consultationTypesData = new ConsultationTypesData();
+
+        consultationTypesData.setTimeStamp(new Date(System.currentTimeMillis()));
+        consultationTypesData.setConsultationType(ConsultationType.WAITING);
+        consultationTypesData.setApplications(fetchedApplication);
+
+        fetchedApplication.getConsultationTypesData().add(consultationTypesData);
 
         applicationsRepo.save(fetchedApplication);
 

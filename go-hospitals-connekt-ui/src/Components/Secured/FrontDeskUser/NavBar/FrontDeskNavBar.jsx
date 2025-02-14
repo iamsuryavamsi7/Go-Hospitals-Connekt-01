@@ -430,6 +430,14 @@ const FrontDeskNavBar = () => {
         
     };
 
+    const pathName = window.location.pathname;
+
+    useEffect(() => {
+
+        dispatch(closeNavBarSearch());        
+
+    }, [pathName]);
+
     return (
 
         <>

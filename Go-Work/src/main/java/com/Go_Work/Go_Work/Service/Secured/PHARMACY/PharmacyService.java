@@ -83,7 +83,7 @@ public class PharmacyService {
         if ( fetchedMedicalSupportUserDetails != null ){
 
             application1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
-            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getUsername());
 
         } else {
 
@@ -98,6 +98,13 @@ public class PharmacyService {
                         .toList();
 
         application1.setPrescriptionsUrls(imageUrls);
+
+        ConsultationType consultationType = fetchedApplication.getConsultationTypesData().stream()
+                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                .map(ConsultationTypesData::getConsultationType)
+                .orElse(null);
+
+        application1.setConsultationType(consultationType);
 
         return application1;
 
@@ -305,9 +312,16 @@ public class PharmacyService {
                                     User fetchedMedicalSupportUser = application1.getMedicalSupportUser();
 
                                     application.setMedicalSupportUserId(fetchedMedicalSupportUser.getId());
-                                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getFirstName() + " " + fetchedMedicalSupportUser.getLastName());
+                                    application.setMedicalSupportUserName(fetchedMedicalSupportUser.getUsername());
 
                                 }
+
+                                ConsultationType consultationType = application1.getConsultationTypesData().stream()
+                                        .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                        .map(ConsultationTypesData::getConsultationType)
+                                        .orElse(null);
+
+                                application.setConsultationType(consultationType);
 
                                 return application;
 

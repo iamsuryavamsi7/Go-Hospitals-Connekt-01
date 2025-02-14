@@ -65,7 +65,15 @@ public class FrontDeskService {
     }
 
     @Transactional
-    public String bookAppointment(Applications applications, Long temporaryAppointmentID) {
+    public String bookAppointment(Applications applications, Long temporaryAppointmentID, HttpServletRequest request) {
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String userName = jwtService.extractUserName(jwtToken);
+
+        User fetchedUser = userRepo.findByUsername(userName).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found Exception")
+        );
 
         // Set appointment details
         applications.setAppointmentCreatedOn(new Date(System.currentTimeMillis()));
@@ -83,6 +91,7 @@ public class FrontDeskService {
         applications.setPaymentDone(false);
         applications.setPatientGotApproved(true);
         applications.setIsMedicationPlusFollow(false);
+        applications.setBookedBy(fetchedUser.getUsername());
 
         // Create and associate the bill
         Bills bill = new Bills();
@@ -239,7 +248,7 @@ public class FrontDeskService {
         if ( fetchedMedicalSupportUserDetails != null ){
 
             application1.setMedicalSupportUserId(fetchedMedicalSupportUserDetails.getId());
-            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+            application1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getUsername());
 
         } else {
 
@@ -247,6 +256,13 @@ public class FrontDeskService {
             application1.setMedicalSupportUserName(null);
 
         }
+
+        ConsultationType consultationType = fetchedApplication.getConsultationTypesData().stream()
+                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                .map(ConsultationTypesData::getConsultationType)
+                .orElse(null);
+
+        application1.setConsultationType(consultationType);
 
         return application1;
 

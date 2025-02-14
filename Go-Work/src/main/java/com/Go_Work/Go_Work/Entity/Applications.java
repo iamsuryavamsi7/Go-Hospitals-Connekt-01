@@ -53,7 +53,7 @@ public class Applications {
             cascade = CascadeType.ALL
     )
     @JsonManagedReference("consultationTypesData")
-    private List<ConsultationTypesData> consultationTypesData;
+    private List<ConsultationTypesData> consultationTypesData = new ArrayList<>();
 
     private String treatmentDoneMessage;
 

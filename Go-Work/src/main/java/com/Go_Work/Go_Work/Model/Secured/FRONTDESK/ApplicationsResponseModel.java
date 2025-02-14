@@ -34,7 +34,7 @@ public class ApplicationsResponseModel {
     private String patientDropOutMessage;
 
     @Enumerated(EnumType.STRING)
-    private ConsultationType consultationType = ConsultationType.NOTASSIGNED;
+    private ConsultationType consultationType;
 
     private String treatmentDoneMessage;
 

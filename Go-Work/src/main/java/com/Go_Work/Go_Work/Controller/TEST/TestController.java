@@ -4,6 +4,7 @@ import com.Go_Work.Go_Work.Entity.Applications;
 import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Repo.ApplicationsRepo;
 import com.Go_Work.Go_Work.Repo.UserRepo;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,5 +78,18 @@ public class TestController {
         ));
 
     }
+
+//    @GetMapping("/fetchMedicalSupportUserById/{applicationID}")
+//    public ResponseEntity<String> fetchMedicalSupportUserById(
+//            Long applicationID
+//    ){
+//
+//        Applications fetchedApplication = applicationsRepo.findById(applicationID).orElseThrow(
+//                () -> new UsernameNotFoundException("Application Not Found Exception")
+//        );
+//
+//        fetchedApplication.getMedicalSupportUser().getUsername();
+//
+//    }
 
 }
