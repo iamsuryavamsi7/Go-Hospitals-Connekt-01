@@ -1780,7 +1780,7 @@ const FollowUpProfile = () => {
 
                                 <div 
                                     className="hover:opacity-60 active:opacity-80 cursor-pointer"
-                                    onClick={() => setPrescriptionURLData(true)}    
+                                    onClick={() => setPrescriptionURLData(true)}
                                 >View All Presciptions</div>
 
                             </div>}

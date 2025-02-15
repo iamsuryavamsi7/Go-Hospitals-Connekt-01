@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MdFollowTheSigns, MdManageAccounts } from 'react-icons/md';
 import { FaBriefcaseMedical, FaHospitalUser, FaStethoscope, FaTasks } from 'react-icons/fa';
-import { TbExchange } from 'react-icons/tb';
+import { TbDeviceDesktopAnalytics, TbExchange } from 'react-icons/tb';
 import { SiTicktick } from 'react-icons/si';
 import { CgDetailsMore } from 'react-icons/cg';
 import { Toaster, toast } from 'react-hot-toast';
@@ -649,7 +649,7 @@ const LeftNavBar = () => {
 
                             <div className="">
 
-                                <MdManageAccounts 
+                                <TbDeviceDesktopAnalytics 
                                     className={`${analytics2} text-[28px]  leading-8 p-1 rounded-md`}
                                 />
 
