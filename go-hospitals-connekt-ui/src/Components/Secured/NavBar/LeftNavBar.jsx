@@ -601,6 +601,27 @@ const LeftNavBar = () => {
                     <div className="mx-56 w-[233px] text-left bottom-0 fixed top-20 border-r-[1px] border-gray-800">
 
                         <div 
+                            className={`${analytics1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
+                            onClick={() => navigate('/admin-analytics')}
+                        >
+
+                            <div className="">
+
+                                <TbDeviceDesktopAnalytics 
+                                    className={`${analytics2} text-[28px]  leading-8 p-1 rounded-md`}
+                                />
+
+                            </div>
+
+                            <div className="">
+
+                                Analytics
+
+                            </div>
+
+                        </div>
+
+                        <div 
                             className={`${newApprovals} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
                             onClick={() => navigate('/admin-new-approvals')}
                         >
@@ -637,27 +658,6 @@ const LeftNavBar = () => {
                             <div className="">
 
                                 Management
-
-                            </div>
-
-                        </div>
-
-                        <div 
-                            className={`${analytics1} font-sans text-base transition-all mt-5 cursor-pointer flex items-center space-x-3`}
-                            onClick={() => navigate('/admin-analytics')}
-                        >
-
-                            <div className="">
-
-                                <TbDeviceDesktopAnalytics 
-                                    className={`${analytics2} text-[28px]  leading-8 p-1 rounded-md`}
-                                />
-
-                            </div>
-
-                            <div className="">
-
-                                Analytics
 
                             </div>
 

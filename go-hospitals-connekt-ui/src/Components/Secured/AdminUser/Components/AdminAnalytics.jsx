@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import { 
     Chart as ChartJS,
@@ -14,10 +14,18 @@ import {
     Legend 
 } from 'chart.js'
 import { TbDeviceAnalytics } from 'react-icons/tb';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
+// registries required for the chat.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend);
 
+// default values for chat.js
 defaults.maintainAspectRatio = false;
+
 defaults.responsive = true;
 
 defaults.plugins.title.display = true;
@@ -27,39 +35,154 @@ defaults.plugins.title.color = "black";
 
 const AdminAnalytics = () => {
 
+    // JWT Token
+    const access_token = Cookies.get('access_token');
+
+    // GoHospitals BackEnd API environment variable
+    const goHospitalsAPIBaseURL = import.meta.env.VITE_GOHOSPITALS_API_BASE_URL;
+
+    // State to select required button
     const [selected, setSelected] = useState('today');
 
+    // variable with function embedded to get correct style
     const getButtonStyle = (currentOption) => selected === currentOption ? 'bg-sky-500 text-white' : 'bg-gray-200 text-black';
 
+    // Function to run when today button selected
     const todayFunction = () => {
 
         setSelected('today');
 
     }
 
+    // Function to run when oneMonth button selected
     const oneMonthFunction = () => {
 
         setSelected('oneMonth');
 
     }
 
+    // Function to run when threeMonths button selected
     const threeMonthsFunction = () => {
 
         setSelected('threeMonths');
 
     }
 
+    // Function to run when sixMonths button selected
     const sixMonthsFunction = () => {
 
         setSelected('sixMonths');
 
     }
 
+    // Function to run when oneYear button selected
     const oneYearFunction = () => {
 
         setSelected('oneYear');
 
     }
+
+    // Function to run when the page mounts
+    const fetchMainAnalytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchMainAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // State to store the main analytics data
+    const [mainAnalytics, setMainAnalytics] = useState({
+        opsCount: ``,
+        onSiteCount: ``,
+        patientAdmitsCount: ``,
+        followUpPatientsCount: ``,
+        crossConsultationCount: ``,
+        surgeriesCompletedCount: ``,
+        closedCasesCount: ``,
+        patientDropOutCount: ``
+    });
+
+    // useEffect to run when the page mounts
+    useEffect(() => {
+
+        if ( access_token ){
+
+            fetchMainAnalytics();
+
+        }
+
+    }, []);
+
+    // state to store the websocket client for future use
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                client.subscribe(`/admin/adminAnalyticsWebSocket`, (message) => {
+
+                    const messageBody = JSON.parse(message.body);
+
+                    console.log(`Received Message Body : ${messageBody}`);
+
+                    if ( messageBody.analyticsModelRefreshType === 'RefreshAdminMainAnalytics' ){
+
+                        fetchMainAnalytics();
+
+                    }
+
+                });
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 
@@ -170,7 +293,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >1</td>
                             <td>Op's</td>
-                            <td>77</td>
+                            <td>{mainAnalytics.opsCount !== '' ? (
+
+                                <span>{mainAnalytics.opsCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -182,7 +315,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >2</td>
                             <td>Onsite Treatment</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.onSiteCount !== '' ? (
+
+                                <span>{mainAnalytics.onSiteCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -194,7 +337,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >3</td>
                             <td>Patient Admits</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.patientAdmitsCount !== '' ? (
+
+                                <span>{mainAnalytics.patientAdmitsCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -206,7 +359,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >4</td>
                             <td>Follow Up Patients</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.followUpPatientsCount !== '' ? (
+
+                                <span>{mainAnalytics.followUpPatientsCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -218,7 +381,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >5</td>
                             <td>Cross Consultations</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.crossConsultationCount !== '' ? (
+
+                                <span>{mainAnalytics.crossConsultationCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -230,7 +403,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >6</td>
                             <td>Surgeries Completed</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.surgeriesCompletedCount !== '' ? (
+
+                                <span>{mainAnalytics.surgeriesCompletedCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -242,7 +425,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >7</td>
                             <td>Closed Cases</td>
-                            <td>178</td>
+                            <td>{mainAnalytics.closedCasesCount !== '' ? (
+
+                                <span>{mainAnalytics.closedCasesCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 
@@ -254,7 +447,17 @@ const AdminAnalytics = () => {
                                 className='w-[70px] h-[50px]'
                             >8</td>
                             <td>Patient Drop Outs</td>
-                            <td>127</td>
+                            <td>{mainAnalytics.patientDropOutCount !== '' ? (
+
+                                <span>{mainAnalytics.patientDropOutCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
 
                         </tr>
 

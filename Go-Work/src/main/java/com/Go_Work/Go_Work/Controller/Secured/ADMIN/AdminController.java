@@ -279,4 +279,13 @@ public class AdminController {
 
     }
 
+    @GetMapping("/fetchMainAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchMainAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchMainAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
 }

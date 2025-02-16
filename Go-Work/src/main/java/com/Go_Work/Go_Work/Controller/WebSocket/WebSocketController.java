@@ -4,6 +4,7 @@ import com.Go_Work.Go_Work.Entity.Enum.NotificationStatus;
 import com.Go_Work.Go_Work.Entity.Notification;
 import com.Go_Work.Go_Work.Entity.TemporaryAppointmentDataEntity;
 import com.Go_Work.Go_Work.Error.ApplicationNotFoundException;
+import com.Go_Work.Go_Work.Model.Secured.ADMIN.AdminAnalyticsModel;
 import com.Go_Work.Go_Work.Model.Secured.FRONTDESK.FetchPatientDataResponseModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.AcceptCrossConsultationModel;
 import com.Go_Work.Go_Work.Model.Secured.MEDICALSUPPORT.BookAppointmentWebSocketModel;
@@ -32,6 +33,19 @@ public class WebSocketController {
     ){
 
         return webSocketNotificationType;
+
+    }
+
+    // Admin WebSocket to refresh if it requires
+    @MessageMapping("/adminAnalytics")
+    @SendTo("/admin/adminAnalyticsWebSocket")
+    public AdminAnalyticsModel adminAnalytics(
+            @Payload AdminAnalyticsModel adminAnalyticsModel
+    ){
+
+        System.out.println("EVERYTHING IS DONE");
+
+        return adminAnalyticsModel;
 
     }
 

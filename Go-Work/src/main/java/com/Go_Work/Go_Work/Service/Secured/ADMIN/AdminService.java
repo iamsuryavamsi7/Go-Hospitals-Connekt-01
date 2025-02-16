@@ -1,23 +1,14 @@
 package com.Go_Work.Go_Work.Service.Secured.ADMIN;
 
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.UsersDataAdminModel;
-import com.Go_Work.Go_Work.Entity.Department;
-import com.Go_Work.Go_Work.Entity.Doctor;
+import com.Go_Work.Go_Work.Entity.*;
+import com.Go_Work.Go_Work.Entity.Enum.ConsultationType;
+import com.Go_Work.Go_Work.Model.Secured.ADMIN.*;
 import com.Go_Work.Go_Work.Entity.Enum.Role;
-import com.Go_Work.Go_Work.Entity.MobileNumbers;
-import com.Go_Work.Go_Work.Entity.User;
 import com.Go_Work.Go_Work.Error.DepartmentNotFoundException;
 import com.Go_Work.Go_Work.Error.DoctorNotFoundException;
 import com.Go_Work.Go_Work.Error.MobileNumberNotFoundException;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.AddDoctorModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.DepartmentPutModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.GetDoctorModel;
-import com.Go_Work.Go_Work.Model.Secured.ADMIN.UpdateDoctorModel;
 import com.Go_Work.Go_Work.Model.Secured.User.UserObject;
-import com.Go_Work.Go_Work.Repo.DepartmentRepo;
-import com.Go_Work.Go_Work.Repo.DoctorRepo;
-import com.Go_Work.Go_Work.Repo.MobileNumbersRepo;
-import com.Go_Work.Go_Work.Repo.UserRepo;
+import com.Go_Work.Go_Work.Repo.*;
 import com.Go_Work.Go_Work.Service.Email.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +40,10 @@ public class AdminService {
     private final EmailSenderService emailSenderService;
 
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private final ConsultationTypesDataRepo consultationTypesDataRepo;
+
+    private final ApplicationsRepo applicationsRepo;
 
     public List<UserObject> fetchLockedUsers() {
 
@@ -390,6 +387,114 @@ public class AdminService {
         userRepo.save(fetchedUser);
 
         return true;
+
+    }
+
+    public MainAnalyticsAdminModel fetchMainAnalytics() {
+
+        LocalDate todayDate = LocalDate.now();
+
+        // code to find the count of patient admits
+        long patientAdmitsCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTADMIT);
+
+                })
+                .count();
+
+        // code to find the count of follow up completed
+        long followUpPatientsCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED);
+
+                })
+                .count();
+
+        // code to find the count of cross consultations
+        long crossConsultationsCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CROSSCONSULTATION);
+
+                })
+                .count();
+
+        // code to find the count of completed surgeries
+        long completedSurgeriesCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    Applications fetchedApplication = consultationTypesData.getApplications();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.SURGERYCARE) && fetchedApplication.getSurgeryCompleted().equals(true);
+
+                })
+                .count();
+
+        // code to find the count of completed surgeries
+        long closedCasesCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CASECLOSED);
+
+                })
+                .count();
+
+        // code to find the count of completed surgeries
+        long patientDropOutCount = consultationTypesDataRepo.findAll().stream()
+                .filter(consultationTypesData -> {
+
+                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTDROPOUT);
+
+                })
+                .count();
+
+        long opsCount = applicationsRepo.findAll().stream()
+                .filter(application -> {
+
+                    LocalDate localDate = application.getAppointmentCreatedOn().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    return localDate.equals(todayDate);
+
+                })
+                .count();
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .patientDropOutCount(patientDropOutCount)
+                .closedCasesCount(closedCasesCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .crossConsultationCount(crossConsultationsCount)
+                .followUpPatientsCount(followUpPatientsCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .build();
 
     }
 

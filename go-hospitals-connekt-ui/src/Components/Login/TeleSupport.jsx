@@ -111,7 +111,7 @@ const TeleSupport = () => {
 
                                 if ( fetchedRole === 'ADMIN' ){
 
-                                    navigate('/admin-new-approvals');
+                                    navigate('/admin-analytics');
 
                                 } else {
 
