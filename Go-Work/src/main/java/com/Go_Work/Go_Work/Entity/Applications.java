@@ -109,7 +109,7 @@ public class Applications {
     private Date surgeryDate;
     private Date surgeryStartTime;
     private Date surgeryEndTime;
-    private Boolean SurgeryCompleted = false;
+    private Boolean surgeryCompleted = false;
 
     private String roomNo;
 

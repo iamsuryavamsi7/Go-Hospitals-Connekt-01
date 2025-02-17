@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -283,6 +284,63 @@ public class AdminController {
     public ResponseEntity<MainAnalyticsAdminModel> fetchMainAnalytics(){
 
         MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchMainAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @GetMapping("/fetchOneWeekAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchOneWeekAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchOneWeekAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @GetMapping("/fetchOneMonthAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchOneMonthAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchOneMonthAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @GetMapping("/fetchThreeMonthsAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchThreeMonthsAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchThreeMonthsAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @GetMapping("/fetchSixMonthsAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchSixMonthsAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchSixMonthsAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @GetMapping("/fetchOneYearAnalytics")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchOneYearAnalytics(){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchOneYearAnalytics();
+
+        return ResponseEntity.ok(fetchedAnalyticsData);
+
+    }
+
+    @PostMapping("/fetchAnalyticsByDates")
+    public ResponseEntity<MainAnalyticsAdminModel> fetchAnalyticsByDates(
+            @RequestParam("startDate") Date startDate,
+            @RequestParam("endDate") Date endDate
+    ){
+
+        MainAnalyticsAdminModel fetchedAnalyticsData = adminService.fetchAnalyticsByDates(startDate, endDate);
 
         return ResponseEntity.ok(fetchedAnalyticsData);
 

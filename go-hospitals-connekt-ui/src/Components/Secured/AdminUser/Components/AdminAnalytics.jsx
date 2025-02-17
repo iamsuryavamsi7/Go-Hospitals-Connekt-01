@@ -19,6 +19,7 @@ import Cookies from 'js-cookie';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { getDate, getTime, isBefore, subDays, subMonths } from 'date-fns';
 
 // registries required for the chat.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend);
@@ -45,40 +46,16 @@ const AdminAnalytics = () => {
     const [selected, setSelected] = useState('today');
 
     // variable with function embedded to get correct style
-    const getButtonStyle = (currentOption) => selected === currentOption ? 'bg-sky-500 text-white' : 'bg-gray-200 text-black';
+    const getButtonStyle = (currentOption) => selected === currentOption ? 'bg-sky-500 text-white pointer-events-none' : 'bg-gray-200 text-black';
+
+    const todaysDate = new Date();
 
     // Function to run when today button selected
-    const todayFunction = () => {
+    const todayFunction = async () => {
 
         setSelected('today');
 
-    }
-
-    // Function to run when oneMonth button selected
-    const oneMonthFunction = () => {
-
-        setSelected('oneMonth');
-
-    }
-
-    // Function to run when threeMonths button selected
-    const threeMonthsFunction = () => {
-
-        setSelected('threeMonths');
-
-    }
-
-    // Function to run when sixMonths button selected
-    const sixMonthsFunction = () => {
-
-        setSelected('sixMonths');
-
-    }
-
-    // Function to run when oneYear button selected
-    const oneYearFunction = () => {
-
-        setSelected('oneYear');
+        fetchMainAnalytics();
 
     }
 
@@ -88,6 +65,46 @@ const AdminAnalytics = () => {
         try{
 
             const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchMainAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+                console.log(`fetchMainAnalytics Function completed`);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when oneMonth button selected
+    const oneWeekFunction = () => {
+
+        setSelected('oneWeek');
+
+        fetchOneWeekAnaylytics();
+
+    }
+
+    // Function to fetch one week analytics
+    const fetchOneWeekAnaylytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchOneWeekAnalytics`, {
                 headers: {
                     Authorization: `Bearer ${access_token}`
                 }
@@ -111,10 +128,213 @@ const AdminAnalytics = () => {
 
     }
 
+    // Function to run when oneMonth button selected
+    const oneMonthFunction = () => {
+
+        setSelected('oneMonth');
+
+        fetchOneMonthAnaylytics();
+
+    }
+
+    // Function to fetch one week analytics
+    const fetchOneMonthAnaylytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchOneMonthAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when threeMonths button selected
+    const threeMonthsFunction = () => {
+
+        setSelected('threeMonths');
+
+        fetchThreeMonthsAnalytics();
+
+    }
+
+    // Function to fetch one week analytics
+    const fetchThreeMonthsAnalytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchThreeMonthsAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when sixMonths button selected
+    const sixMonthsFunction = () => {
+
+        setSelected('sixMonths');
+
+        fetchSixMonthsAnalytics();
+
+    }
+
+    // Function to fetch one week analytics
+    const fetchSixMonthsAnalytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchSixMonthsAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    // Function to run when oneYear button selected
+    const oneYearFunction = () => {
+
+        setSelected('oneYear');
+
+        fetchOneYearAnalytics();
+
+    }
+
+    // Function to fetch one week analytics
+    const fetchOneYearAnalytics = async () => {
+
+        try{
+
+            const response = await axios.get(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchOneYearAnalytics`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                }
+            });
+
+            if ( response.status === 200 ){
+
+                const responseData = response.data;
+
+                console.log(responseData);
+
+                setMainAnalytics(responseData);
+
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    const [fetchAnalyticsDates, setFetchAnalyticsDates] = useState({
+        startDate: ``,
+        endDate: ``
+    });
+
+    const fetchAnalyticsByDates = async () => {
+
+        if ( fetchAnalyticsDates.startDate !== '' && fetchAnalyticsDates.endDate !== '' && isBefore(fetchAnalyticsDates.startDate, new Date()) && isBefore(fetchAnalyticsDates.endDate, new Date()) && isBefore(fetchAnalyticsDates.startDate, fetchAnalyticsDates.endDate) ){
+        
+            try{
+
+                setSelected('');
+
+                const formData = new FormData();
+
+                formData.append(`startDate`, fetchAnalyticsDates.startDate);
+                formData.append(`endDate`, fetchAnalyticsDates.endDate)
+
+                const response = await axios.post(`${goHospitalsAPIBaseURL}/api/v1/admin/fetchAnalyticsByDates`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`
+                    }
+                });
+
+                if ( response.status === 200 ){
+
+                    const responseData = response.data;
+
+                    console.log(responseData);
+
+                    setMainAnalytics(responseData);
+
+                }
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        } else {
+
+            console.log('Select Correct Date');
+
+        }
+
+    }
+
     // State to store the main analytics data
     const [mainAnalytics, setMainAnalytics] = useState({
         opsCount: ``,
-        onSiteCount: ``,
+        onSiteReviewPatientDressingCount: ``,
+        onSiteVascularInjectionsCount: ``,
+        onSiteQuickTreatmentCount: ``,
+        onSiteCasualityPatientsCount: ``,
         patientAdmitsCount: ``,
         followUpPatientsCount: ``,
         crossConsultationCount: ``,
@@ -157,7 +377,41 @@ const AdminAnalytics = () => {
 
                     if ( messageBody.analyticsModelRefreshType === 'RefreshAdminMainAnalytics' ){
 
-                        fetchMainAnalytics();
+                        if ( selected === 'today' ){
+
+                            fetchMainAnalytics();
+
+                        }
+
+                        if ( selected === 'oneWeek' ){
+
+                            fetchOneWeekAnaylytics();
+
+                        }
+
+                        if ( selected === 'oneMonth' ){
+
+                            fetchOneMonthAnaylytics();
+
+                        }
+
+                        if ( selected === 'threeMonths' ){
+
+                            fetchThreeMonthsAnalytics();
+
+                        }
+
+                        if ( selected === 'sixMonths' ){
+
+                            fetchSixMonthsAnalytics();
+
+                        }
+
+                        if ( selected === 'oneYear' ){
+
+                            fetchOneYearAnalytics();
+
+                        }
 
                     }
 
@@ -205,6 +459,10 @@ const AdminAnalytics = () => {
                         onClick={todayFunction}
                     >Today</div>
                     <div 
+                        className={` ${getButtonStyle('oneWeek')} mr-2 px-2 rounded-md hover:opacity-60 active:opacity-80 cursor-pointer transition-all duration-200`}
+                        onClick={oneWeekFunction}
+                    >1 Week</div>
+                    <div 
                         className={` ${getButtonStyle('oneMonth')} mr-2 px-2 rounded-md hover:opacity-60 active:opacity-80 cursor-pointer transition-all duration-200`}
                         onClick={oneMonthFunction}
                     >1 Month</div>
@@ -230,6 +488,18 @@ const AdminAnalytics = () => {
                             <input 
                                 type='date'
                                 className='text-black rounded-md ml-3 pl-2'
+                                onChange={(e) => {
+
+                                    const value = e.target.value;
+
+                                    const dateValue = new Date(value)
+
+                                    setFetchAnalyticsDates((prevElement) => ({
+                                        ...prevElement,
+                                        startDate: dateValue
+                                    }));
+
+                                }}
                             />
 
                         </div>
@@ -241,12 +511,25 @@ const AdminAnalytics = () => {
                             <input 
                                 type='date'
                                 className='text-black rounded-md ml-3 pl-2'
+                                onChange={(e) => {
+
+                                    const value = e.target.value;
+
+                                    const dateValue = new Date(value)
+
+                                    setFetchAnalyticsDates((prevElement) => ({
+                                        ...prevElement,
+                                        endDate: dateValue
+                                    }));
+
+                                }}
                             />
 
                         </div>
                         
                         <button
                             className='bg-sky-500 rounded-md px-2 py-1 ml-5 hover:opacity-60 active:opacity-80'
+                            onClick={fetchAnalyticsByDates}
                         >Fetch</button>
 
                     </div>
@@ -314,10 +597,10 @@ const AdminAnalytics = () => {
                             <td
                                 className='w-[70px] h-[50px]'
                             >2</td>
-                            <td>Onsite Treatment</td>
-                            <td>{mainAnalytics.onSiteCount !== '' ? (
+                            <td>Onsite Review Patient Dressing </td>
+                            <td>{mainAnalytics.onSiteReviewPatientDressingCount !== '' ? (
 
-                                <span>{mainAnalytics.onSiteCount}</span>
+                                <span>{mainAnalytics.onSiteReviewPatientDressingCount}</span>
 
                             ): (
 
@@ -336,6 +619,72 @@ const AdminAnalytics = () => {
                             <td
                                 className='w-[70px] h-[50px]'
                             >3</td>
+                            <td>Onsite Vascular Injections </td>
+                            <td>{mainAnalytics.onSiteVascularInjectionsCount !== '' ? (
+
+                                <span>{mainAnalytics.onSiteVascularInjectionsCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
+
+                        </tr>
+
+                        <tr
+                            className='border-b-gray-200 border-b-[1px]'
+                        >
+
+                            <td
+                                className='w-[70px] h-[50px]'
+                            >4</td>
+                            <td>Onsite Quicktreatment </td>
+                            <td>{mainAnalytics.onSiteQuickTreatmentCount !== '' ? (
+
+                                <span>{mainAnalytics.onSiteQuickTreatmentCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
+
+                        </tr>
+
+                        <tr
+                            className='border-b-gray-200 border-b-[1px]'
+                        >
+
+                            <td
+                                className='w-[70px] h-[50px]'
+                            >5</td>
+                            <td>Onsite Casuality Patients </td>
+                            <td>{mainAnalytics.onSiteCasualityPatientsCount !== '' ? (
+
+                                <span>{mainAnalytics.onSiteCasualityPatientsCount}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
+
+                        </tr>
+
+                        <tr
+                            className='border-b-gray-200 border-b-[1px]'
+                        >
+
+                            <td
+                                className='w-[70px] h-[50px]'
+                            >6</td>
                             <td>Patient Admits</td>
                             <td>{mainAnalytics.patientAdmitsCount !== '' ? (
 
@@ -357,7 +706,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >4</td>
+                            >7</td>
                             <td>Follow Up Patients</td>
                             <td>{mainAnalytics.followUpPatientsCount !== '' ? (
 
@@ -379,7 +728,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >5</td>
+                            >8</td>
                             <td>Cross Consultations</td>
                             <td>{mainAnalytics.crossConsultationCount !== '' ? (
 
@@ -401,7 +750,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >6</td>
+                            >9</td>
                             <td>Surgeries Completed</td>
                             <td>{mainAnalytics.surgeriesCompletedCount !== '' ? (
 
@@ -423,7 +772,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >7</td>
+                            >10</td>
                             <td>Closed Cases</td>
                             <td>{mainAnalytics.closedCasesCount !== '' ? (
 
@@ -445,7 +794,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >8</td>
+                            >11</td>
                             <td>Patient Drop Outs</td>
                             <td>{mainAnalytics.patientDropOutCount !== '' ? (
 
@@ -473,11 +822,11 @@ const AdminAnalytics = () => {
 
                     <Bar
                         data={{
-                            labels: ['A', 'B', 'C'],
+                            labels: ['Total', 'Expenditure', 'Revenue'],
                             datasets: [
                                 {
-                                    label: "Revenue",
-                                    data: [200, 300, 400],
+                                    label: "Total",
+                                    data: [400, 300, 200],
                                     backgroundColor: [
                                         "rgb(177 125 160)",
                                         "rgb(13 211 255)",
@@ -493,6 +842,24 @@ const AdminAnalytics = () => {
                                     text: 'Revenue Sources',
                                     color: 'white'
                                 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        // Format the tooltip value with 'INR'
+                                        return tooltipItem.formattedValue + ' INR'
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    ticks: {
+                                        callback: function(value) {
+                                            // Append 'INR' to the Y-axis values
+                                            return value + ' INR';
+                                        }
+                                    }
+                                }
                             }
                         }}
                     />                
@@ -504,7 +871,7 @@ const AdminAnalytics = () => {
                     <Doughnut
                         className='w-full h-full'
                         data={{
-                            labels: ['A', 'B', 'C'],
+                            labels: ['Total', 'Expenditure', 'Revenue'],
                             datasets: [
                                 {
                                     label: "Revenue",
@@ -528,7 +895,7 @@ const AdminAnalytics = () => {
                                     text: 'Revenue Sources',
                                     color: 'white'
                                 }
-                            }
+                            },
                         }}
                     />    
 
@@ -543,27 +910,24 @@ const AdminAnalytics = () => {
                         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                         datasets: [
                             {
-                                label: "Revenue",
+                                label: "Total",
                                 data: [65000, 28181, 18183, 19284, 19103, 17264, 29128, 47565, 19384, 29283, 57573, 29101],
-                                backgroundColor: [
-                                    "rgb(177 125 160)",
-                                    "rgb(13 211 255)",
-                                    "orange"
-                                ],
+                                borderColor: [
+                                    "red",
+                                ]
+                            },
+                            {
+                                label: "Expenditure",
+                                data: [28191, 37282, 85948, 14253, 96969, 47382, 58593, 27283, 59693, 61527, 48382, 19282],
                                 borderColor: [
                                     "rgb(13 211 255)",
                                 ]
                             },
                             {
-                                label: "Cost",
-                                data: [28191, 37282, 85948, 14253, 96969, 47382, 58593, 27283, 59693, 61527, 48382, 19282],
-                                backgroundColor: [
-                                    "rgb(177 125 160)",
-                                    "rgb(13 211 255)",
-                                    "orange"
-                                ],
+                                label: "Revenue",
+                                data: [22812, 17181, 37281, 11128, 36271, 24133, 27192, 19282, 29192, 38291, 38291, 12321],
                                 borderColor: [
-                                    "red",
+                                    "green",
                                 ]
                             },
                         ],
@@ -578,6 +942,16 @@ const AdminAnalytics = () => {
                             title: {
                                 text: 'Revenue Sources Per Annually',
                                 color: 'white',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: function(value) {
+                                        // Append 'INR' to the Y-axis values
+                                        return value + ' INR';
+                                    }
+                                }
                             }
                         }
                     }}

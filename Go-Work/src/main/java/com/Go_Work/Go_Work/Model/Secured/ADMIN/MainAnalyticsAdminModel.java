@@ -12,7 +12,10 @@ import lombok.NoArgsConstructor;
 public class MainAnalyticsAdminModel {
 
     private long opsCount;
-    private long onSiteCount;
+    private long onSiteReviewPatientDressingCount;
+    private long onSiteVascularInjectionsCount;
+    private long onSiteQuickTreatmentCount;
+    private long onSiteCasualityPatientsCount;
     private long patientAdmitsCount;
     private long followUpPatientsCount;
     private long crossConsultationCount;

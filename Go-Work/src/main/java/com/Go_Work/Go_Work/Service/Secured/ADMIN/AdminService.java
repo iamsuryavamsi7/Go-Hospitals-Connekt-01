@@ -12,17 +12,16 @@ import com.Go_Work.Go_Work.Repo.*;
 import com.Go_Work.Go_Work.Service.Email.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -390,110 +389,752 @@ public class AdminService {
 
     }
 
+    @Transactional
     public MainAnalyticsAdminModel fetchMainAnalytics() {
 
-        LocalDate todayDate = LocalDate.now();
+        Date todayDate = new Date();
 
-        // code to find the count of patient admits
-        long patientAdmitsCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        Calendar calendarStartTime = Calendar.getInstance();
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        calendarStartTime.setTime(todayDate);
+        calendarStartTime.set(Calendar.HOUR_OF_DAY, 0);
+        calendarStartTime.set(Calendar.MINUTE, 0);
+        calendarStartTime.set(Calendar.SECOND, 0);
+        calendarStartTime.set(Calendar.MILLISECOND, 0);
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTADMIT);
+        Date startOfDate = calendarStartTime.getTime();
 
-                })
-                .count();
+        Calendar calendarEndTime = Calendar.getInstance();
 
-        // code to find the count of follow up completed
-        long followUpPatientsCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        calendarStartTime.setTime(todayDate);
+        calendarStartTime.set(Calendar.HOUR_OF_DAY, 23);
+        calendarStartTime.set(Calendar.MINUTE, 59);
+        calendarStartTime.set(Calendar.SECOND, 59);
+        calendarStartTime.set(Calendar.MILLISECOND, 999);
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        Date endOfDate = calendarEndTime.getTime();
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED);
+        // code to find the count of patient admits today
+//        long patientAdmitsCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTADMIT);
+//
+//                })
+//                .count();
 
-                })
-                .count();
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.PATIENTADMIT, startOfDate, endOfDate);
 
-        // code to find the count of cross consultations
-        long crossConsultationsCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        // code to find the count of follow up completed today
+//        long followUpPatientsCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.FOLLOWUPCOMPLETED);
+//
+//                })
+//                .count();
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        long followUpPatientsCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.FOLLOWUPCOMPLETED, startOfDate, endOfDate);
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CROSSCONSULTATION);
+        // code to find the count of cross consultations today
+//        long crossConsultationsCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CROSSCONSULTATION);
+//
+//                })
+//                .count();
 
-                })
-                .count();
+        long crossConsultationsCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.CROSSCONSULTATION, startOfDate, endOfDate);
 
-        // code to find the count of completed surgeries
-        long completedSurgeriesCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        // code to find the count of completed surgeries today
+//        long completedSurgeriesCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    Applications fetchedApplication = consultationTypesData.getApplications();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.SURGERYCARE) && fetchedApplication.getSurgeryCompleted().equals(true);
+//
+//                })
+//                .count();
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeries(todayDate);
 
-                    Applications fetchedApplication = consultationTypesData.getApplications();
+        // code to find the count of closed cases today
+//        long closedCasesCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CASECLOSED);
+//
+//                })
+//                .count();
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.SURGERYCARE) && fetchedApplication.getSurgeryCompleted().equals(true);
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.CASECLOSED, startOfDate, endOfDate);
 
-                })
-                .count();
+        // code to find the count of patient dropouts today
+//        long patientDropOutCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTDROPOUT);
+//
+//                })
+//                .count();
 
-        // code to find the count of completed surgeries
-        long closedCasesCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.PATIENTDROPOUT, startOfDate, endOfDate);
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        // code to find the count of onsite review patient dressing today
+//        long onSiteReviewPatientDressingCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.ONSITREVIEWPATIENTDRESSING);
+//
+//                })
+//                .count();
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.CASECLOSED);
+        long onSiteReviewPatientDressingCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.ONSITREVIEWPATIENTDRESSING, startOfDate, endOfDate);
 
-                })
-                .count();
+        // code to find the count of onsite vascular injections today
+//        long onSiteVascularInjectionsCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.ONSITEVASCULARINJECTIONS);
+//
+//                })
+//                .count();
 
-        // code to find the count of completed surgeries
-        long patientDropOutCount = consultationTypesDataRepo.findAll().stream()
-                .filter(consultationTypesData -> {
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.ONSITEVASCULARINJECTIONS, startOfDate, endOfDate);
 
-                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        // code to find the count of onsite vascular injections today
+//        long onSiteQuickTreatmentCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.ONSITEQUICKTREATMENT);
+//
+//                })
+//                .count();
 
-                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.PATIENTDROPOUT);
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.ONSITEQUICKTREATMENT, startOfDate, endOfDate);
 
-                })
-                .count();
+        // code to find the count of onsite vascular injections today
+//        long onSiteCasualityPatientsCount = consultationTypesDataRepo.findAll().stream()
+//                .filter(consultationTypesData -> {
+//
+//                    LocalDate localDate = consultationTypesData.getTimeStamp().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate) && consultationTypesData.getConsultationType().equals(ConsultationType.ONSITECASCUALITYPATIENT);
+//
+//                })
+//                .count();
 
-        long opsCount = applicationsRepo.findAll().stream()
-                .filter(application -> {
+        long onSiteCasualityPatientsCount = consultationTypesDataRepo.countByConsultationTypeForDate(ConsultationType.ONSITECASCUALITYPATIENT, startOfDate, endOfDate);
 
-                    LocalDate localDate = application.getAppointmentCreatedOn().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
+        // code to find the count of ops booked today
+//        long opsCount = applicationsRepo.findAll().stream()
+//                .filter(application -> {
+//
+//                    LocalDate localDate = application.getAppointmentCreatedOn().toInstant()
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDate();
+//
+//                    return localDate.equals(todayDate);
+//
+//                })
+//                .count();
 
-                    return localDate.equals(todayDate);
-
-                })
-                .count();
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(startOfDate, endOfDate);
 
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteQuickTreatmentCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientsCount)
                 .patientDropOutCount(patientDropOutCount)
                 .closedCasesCount(closedCasesCount)
                 .surgeriesCompletedCount(completedSurgeriesCount)
                 .crossConsultationCount(crossConsultationsCount)
                 .followUpPatientsCount(followUpPatientsCount)
                 .patientAdmitsCount(patientAdmitsCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchOneWeekAnalytics() {
+
+        Date oneWeekBeforeDate = Date.from(LocalDate.now().minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Calendar endOfToday = Calendar.getInstance();
+
+        endOfToday.setTime(todayDate);
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        Date endOfTodayWithTime = endOfToday.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneWeekBeforeDate, endOfTodayWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneWeekBeforeDate, endOfTodayWithTime);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchOneMonthAnalytics() {
+
+        Date oneMonthBeforeDate = Date.from(LocalDate.now().minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Calendar endOfToday = Calendar.getInstance();
+
+        endOfToday.setTime(todayDate);
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        Date endOfTodayWithTime = endOfToday.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneMonthBeforeDate, endOfTodayWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneMonthBeforeDate, todayDate);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchThreeMonthsAnalytics() {
+
+        Date oneMonthBeforeDate = Date.from(LocalDate.now().minusMonths(3).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Calendar endOfToday = Calendar.getInstance();
+
+        endOfToday.setTime(todayDate);
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        Date endOfTodayWithTime = endOfToday.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneMonthBeforeDate, endOfTodayWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneMonthBeforeDate, todayDate);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchSixMonthsAnalytics() {
+
+        Date oneMonthBeforeDate = Date.from(LocalDate.now().minusMonths(6).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Calendar endOfToday = Calendar.getInstance();
+
+        endOfToday.setTime(todayDate);
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        Date endOfTodayWithTime = endOfToday.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneMonthBeforeDate, endOfTodayWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneMonthBeforeDate, todayDate);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchOneYearAnalytics() {
+
+        Date oneMonthBeforeDate = Date.from(LocalDate.now().minusYears(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Calendar endOfToday = Calendar.getInstance();
+
+        endOfToday.setTime(todayDate);
+        endOfToday.set(Calendar.HOUR_OF_DAY, 23);
+        endOfToday.set(Calendar.MINUTE, 59);
+        endOfToday.set(Calendar.SECOND, 59);
+        endOfToday.set(Calendar.MILLISECOND, 999);
+
+        Date endOfTodayWithTime = endOfToday.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneMonthBeforeDate, endOfTodayWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneMonthBeforeDate, todayDate);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
+                .build();
+
+    }
+
+    @Transactional
+    public MainAnalyticsAdminModel fetchAnalyticsByDates(Date startDate, Date endDate) {
+
+        Calendar endOfDate = Calendar.getInstance();
+
+        endOfDate.setTime(endDate);
+        endOfDate.set(Calendar.HOUR_OF_DAY, 23);
+        endOfDate.set(Calendar.MINUTE, 59);
+        endOfDate.set(Calendar.SECOND, 59);
+        endOfDate.set(Calendar.MILLISECOND, 999);
+
+        Date endOfDateWithTime = endOfDate.getTime();
+
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(startDate, endOfDateWithTime);
+
+        long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTADMIT,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITREVIEWPATIENTDRESSING,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITEVASCULARINJECTIONS,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.ONSITECASCUALITYPATIENT,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.FOLLOWUPCOMPLETED,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CROSSCONSULTATION,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(startDate, endOfDateWithTime);
+
+        long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.CASECLOSED,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.PATIENTDROPOUT,
+                startDate,
+                endOfDateWithTime
+        );
+
+        return MainAnalyticsAdminModel.builder()
+                .opsCount(opsCount)
+                .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
+                .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
+                .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
+                .onSiteCasualityPatientsCount(onSiteCasualityPatientCount)
+                .patientAdmitsCount(patientAdmitsCount)
+                .followUpPatientsCount(followUpCompletedCount)
+                .crossConsultationCount(crossConsultationCount)
+                .surgeriesCompletedCount(completedSurgeriesCount)
+                .closedCasesCount(closedCasesCount)
+                .patientDropOutCount(patientDropOutCount)
                 .build();
 
     }
