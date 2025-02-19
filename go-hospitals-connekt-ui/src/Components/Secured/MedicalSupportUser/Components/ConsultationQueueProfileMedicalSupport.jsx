@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 const ConsultationQueueProfileMedicalSupport = () => {
 
@@ -171,6 +173,12 @@ const ConsultationQueueProfileMedicalSupport = () => {
                     position: 'top-right'
                 });
 
+                const webSocketAnalyticsPageModel = {
+                    analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                }
+
+                stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
+
                 setTimeout(() => {
 
                     navigate('/medical-support-current-job');
@@ -202,6 +210,44 @@ const ConsultationQueueProfileMedicalSupport = () => {
         }
 
     }, [id]);
+
+    // State to store stompClient
+    const [stompClient, setStompClient] = useState(null);
+
+    // Connect to websockets when the component mounts with useEffect hook
+    useEffect(() => {
+
+        const sock = new SockJS(`${goHospitalsAPIBaseURL}/go-hospitals-websocket`);
+        const client = Stomp.over(() => sock);
+
+        setStompClient(client);
+
+        client.connect(
+            {},
+            () => {
+
+                console.log(`Connection was successfull`);
+        
+            },
+            () => {
+
+                console.error(error);
+        
+            }
+        );
+
+        // Disconnect on page unmount
+        return () => {
+
+            if ( client ){
+
+                client.disconnect();
+
+            }
+
+        }
+
+    }, []);
 
     return (
 

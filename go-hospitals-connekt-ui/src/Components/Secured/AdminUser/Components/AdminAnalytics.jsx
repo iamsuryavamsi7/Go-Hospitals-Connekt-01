@@ -331,6 +331,8 @@ const AdminAnalytics = () => {
     // State to store the main analytics data
     const [mainAnalytics, setMainAnalytics] = useState({
         opsCount: ``,
+        waitingForDMOCare: ``,
+        waitingForDoctorConsultation: ``,
         onSiteReviewPatientDressingCount: ``,
         onSiteVascularInjectionsCount: ``,
         onSiteQuickTreatmentCount: ``,
@@ -597,6 +599,50 @@ const AdminAnalytics = () => {
                             <td
                                 className='w-[70px] h-[50px]'
                             >2</td>
+                            <td>Waiting for DMO Care </td>
+                            <td>{mainAnalytics.waitingForDMOCare !== '' ? (
+
+                                <span>{mainAnalytics.waitingForDMOCare}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
+
+                        </tr>
+
+                        <tr
+                            className='border-b-gray-200 border-b-[1px]'
+                        >
+
+                            <td
+                                className='w-[70px] h-[50px]'
+                            >3</td>
+                            <td>Waiting for Doctor Consultation </td>
+                            <td>{mainAnalytics.waitingForDoctorConsultation !== '' ? (
+
+                                <span>{mainAnalytics.waitingForDoctorConsultation}</span>
+
+                            ): (
+
+                                <AiOutlineLoading3Quarters 
+                                    className = 'animate-spin'
+                                />
+
+                            )}</td>
+
+                        </tr>
+
+                        <tr
+                            className='border-b-gray-200 border-b-[1px]'
+                        >
+
+                            <td
+                                className='w-[70px] h-[50px]'
+                            >4</td>
                             <td>Onsite Review Patient Dressing </td>
                             <td>{mainAnalytics.onSiteReviewPatientDressingCount !== '' ? (
 
@@ -618,7 +664,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >3</td>
+                            >5</td>
                             <td>Onsite Vascular Injections </td>
                             <td>{mainAnalytics.onSiteVascularInjectionsCount !== '' ? (
 
@@ -640,7 +686,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >4</td>
+                            >6</td>
                             <td>Onsite Quicktreatment </td>
                             <td>{mainAnalytics.onSiteQuickTreatmentCount !== '' ? (
 
@@ -662,7 +708,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >5</td>
+                            >7</td>
                             <td>Onsite Casuality Patients </td>
                             <td>{mainAnalytics.onSiteCasualityPatientsCount !== '' ? (
 
@@ -684,7 +730,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >6</td>
+                            >8</td>
                             <td>Patient Admits</td>
                             <td>{mainAnalytics.patientAdmitsCount !== '' ? (
 
@@ -706,7 +752,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >7</td>
+                            >9</td>
                             <td>Follow Up Patients</td>
                             <td>{mainAnalytics.followUpPatientsCount !== '' ? (
 
@@ -728,7 +774,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >8</td>
+                            >10</td>
                             <td>Cross Consultations</td>
                             <td>{mainAnalytics.crossConsultationCount !== '' ? (
 
@@ -750,7 +796,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >9</td>
+                            >11</td>
                             <td>Surgeries Completed</td>
                             <td>{mainAnalytics.surgeriesCompletedCount !== '' ? (
 
@@ -772,7 +818,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >10</td>
+                            >12</td>
                             <td>Closed Cases</td>
                             <td>{mainAnalytics.closedCasesCount !== '' ? (
 
@@ -794,7 +840,7 @@ const AdminAnalytics = () => {
 
                             <td
                                 className='w-[70px] h-[50px]'
-                            >11</td>
+                            >13</td>
                             <td>Patient Drop Outs</td>
                             <td>{mainAnalytics.patientDropOutCount !== '' ? (
 

@@ -97,7 +97,7 @@ public class MedicalSupportService {
 
                 if ( fetchedMedicalSupportUserDetails != null ){
 
-                    user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getFirstName() + " " + fetchedMedicalSupportUserDetails.getLastName());
+                    user1.setMedicalSupportUserName(fetchedMedicalSupportUserDetails.getUsername());
 
                 } else {
 
@@ -1362,6 +1362,17 @@ public class MedicalSupportService {
                                 .orElse(null);
 
                         application.setBillNo(fetchedBills.getBillNo());
+
+                    }
+
+                    if ( fetchedApplication.getConsultationTypesData() != null && !fetchedApplication.getConsultationTypesData().isEmpty() ){
+
+                        ConsultationType consultationType = fetchedApplication.getConsultationTypesData().stream()
+                                .max(Comparator.comparing(ConsultationTypesData::getTimeStamp))
+                                .map(ConsultationTypesData::getConsultationType)
+                                .orElse(null);
+
+                        application.setConsultationType(consultationType);
 
                     }
 

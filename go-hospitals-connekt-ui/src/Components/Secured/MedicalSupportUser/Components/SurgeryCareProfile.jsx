@@ -201,6 +201,16 @@ const SurgeryCareProfile = () => {
                         setCaseCloseButtonActivated(false);
     
                         fetchAppointmentData();
+
+                        if( stompClient !== null ){
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
+
+                        }
     
                     }
     
@@ -255,6 +265,12 @@ const SurgeryCareProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
 
                         }
 
@@ -440,6 +456,12 @@ const SurgeryCareProfile = () => {
                     }
         
                     stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                    const webSocketAnalyticsPageModel = {
+                        analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                    }
+    
+                    stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
     
                 }
 

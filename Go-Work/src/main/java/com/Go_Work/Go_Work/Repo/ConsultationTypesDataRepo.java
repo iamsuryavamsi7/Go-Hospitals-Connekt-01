@@ -10,14 +10,14 @@ import java.util.Date;
 
 public interface ConsultationTypesDataRepo extends JpaRepository<ConsultationTypesData, Long> {
 
-    @Query("SELECT COUNT(*) FROM ConsultationTypesData c WHERE c.consultationType = :type AND c.timeStamp BETWEEN :startDate AND :endDate")
+    @Query("SELECT COUNT(c) FROM ConsultationTypesData c WHERE c.consultationType = :type AND c.timeStamp BETWEEN :startDate AND :endDate")
     long countByConsultationTypeAndDateRange(
             @Param("type") ConsultationType type,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate
     );
 
-    @Query("SELECT COUNT(*) FROM ConsultationTypesData c WHERE c.consultationType = :type AND c.timeStamp BETWEEN :startDate AND :endDate")
+    @Query("SELECT COUNT(c) FROM ConsultationTypesData c WHERE c.consultationType = :type AND c.timeStamp BETWEEN :startDate AND :endDate")
     long countByConsultationTypeForDate(ConsultationType type, Date startDate, Date endDate);
 
 }

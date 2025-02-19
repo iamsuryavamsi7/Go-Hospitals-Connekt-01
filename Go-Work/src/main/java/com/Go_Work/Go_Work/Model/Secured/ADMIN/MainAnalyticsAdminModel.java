@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class MainAnalyticsAdminModel {
 
     private long opsCount;
+    private long waitingForDMOCare;
+    private long waitingForDoctorConsultation;
     private long onSiteReviewPatientDressingCount;
     private long onSiteVascularInjectionsCount;
     private long onSiteQuickTreatmentCount;

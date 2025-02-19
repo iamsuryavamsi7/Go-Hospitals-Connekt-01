@@ -418,6 +418,12 @@ const MedicalPlusFollowUpProfile = () => {
                                     }
                         
                                     stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                                    const webSocketAnalyticsPageModel = {
+                                        analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                                    }
+                    
+                                    stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
                     
                                 }
                                         
@@ -484,6 +490,16 @@ const MedicalPlusFollowUpProfile = () => {
                         setCaseCloseButtonActivated(false);
     
                         fetchAppointmentData();
+
+                        if ( stompClient !== null ){
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
+
+                        }
     
                     }
     
@@ -538,6 +554,12 @@ const MedicalPlusFollowUpProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
 
                         }
 

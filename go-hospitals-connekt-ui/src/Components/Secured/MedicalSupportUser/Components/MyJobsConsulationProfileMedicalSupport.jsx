@@ -328,6 +328,16 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                     
                 }, 1000);
 
+                if ( stompClient !== null ){
+
+                    const webSocketAnalyticsPageModel = {
+                        analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                    }
+
+                    stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
+
+                }
+
             }
 
         }catch(error){
@@ -374,6 +384,12 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
 
                         }
 
@@ -431,6 +447,16 @@ const MyJobsConsulationProfileMedicalSupport = () => {
                 if ( responseData ){
 
                     fetchAppointmentData();
+
+                    if ( stompClient !== null ){
+
+                        const webSocketAnalyticsPageModel = {
+                            analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                        }
+        
+                        stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
+
+                    }
 
                 }else {
 

@@ -581,8 +581,22 @@ public class AdminService {
 
         long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(startOfDate, endOfDate);
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                startOfDate,
+                endOfDate
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                startOfDate,
+                endOfDate
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteQuickTreatmentCount(onSiteQuickTreatmentCount)
@@ -672,8 +686,22 @@ public class AdminService {
                 endOfTodayWithTime
         );
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                oneWeekBeforeDate,
+                endOfTodayWithTime
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
@@ -763,8 +791,22 @@ public class AdminService {
                 endOfTodayWithTime
         );
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
@@ -854,8 +896,22 @@ public class AdminService {
                 endOfTodayWithTime
         );
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
@@ -945,8 +1001,22 @@ public class AdminService {
                 endOfTodayWithTime
         );
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                oneMonthBeforeDate,
+                endOfTodayWithTime
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
@@ -964,7 +1034,7 @@ public class AdminService {
     @Transactional
     public MainAnalyticsAdminModel fetchOneYearAnalytics() {
 
-        Date oneMonthBeforeDate = Date.from(LocalDate.now().minusYears(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date oneYearBeforeDate = Date.from(LocalDate.now().minusYears(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Date todayDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
@@ -978,66 +1048,80 @@ public class AdminService {
 
         Date endOfTodayWithTime = endOfToday.getTime();
 
-        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneMonthBeforeDate, endOfTodayWithTime);
+        long opsCount = applicationsRepo.countByApplicationBookedForSelectedDate(oneYearBeforeDate, endOfTodayWithTime);
 
         long patientAdmitsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.PATIENTADMIT,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long onSiteReviewPatientDressingsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.ONSITREVIEWPATIENTDRESSING,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long onSiteVascularInjectionsCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.ONSITEVASCULARINJECTIONS,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long onSiteQuickTreatmentCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.ONSITEVASCULARINJECTIONS,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long onSiteCasualityPatientCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.ONSITECASCUALITYPATIENT,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long followUpCompletedCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.FOLLOWUPCOMPLETED,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long crossConsultationCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.CROSSCONSULTATION,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
-        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneMonthBeforeDate, todayDate);
+        long completedSurgeriesCount = applicationsRepo.countByCompletedSurgeriesWithDateRange(oneYearBeforeDate, todayDate);
 
         long closedCasesCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.CASECLOSED,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         long patientDropOutCount = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
                 ConsultationType.PATIENTDROPOUT,
-                oneMonthBeforeDate,
+                oneYearBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                oneYearBeforeDate,
+                endOfTodayWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                oneYearBeforeDate,
                 endOfTodayWithTime
         );
 
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)
@@ -1123,8 +1207,22 @@ public class AdminService {
                 endOfDateWithTime
         );
 
+        long waitingForDMOCare = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.WAITING,
+                startDate,
+                endOfDateWithTime
+        );
+
+        long waitingForDoctorConsultation = consultationTypesDataRepo.countByConsultationTypeAndDateRange(
+                ConsultationType.DMOCARECOMPLETED,
+                startDate,
+                endOfDateWithTime
+        );
+
         return MainAnalyticsAdminModel.builder()
                 .opsCount(opsCount)
+                .waitingForDMOCare(waitingForDMOCare)
+                .waitingForDoctorConsultation(waitingForDoctorConsultation)
                 .onSiteReviewPatientDressingCount(onSiteReviewPatientDressingsCount)
                 .onSiteVascularInjectionsCount(onSiteVascularInjectionsCount)
                 .onSiteCasualityPatientsCount(onSiteQuickTreatmentCount)

@@ -236,7 +236,7 @@ const NewPatientOnBoardFrontDesk = () => {
                                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(webSocketNotificationTypeModel));
 
                                             const webSocketAnalyticsPageModel = {
-                                                analyticsModelRefreshType: `RefreshAdminMainAnalytics`
+                                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
                                             }
 
                                             stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));

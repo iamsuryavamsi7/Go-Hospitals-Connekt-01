@@ -212,6 +212,12 @@ const OnSiteTreatmentProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
             
                         }
 
@@ -262,6 +268,12 @@ const OnSiteTreatmentProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel))
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
             
                         }
 
@@ -419,6 +431,12 @@ const OnSiteTreatmentProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
             
                         }
     
@@ -521,6 +539,12 @@ const OnSiteTreatmentProfile = () => {
                             }
                 
                             stompClient.send(`/app/commonWebSocket`, {}, JSON.stringify(notificationTypeModel));
+
+                            const webSocketAnalyticsPageModel = {
+                                analyticsModelRefreshType: `RefreshAdminMainAnalytics` 
+                            }
+            
+                            stompClient.send(`/app/adminAnalytics`, {}, JSON.stringify(webSocketAnalyticsPageModel));
 
                         }
 
